@@ -14,14 +14,14 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with XBMC; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
- *  MA 02110-1301  USA
+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
 
 #include "tools.h"
 
+#ifndef TARGET_WINDOWS
 #define TYP_INIT 0
 #define TYP_SMLE 1
 #define TYP_BIGE 2
@@ -56,4 +56,5 @@ uint64_t htonll(uint64_t a) {
   c = x.c[3]; x.c[3] = x.c[4]; x.c[4] = c;
   return x.ull;
 }
+#endif
 #endif

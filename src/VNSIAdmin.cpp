@@ -26,7 +26,11 @@
 #include <stdio.h>
 
 #if defined(HAVE_GL)
+#if defined(__APPLE__)
+#include <OpenGL/gl.h>
+#else  // !defined(__APPLE__)
 #include <GL/gl.h>
+#endif  // !defined(__APPLE__)
 #undef HAVE_GLES2
 #elif defined(HAS_DX)
 #include "D3D9.h"
@@ -84,7 +88,7 @@ const char *vert = "attribute vec4 m_attrpos;\n"
                    "}\n";
 
 CVisGUIShader *vis_shader = NULL;
-#endif
+#endif  // defined(HAVE_GLES2)
 
 #if !defined(GL_UNPACK_ROW_LENGTH)
 #undef HAVE_GLES2
