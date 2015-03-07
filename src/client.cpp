@@ -54,7 +54,7 @@ std::string   g_szIconPath              = "";
 
 CHelper_libXBMC_addon *XBMC   = NULL;
 CHelper_libXBMC_codec *CODEC  = NULL;
-CHelper_libXBMC_gui   *GUI    = NULL;
+CHelper_libKODI_guilib *GUI    = NULL;
 CHelper_libXBMC_pvr   *PVR    = NULL;
 
 cVNSIDemux      *VNSIDemuxer       = NULL;
@@ -79,7 +79,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
     return ADDON_STATUS_PERMANENT_FAILURE;
   }
 
-  GUI = new CHelper_libXBMC_gui;
+  GUI = new CHelper_libKODI_guilib;
   if (!GUI->RegisterMe(hdl))
   {
     SAFE_DELETE(GUI);
@@ -381,13 +381,13 @@ const char* GetMininumPVRAPIVersion(void)
 
 const char* GetGUIAPIVersion(void)
 {
-  static const char *strGuiApiVersion = XBMC_GUI_API_VERSION;
+  static const char *strGuiApiVersion = KODI_GUILIB_API_VERSION;
   return strGuiApiVersion;
 }
 
 const char* GetMininumGUIAPIVersion(void)
 {
-  static const char *strMinGuiApiVersion = XBMC_GUI_MIN_API_VERSION;
+  static const char *strMinGuiApiVersion = KODI_GUILIB_MIN_API_VERSION;
   return strMinGuiApiVersion;
 }
 

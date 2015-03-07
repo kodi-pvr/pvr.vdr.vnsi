@@ -856,7 +856,7 @@ bool cVNSIAdmin::Open(const std::string& hostname, int port, const char* name)
   ClearListItems();
   m_window->ClearProperties();
 
-#if defined(XBMC_GUI_API_VERSION)
+#if defined(KODI_GUILIB_API_VERSION)
   GUI->Control_releaseRendering(m_renderControl);
 #endif
 
@@ -1005,7 +1005,7 @@ bool cVNSIAdmin::OnClick(int controlId)
 
 bool cVNSIAdmin::OnFocus(int controlId)
 {
-#if defined(XBMC_GUI_API_VERSION)
+#if defined(KODI_GUILIB_API_VERSION)
   if (controlId == CONTROL_OSD_BUTTON)
   {
     m_window->SetControlLabel(CONTROL_OSD_BUTTON, XBMC->GetLocalizedString(30102));
@@ -1026,7 +1026,7 @@ bool cVNSIAdmin::OnFocus(int controlId)
 
 bool cVNSIAdmin::OnInit()
 {
-#if defined(XBMC_GUI_API_VERSION)
+#if defined(KODI_GUILIB_API_VERSION)
   m_renderControl = GUI->Control_getRendering(m_window, CONTROL_RENDER_ADDON);
   m_renderControl->m_cbhdl   = this;
   m_renderControl->CBCreate = CreateCB;
@@ -1134,7 +1134,7 @@ bool cVNSIAdmin::OnAction(int actionId)
   {
     m_bIsOsdControl = false;
     m_window->SetControlLabel(CONTROL_OSD_BUTTON, XBMC->GetLocalizedString(30103));
-#if defined(XBMC_GUI_API_VERSION)
+#if defined(KODI_GUILIB_API_VERSION)
     m_window->MarkDirtyRegion();
 #endif
   }
@@ -1176,7 +1176,7 @@ bool cVNSIAdmin::OnAction(int actionId)
       //if (strncmp(m_window->GetProperty("menu"), "osd", 3) == 0)
       if (strncmp(tmp, "osd", 3) == 0)
       {
-#if defined(XBMC_GUI_API_VERSION)
+#if defined(KODI_GUILIB_API_VERSION)
         m_window->MarkDirtyRegion();
 #endif
       }
