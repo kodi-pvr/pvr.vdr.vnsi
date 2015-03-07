@@ -73,7 +73,7 @@ protected:
 private:
 
   CAddonGUIWindow *m_window;
-#if defined(XBMC_GUI_API_VERSION)
+#if defined(KODI_GUILIB_API_VERSION)
   CAddonGUIRenderingControl *m_renderControl;
 #endif
   CAddonGUISpinControl *m_spinTimeshiftMode;
