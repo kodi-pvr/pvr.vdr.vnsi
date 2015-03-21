@@ -336,6 +336,12 @@ bool cVNSIData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel
     tag.strTitle            = vresp->extract_String();
     tag.strPlotOutline      = vresp->extract_String();
     tag.strPlot             = vresp->extract_String();
+    tag.strOriginalTitle    = "";
+    tag.strCast             = "";
+    tag.strDirector         = "";
+    tag.strWriter           = "";
+    tag.iYear               = 0;
+    tag.strIMDBNumber       = "";
 
     PVR->TransferEpgEntry(handle, &tag);
     delete[] tag.strTitle;
@@ -1161,6 +1167,7 @@ bool cVNSIData::GetChannelGroupList(ADDON_HANDLE handle, bool bRadio)
     char *strGroupName = vresp->extract_String();
     strncpy(tag.strGroupName, strGroupName, sizeof(tag.strGroupName) - 1);
     tag.bIsRadio = vresp->extract_U8()!=0?true:false;
+    tag.iPosition = 0;
 
     PVR->TransferChannelGroup(handle, &tag);
 
