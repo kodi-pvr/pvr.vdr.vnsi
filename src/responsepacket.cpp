@@ -96,6 +96,15 @@ void cResponsePacket::setOSD(uint8_t* tuserData, uint32_t tuserDataLength)
   packetPos       = 0;
 }
 
+void cResponsePacket::setScan(uint8_t* tuserData, uint32_t tuserDataLength)
+{
+  channelID       = VNSI_CHANNEL_SCAN;
+  // set pointer to user data
+  userData        = tuserData;
+  userDataLength  = tuserDataLength;
+  packetPos       = 0;
+}
+
 void cResponsePacket::extractHeader()
 {
   // set data pointers to header first

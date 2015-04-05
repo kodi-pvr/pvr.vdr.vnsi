@@ -33,6 +33,7 @@ class cResponsePacket
     void setStatus(uint8_t* packet, uint32_t packetLength);
     void setStream(uint8_t* packet, uint32_t packetLength);
     void setOSD(uint8_t* packet, uint32_t packetLength);
+    void setScan(uint8_t* packet, uint32_t packetLength);
 
     void extractHeader();
     void extractStreamHeader();

@@ -50,7 +50,7 @@
       <control type="label" id ="8">
         <description>header label</description>
         <posx>300</posx>
-        <posy>20</posy>
+        <posy>25</posy>
         <width>740</width>
         <height>30</height>
         <font>font16caps</font>
@@ -74,7 +74,7 @@
         <texturenofocus border="5">MenuItemNF.png</texturenofocus>
         <texturefocus border="5">MenuItemFO.png</texturefocus>
         <onleft>2</onleft>
-        <onright>10</onright>
+        <onright>20</onright>
         <onup>6</onup>
         <ondown>6</ondown>
       </control>
@@ -91,15 +91,15 @@
         <aligny>center</aligny>
         <texturenofocus border="5">MenuItemNF.png</texturenofocus>
         <texturefocus border="5">MenuItemFO.png</texturefocus>
-        <onleft>10</onleft>
-        <onright>10</onright>
+        <onleft>20</onleft>
+        <onright>20</onright>
         <onup>5</onup>
         <ondown>5</ondown>
         <visible>IsEmpty(Window.Property(Scanning))</visible>
       </control>
       <control type="group">
         <visible>IsEmpty(Window.Property(Scanning))</visible>
-        <control type="spincontrolex" id="10">
+        <control type="spincontrolex" id="20">
           <description>Source Type</description>
           <posx>268</posx>
           <posy>80</posy>
@@ -114,10 +114,10 @@
           <label>$ADDON[pvr.vdr.vnsi 30011]</label>
           <onright>5</onright>
           <onleft>5</onleft>
-          <onup>22</onup>
-          <ondown>11</ondown>
+          <onup>32</onup>
+          <ondown>21</ondown>
         </control>
-        <control type="radiobutton" id="11">
+        <control type="radiobutton" id="21">
           <description>Default RadioButton</description>
           <posx>268</posx>
           <posy>120</posy>
@@ -131,11 +131,11 @@
           <label>$ADDON[pvr.vdr.vnsi 30012]</label>
           <onright>5</onright>
           <onleft>5</onleft>
-          <onup>10</onup>
-          <ondown>12</ondown>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(10)">Conditional</animation>
+          <onup>20</onup>
+          <ondown>22</ondown>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(20)">Conditional</animation>
         </control>
-        <control type="radiobutton" id="12">
+        <control type="radiobutton" id="22">
           <description>Default RadioButton</description>
           <posx>268</posx>
           <posy>160</posy>
@@ -149,12 +149,12 @@
           <label>$ADDON[pvr.vdr.vnsi 30013]</label>
           <onright>5</onright>
           <onleft>5</onleft>
-          <onup>11</onup>
-          <ondown>13</ondown>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(10)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(11)">Conditional</animation>
+          <onup>21</onup>
+          <ondown>23</ondown>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(20)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(21)">Conditional</animation>
         </control>
-        <control type="radiobutton" id="13">
+        <control type="radiobutton" id="23">
           <description>Default RadioButton</description>
           <posx>268</posx>
           <posy>200</posy>
@@ -168,13 +168,13 @@
           <label>$ADDON[pvr.vdr.vnsi 30014]</label>
           <onright>5</onright>
           <onleft>5</onleft>
-          <onup>12</onup>
-          <ondown>14</ondown>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(10)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(11)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(12)">Conditional</animation>
+          <onup>22</onup>
+          <ondown>24</ondown>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(20)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(21)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(22)">Conditional</animation>
         </control>
-        <control type="radiobutton" id="14">
+        <control type="radiobutton" id="24">
           <description>Default RadioButton</description>
           <posx>268</posx>
           <posy>240</posy>
@@ -188,14 +188,14 @@
           <label>$ADDON[pvr.vdr.vnsi 30015]</label>
           <onright>5</onright>
           <onleft>5</onleft>
-          <onup>13</onup>
-          <ondown>15</ondown>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(10)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(11)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(12)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(13)">Conditional</animation>
+          <onup>23</onup>
+          <ondown>25</ondown>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(20)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(21)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(22)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(23)">Conditional</animation>
         </control>
-        <control type="radiobutton" id="15">
+        <control type="radiobutton" id="25">
           <description>Default RadioButton</description>
           <posx>268</posx>
           <posy>280</posy>
@@ -209,15 +209,15 @@
           <label>$ADDON[pvr.vdr.vnsi 30016]</label>
           <onright>5</onright>
           <onleft>5</onleft>
-          <onup>14</onup>
-          <ondown>16</ondown>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(10)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(11)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(12)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(13)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(14)">Conditional</animation>
+          <onup>24</onup>
+          <ondown>26</ondown>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(20)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(21)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(22)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(23)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(24)">Conditional</animation>
         </control>
-        <control type="spincontrolex" id="16">
+        <control type="spincontrolex" id="26">
           <description>Country selection</description>
           <posx>268</posx>
           <posy>320</posy>
@@ -232,16 +232,16 @@
           <label>$ADDON[pvr.vdr.vnsi 30017]</label>
           <onright>5</onright>
           <onleft>5</onleft>
-          <onup>15</onup>
-          <ondown>17</ondown>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(10)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(11)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(12)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(13)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(14)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(15)">Conditional</animation>
+          <onup>25</onup>
+          <ondown>27</ondown>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(20)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(21)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(22)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(23)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(24)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(25)">Conditional</animation>
         </control>
-        <control type="spincontrolex" id="17">
+        <control type="spincontrolex" id="27">
           <description>Satellite selection</description>
           <posx>268</posx>
           <posy>360</posy>
@@ -256,17 +256,17 @@
           <label>$ADDON[pvr.vdr.vnsi 30022]</label>
           <onright>5</onright>
           <onleft>5</onleft>
-          <onup>16</onup>
-          <ondown>18</ondown>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(10)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(11)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(12)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(13)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(14)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(15)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(16)">Conditional</animation>
+          <onup>26</onup>
+          <ondown>28</ondown>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(20)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(21)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(22)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(23)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(24)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(25)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(26)">Conditional</animation>
         </control>
-        <control type="spincontrolex" id="18">
+        <control type="spincontrolex" id="28">
           <description>DVB-C Inversion</description>
           <posx>268</posx>
           <posy>400</posy>
@@ -281,16 +281,16 @@
           <label>$ADDON[pvr.vdr.vnsi 30018]</label>
           <onright>5</onright>
           <onleft>5</onleft>
-          <onup>17</onup>
+          <onup>27</onup>
           <ondown>29</ondown>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(10)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(11)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(12)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(13)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(14)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(15)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(16)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(17)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(20)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(21)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(22)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(23)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(24)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(25)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(26)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(27)">Conditional</animation>
         </control>
         <control type="spincontrolex" id="29">
           <description>DVB-C Symbolrate</description>
@@ -307,19 +307,19 @@
           <label>$ADDON[pvr.vdr.vnsi 30019]</label>
           <onright>5</onright>
           <onleft>5</onleft>
-          <onup>18</onup>
-          <ondown>20</ondown>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(10)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(11)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(12)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(13)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(14)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(15)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(16)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(17)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(18)">Conditional</animation>
+          <onup>28</onup>
+          <ondown>30</ondown>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(20)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(21)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(22)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(23)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(24)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(25)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(26)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(27)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(28)">Conditional</animation>
         </control>
-        <control type="spincontrolex" id="20">
+        <control type="spincontrolex" id="30">
           <description>DVB-C QAM</description>
           <posx>268</posx>
           <posy>480</posy>
@@ -335,19 +335,19 @@
           <onright>5</onright>
           <onleft>5</onleft>
           <onup>29</onup>
-          <ondown>21</ondown>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(10)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(11)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(12)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(13)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(14)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(15)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(16)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(17)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(18)">Conditional</animation>
+          <ondown>31</ondown>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(20)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(21)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(22)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(23)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(24)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(25)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(26)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(27)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(28)">Conditional</animation>
           <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(29)">Conditional</animation>
         </control>
-        <control type="spincontrolex" id="21">
+        <control type="spincontrolex" id="31">
           <description>DVB-T Inversion</description>
           <posx>268</posx>
           <posy>520</posy>
@@ -362,21 +362,21 @@
           <label>$ADDON[pvr.vdr.vnsi 30021]</label>
           <onright>5</onright>
           <onleft>5</onleft>
-          <onup>20</onup>
-          <ondown>22</ondown>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(10)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(11)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(12)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(13)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(14)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(15)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(16)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(17)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(18)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(29)">Conditional</animation>
+          <onup>30</onup>
+          <ondown>32</ondown>
           <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(20)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(21)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(22)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(23)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(24)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(25)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(26)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(27)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(28)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(29)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(30)">Conditional</animation>
         </control>
-        <control type="spincontrolex" id="22">
+        <control type="spincontrolex" id="32">
           <description>ATSC Type</description>
           <posx>268</posx>
           <posy>560</posy>
@@ -391,25 +391,32 @@
           <label>$ADDON[pvr.vdr.vnsi 30023]</label>
           <onright>5</onright>
           <onleft>5</onleft>
-          <onup>21</onup>
-          <ondown>10</ondown>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(10)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(11)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(12)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(13)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(14)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(15)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(16)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(17)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(18)">Conditional</animation>
-          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(29)">Conditional</animation>
+          <onup>31</onup>
+          <ondown>20</ondown>
           <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(20)">Conditional</animation>
           <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(21)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(22)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(23)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(24)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(25)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(26)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(27)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(28)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(29)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(30)">Conditional</animation>
+          <animation effect="slide" start="0,0" end="0,-40" time="100" condition="!Control.IsVisible(31)">Conditional</animation>
         </control>
       </control>
       <control type="group">
         <visible>!IsEmpty(Window.Property(Scanning))</visible>
-        <control type="progress" id ="32">
+        <control type="renderaddon" id ="9">
+          <description>Dummy render control</description>
+          <left>0</left>
+          <top>0</top>
+          <width>0</width>
+          <height>0</height>
+        </control>
+        <control type="progress" id ="42">
           <description>Progressbar</description>
           <posx>275</posx>
           <posy>60</posy>
@@ -429,7 +436,7 @@
           <textcolor>grey</textcolor>
           <shadowcolor>black</shadowcolor>
         </control>
-        <control type="label" id ="30">
+        <control type="label" id ="40">
           <description>type value</description>
           <posx>1040</posx>
           <posy>85</posy>
@@ -452,10 +459,10 @@
           <label>$ADDON[pvr.vdr.vnsi 30027]</label>
           <align>left</align>
           <aligny>center</aligny>
-          <textcolor>white</textcolor>
+          <textcolor>grey</textcolor>
           <shadowcolor>black</shadowcolor>
         </control>
-        <control type="label" id ="31">
+        <control type="label" id ="41">
           <description>device value</description>
           <posx>1040</posx>
           <posy>115</posy>
@@ -478,10 +485,10 @@
           <label>$ADDON[pvr.vdr.vnsi 30034]</label>
           <align>left</align>
           <aligny>center</aligny>
-          <textcolor>white</textcolor>
+          <textcolor>grey</textcolor>
           <shadowcolor>black</shadowcolor>
         </control>
-        <control type="label" id ="33">
+        <control type="label" id ="43">
           <description>transponder value</description>
           <posx>1040</posx>
           <posy>145</posy>
@@ -494,25 +501,39 @@
           <textcolor>white</textcolor>
           <shadowcolor>black</shadowcolor>
         </control>
-        <control type="progress" id ="35">
-          <description>Progressbar</description>
+        <control type="progress" id ="45">
+          <description>Signal qualitiy</description>
           <posx>30</posx>
           <posy>160</posy>
           <width>220</width>
           <height>50</height>
         </control>
-        <control type="label" id ="34">
-          <description>Signal label</description>
-          <posx>40</posx>
-          <posy>168</posy>
-          <width>250</width>
+        <control type="label" id ="46">
+          <description>Status</description>
+          <posx>30</posx>
+          <posy>210</posy>
+          <width>220</width>
           <height>30</height>
           <font>font13</font>
           <label>-</label>
-          <align>left</align>
+          <align>center</align>
           <aligny>center</aligny>
           <textcolor>white</textcolor>
           <shadowcolor>black</shadowcolor>
+        </control>
+        <control type="label" id ="44">
+          <description>Signal label</description>
+          <posx>30</posx>
+          <posy>168</posy>
+          <width>220</width>
+          <height>30</height>
+          <font>font13</font>
+          <label>-</label>
+          <align>center</align>
+          <aligny>center</aligny>
+          <textcolor>white</textcolor>
+          <shadowcolor>black</shadowcolor>
+          <visible>!IsEmpty(Window.Property(ScanActive))</visible>
         </control>
         <control type="image">
           <posx>215</posx>
@@ -530,7 +551,7 @@
           <height>400</height>
           <onup>2</onup>
           <ondown>2</ondown>
-          <onleft>10</onleft>
+          <onleft>20</onleft>
           <onright>60</onright>
           <pagecontrol>60</pagecontrol>
           <scrolltime>200</scrolltime>
@@ -676,7 +697,7 @@
           <textureslidernib>ScrollBarNib.png</textureslidernib>
           <textureslidernibfocus>ScrollBarNib.png</textureslidernibfocus>
           <onleft>2</onleft>
-          <onright>10</onright>
+          <onright>20</onright>
           <showonepage>true</showonepage>
           <orientation>vertical</orientation>
         </control>
@@ -709,24 +730,6 @@
       </control>
     </control>
     <include>BehindDialogFadeOut</include>
-    <control type="group">
-      <posx>60</posx>
-      <posy>0</posy>
-      <animation effect="slide" end="-310,0" time="400" tween="quadratic" easing="out">WindowClose</animation>
-      <animation effect="slide" start="-310,0" time="400" tween="quadratic" easing="out">WindowOpen</animation>
-      <control type="image">
-        <posx>0</posx>
-        <posy>0</posy>
-        <width>250</width>
-        <height>35</height>
-        <texture border="0,0,32,0">header.png</texture>
-      </control>
-      <control type="label">
-        <include>WindowTitleCommons</include>
-        <posx>220</posx>
-        <label>$ADDON[pvr.vdr.vnsi 30008]</label>
-      </control>
-    </control>
     <include>WindowTitleHomeButton</include>
     <include>Clock</include>
   </controls>

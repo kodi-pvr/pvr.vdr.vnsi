@@ -282,6 +282,8 @@ cResponsePacket* cVNSISession::ReadMessage(int iInitialTimeout /*= 10000*/, int 
 
     if (channelID == VNSI_CHANNEL_STATUS)
       vresp->setStatus(userData, userDataLength);
+    else if (channelID == VNSI_CHANNEL_SCAN)
+      vresp->setScan(userData, userDataLength);
     else
       vresp->setResponse(userData, userDataLength);
   }

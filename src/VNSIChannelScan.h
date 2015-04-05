@@ -21,46 +21,54 @@
  */
 
 #include "VNSIData.h"
-#include "client.h"
 #include <string>
-#include <map>
+#include <queue>
 
+/*!
+ * @note Taken from vdr wirbelscan plugin, must be hold on plugin updates
+ * together.
+ */
 typedef enum scantype
 {
-  DVB_TERR    = 0,
-  DVB_CABLE   = 1,
-  DVB_SAT     = 2,
-  PVRINPUT    = 3,
-  PVRINPUT_FM = 4,
-  DVB_ATSC    = 5,
+  SCAN_UNDEFINED,
+  SCAN_SATELLITE,
+  SCAN_CABLE,
+  SCAN_TERRESTRIAL,
+  SCAN_TERRCABLE_ATSC,
+  SCAN_PVRINPUT,
+  SCAN_PVRINPUT_FM,
+  SCAN_NO_DEVICE,
+  SCAN_TRANSPONDER=999
 } scantype_t;
-
 
 class cVNSIChannelScan : public cVNSIData
 {
 public:
-
   cVNSIChannelScan();
   ~cVNSIChannelScan();
 
-  bool Open(const std::string& hostname, int port, const char* name = "XBMC channel scanner");
+  bool Open(const std::string& hostname, int port, const char* name = "KODI channel scanner");
 
   bool OnClick(int controlId);
   bool OnFocus(int controlId);
   bool OnInit();
   bool OnAction(int actionId);
+  bool Dirty();
 
   static bool OnClickCB(GUIHANDLE cbhdl, int controlId);
   static bool OnFocusCB(GUIHANDLE cbhdl, int controlId);
   static bool OnInitCB(GUIHANDLE cbhdl);
   static bool OnActionCB(GUIHANDLE cbhdl, int actionId);
 
-protected:
+  static bool CreateCB(GUIHANDLE cbhdl, int x, int y, int w, int h, void *device);
+  static void RenderCB(GUIHANDLE cbhdl);
+  static void StopCB(GUIHANDLE cbhdl);
+  static bool DirtyCB(GUIHANDLE cbhdl);
 
-  bool OnResponsePacket(cResponsePacket* resp);
+protected:
+  virtual bool OnResponsePacket(cResponsePacket* resp);
 
 private:
-
   bool ReadCountries();
   bool ReadSatellites();
   void SetControlsVisible(scantype_t type);
@@ -69,13 +77,18 @@ private:
   void ReturnFromProcessView();
   void SetProgress(int procent);
   void SetSignal(int procent, bool locked);
+  uint32_t ReadSupportedFlags();
 
   std::string     m_header;
   std::string     m_Signal;
   bool            m_running;
   bool            m_stopped;
   bool            m_Canceled;
+  std::queue<cResponsePacket*> m_ResponsePackets;
 
+  /*!
+   * GUI related control classes
+   */
   CAddonGUIWindow      *m_window;
   CAddonGUISpinControl *m_spinSourceType;
   CAddonGUISpinControl *m_spinCountries;
@@ -92,4 +105,5 @@ private:
   CAddonGUIRadioButton *m_radioButtonHD;
   CAddonGUIProgressControl *m_progressDone;
   CAddonGUIProgressControl *m_progressSignal;
+  CAddonGUIRenderingControl *m_renderControl;
 };

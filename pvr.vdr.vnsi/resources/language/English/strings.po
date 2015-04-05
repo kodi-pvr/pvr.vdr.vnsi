@@ -167,11 +167,11 @@ msgid "Channel search - Finished"
 msgstr ""
 
 msgctxt "#30037"
-msgid "No device available - exiting"
+msgid "No device available"
 msgstr ""
 
 msgctxt "#30038"
-msgid "No DVB-S2 device available - trying fallback to DVB-S"
+msgid "Auto"
 msgstr ""
 
 msgctxt "#30039"
@@ -218,7 +218,55 @@ msgctxt "#30049"
 msgid "VDR Server MAC for Wake-on-LAN"
 msgstr ""
 
-#empty strings from id 30050 to 30099
+msgctxt "#30050"
+msgid "On"
+msgstr ""
+
+msgctxt "#30051"
+msgid "Off"
+msgstr ""
+
+msgctxt "#30052"
+msgid "All (slow)"
+msgstr ""
+
+msgctxt "#30053"
+msgid "DVB-T"
+msgstr ""
+
+msgctxt "#30054"
+msgid "DVB-C"
+msgstr ""
+
+msgctxt "#30055"
+msgid "DVB-S/S2"
+msgstr ""
+
+msgctxt "#30056"
+msgid "Signal level - "
+msgstr ""
+
+msgctxt "#30057"
+msgid "Progress - "
+msgstr ""
+
+msgctxt "#30058"
+msgid "ATSC"
+msgstr ""
+
+msgctxt "#30059"
+msgid "VSB (aerial DTV)"
+msgstr ""
+
+msgctxt "#30060"
+msgid "QAM (cable DTV)"
+msgstr ""
+
+msgctxt "#30061"
+msgid "VSB + QAM (aerial + cable)"
+msgstr ""
+
+#empty strings from id 30062 to 30099
 
 msgctxt "#30100"
 msgid "VDR OSD"
