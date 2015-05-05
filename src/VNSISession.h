@@ -22,7 +22,7 @@
 
 #include <stdint.h>
 #include <string>
-#include "kodi/threads/threads.h"
+#include "platform/threads/threads.h"
 
 
 class cResponsePacket;
