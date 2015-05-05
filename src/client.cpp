@@ -26,7 +26,7 @@
 #include "VNSIData.h"
 #include "VNSIChannelScan.h"
 #include "VNSIAdmin.h"
-#include "kodi/util/util.h"
+#include "platform/util/util.h"
 
 #include <sstream>
 #include <string>

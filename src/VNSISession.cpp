@@ -31,8 +31,8 @@
 #include "requestpacket.h"
 #include "vnsicommand.h"
 #include "tools.h"
-#include "kodi/sockets/tcp.h"
-#include "kodi/util/timeutils.h"
+#include "platform/sockets/tcp.h"
+#include "platform/util/timeutils.h"
 
 /* Needed on Mac OS/X */
  

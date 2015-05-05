@@ -8,6 +8,7 @@ enable_language(CXX)
 
 find_package(kodi REQUIRED)
 find_package(kodiplatform REQUIRED)
+find_package(platform REQUIRED)
 
 add_definitions(-DUSE_DEMUX)
 
@@ -56,13 +57,14 @@ list(APPEND VDR_SOURCES src/client.cpp
                         src/VNSIRecording.cpp
                         src/VNSISession.cpp)
 
-list(APPEND DEPLIBS ${kodiplatform_LIBRARIES})
+list(APPEND DEPLIBS ${platform_LIBRARIES})
 if(WIN32)
   list(APPEND DEPLIBS ws2_32)
 endif()
 
 include_directories(${INCLUDES}
                     ${kodiplatform_INCLUDE_DIRS}
+                    ${platform_INCLUDE_DIRS}
                     ${KODI_INCLUDE_DIR})
 
 build_addon(pvr.vdr.vnsi VDR DEPLIBS)
