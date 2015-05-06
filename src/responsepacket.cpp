@@ -26,7 +26,7 @@
 #include "vnsicommand.h"
 #include "tools.h"
 #include "client.h"
-#include "kodi/sockets/tcp.h"
+#include "platform/sockets/tcp.h"
 
 cResponsePacket::cResponsePacket()
 {
