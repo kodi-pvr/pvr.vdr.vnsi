@@ -29,7 +29,7 @@
 #define DEFAULT_PORT          34890
 #define DEFAULT_CHARCONV      false
 #define DEFAULT_HANDLE_MSG    true
-#define DEFAULT_PRIORITY      99
+#define DEFAULT_PRIORITY      0
 #define DEFAULT_TIMEOUT       3
 #define DEFAULT_AUTOGROUPS    false
 

@@ -147,12 +147,15 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   }
 
   /* Read setting "priority" from settings.xml */
-  if (!XBMC->GetSetting("priority", &g_iPriority))
+  int prio = DEFAULT_PRIORITY;
+  if (!XBMC->GetSetting("priority", &prio))
   {
     /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'priority' setting, falling back to %i as default", DEFAULT_PRIORITY);
-    g_iPriority = DEFAULT_PRIORITY;
+    XBMC->Log(LOG_ERROR, "Couldn't get 'priority' setting, falling back to %i as default", -1);
+    prio = DEFAULT_PRIORITY;
   }
+  int prioVals[] = {-99,-1,0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,99,100};
+  g_iPriority = prioVals[prio];
 
   /* Read setting "timeshift" from settings.xml */
   if (!XBMC->GetSetting("timeshift", &g_iTimeshift))
