@@ -61,6 +61,12 @@ cVNSIDemux      *VNSIDemuxer       = NULL;
 cVNSIData       *VNSIData          = NULL;
 cVNSIRecording  *VNSIRecording     = NULL;
 
+bool IsTimeshift;
+time_t TimeshiftStartTime;
+time_t TimeshiftEndTime;
+time_t TimeshiftPlayTime;
+PLATFORM::CMutex TimeshiftMutex;
+
 extern "C" {
 
 /***********************************************************
@@ -668,7 +674,15 @@ DemuxPacket* DemuxRead(void)
   if (!VNSIDemuxer)
     return NULL;
 
-  return VNSIDemuxer->Read();
+  DemuxPacket *pkt = VNSIDemuxer->Read();
+
+  TimeshiftMutex.Lock();
+  IsTimeshift = VNSIDemuxer->IsTimeshift();
+  TimeshiftStartTime = VNSIDemuxer->GetBufferTimeStart();
+  TimeshiftEndTime = VNSIDemuxer->GetBufferTimeEnd();
+  TimeshiftPlayTime = VNSIDemuxer->GetPlayingTime();
+  TimeshiftMutex.Unlock();
+  return pkt;
 }
 
 int GetCurrentClientChannel(void)
@@ -724,7 +738,11 @@ time_t GetPlayingTime()
 {
   time_t time = 0;
   if (VNSIDemuxer)
-    time = VNSIDemuxer->GetPlayingTime();
+  {
+	TimeshiftMutex.Lock();
+	time = TimeshiftPlayTime;
+    TimeshiftMutex.Unlock();
+  }
   return time;
 }
 
@@ -732,7 +750,11 @@ time_t GetBufferTimeStart()
 {
   time_t time = 0;
   if (VNSIDemuxer)
-    time = VNSIDemuxer->GetBufferTimeStart();
+  {
+	TimeshiftMutex.Lock();
+	time = TimeshiftStartTime;
+    TimeshiftMutex.Unlock();
+  }
   return time;
 }
 
@@ -740,8 +762,24 @@ time_t GetBufferTimeEnd()
 {
   time_t time = 0;
   if (VNSIDemuxer)
-    time = VNSIDemuxer->GetBufferTimeEnd();
+  {
+	TimeshiftMutex.Lock();
+	time = TimeshiftEndTime;
+    TimeshiftMutex.Unlock();
+  }
   return time;
+}
+
+bool IsTimeshifting()
+{
+  bool ret = false;
+  if (VNSIDemuxer)
+  {
+	TimeshiftMutex.Lock();
+    ret = IsTimeshift;
+    TimeshiftMutex.Unlock();
+  }
+  return ret;
 }
 
 void SetSpeed(int) {};
