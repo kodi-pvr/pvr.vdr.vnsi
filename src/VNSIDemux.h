@@ -24,7 +24,7 @@
 #include "client.h"
 #include <string>
 #include <map>
-#include "kodi/xbmc_stream_utils.hpp"
+#include "xbmc_stream_utils.hpp"
 
 class cResponsePacket;
 

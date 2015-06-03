@@ -20,7 +20,7 @@
  */
 
 #include "client.h"
-#include "kodi/xbmc_pvr_dll.h"
+#include "xbmc_pvr_dll.h"
 #include "VNSIDemux.h"
 #include "VNSIRecording.h"
 #include "VNSIData.h"
