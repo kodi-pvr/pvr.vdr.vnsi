@@ -409,6 +409,9 @@ PVR_ERROR cVNSIData::GetTimerInfo(unsigned int timernumber, PVR_TIMER &tag)
       return PVR_ERROR_SERVER_ERROR;
   }
 
+  /* TODO: Implement own timer types to get support for the timer features introduced with PVR API 1.9.7 */
+  tag.iTimerType = PVR_TIMER_TYPE_NONE;
+
   tag.iClientIndex      = vresp->extract_U32();
   int iActive           = vresp->extract_U32();
   int iRecording        = vresp->extract_U32();
@@ -427,7 +430,6 @@ PVR_ERROR cVNSIData::GetTimerInfo(unsigned int timernumber, PVR_TIMER &tag)
   tag.endTime           = vresp->extract_U32();
   tag.firstDay          = vresp->extract_U32();
   tag.iWeekdays         = vresp->extract_U32();
-  tag.bIsRepeating      = tag.iWeekdays == 0 ? false : true;
   char *strTitle = vresp->extract_String();
   strncpy(tag.strTitle, strTitle, sizeof(tag.strTitle) - 1);
   delete[] strTitle;
@@ -460,6 +462,10 @@ bool cVNSIData::GetTimersList(ADDON_HANDLE handle)
     {
       PVR_TIMER tag;
       memset(&tag, 0, sizeof(tag));
+
+      /* TODO: Implement own timer types to get support for the timer features introduced with PVR API 1.9.7 */
+      tag.iTimerType = PVR_TIMER_TYPE_NONE;
+
       tag.iClientIndex      = vresp->extract_U32();
       int iActive           = vresp->extract_U32();
       int iRecording        = vresp->extract_U32();
@@ -478,7 +484,6 @@ bool cVNSIData::GetTimersList(ADDON_HANDLE handle)
       tag.endTime           = vresp->extract_U32();
       tag.firstDay          = vresp->extract_U32();
       tag.iWeekdays         = vresp->extract_U32();
-      tag.bIsRepeating      = tag.iWeekdays == 0 ? false : true;
       char *strTitle = vresp->extract_String();
       strncpy(tag.strTitle, strTitle, sizeof(tag.strTitle) - 1);
       tag.iMarginStart      = 0;
@@ -546,7 +551,7 @@ PVR_ERROR cVNSIData::AddTimer(const PVR_TIMER &timerinfo)
   if (!vrp.add_U32(timerinfo.iClientChannelUid)) return PVR_ERROR_UNKNOWN;
   if (!vrp.add_U32(starttime))  return PVR_ERROR_UNKNOWN;
   if (!vrp.add_U32(endtime))    return PVR_ERROR_UNKNOWN;
-  if (!vrp.add_U32(timerinfo.bIsRepeating ? timerinfo.firstDay : 0))   return PVR_ERROR_UNKNOWN;
+  if (!vrp.add_U32(timerinfo.iWeekdays != PVR_WEEKDAY_NONE ? timerinfo.firstDay : 0))   return PVR_ERROR_UNKNOWN;
   if (!vrp.add_U32(timerinfo.iWeekdays))return PVR_ERROR_UNKNOWN;
   if (!vrp.add_String(path.c_str()))      return PVR_ERROR_UNKNOWN;
   if (!vrp.add_String(""))                return PVR_ERROR_UNKNOWN;
@@ -629,7 +634,7 @@ PVR_ERROR cVNSIData::UpdateTimer(const PVR_TIMER &timerinfo)
   if (!vrp.add_U32(timerinfo.iClientChannelUid)) return PVR_ERROR_UNKNOWN;
   if (!vrp.add_U32(starttime))  return PVR_ERROR_UNKNOWN;
   if (!vrp.add_U32(endtime))    return PVR_ERROR_UNKNOWN;
-  if (!vrp.add_U32(timerinfo.bIsRepeating ? timerinfo.firstDay : 0))   return PVR_ERROR_UNKNOWN;
+  if (!vrp.add_U32(timerinfo.iWeekdays != PVR_WEEKDAY_NONE ? timerinfo.firstDay : 0))   return PVR_ERROR_UNKNOWN;
   if (!vrp.add_U32(timerinfo.iWeekdays))return PVR_ERROR_UNKNOWN;
   if (!vrp.add_String(timerinfo.strTitle))   return PVR_ERROR_UNKNOWN;
   if (!vrp.add_String(""))                return PVR_ERROR_UNKNOWN;
