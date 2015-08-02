@@ -13,7 +13,11 @@ find_package(platform REQUIRED)
 add_definitions(-DUSE_DEMUX)
 
 if(NOT WIN32)
-  find_package(OpenGL)
+  find_package(EMBEDDED)
+  if(NOT EMBEDDED_FOUND)
+    find_package(OpenGL)
+  endif()
+
   if(OPENGL_FOUND)
     set(INCLUDES ${OPENGL_INCLUDE_DIR})
     set(DEPLIBS ${OPENGL_LIBRARIES})
