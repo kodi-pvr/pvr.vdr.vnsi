@@ -568,12 +568,11 @@ PVR_ERROR AddTimer(const PVR_TIMER &timer)
   return VNSIData->AddTimer(timer);
 }
 
-PVR_ERROR DeleteTimer(const PVR_TIMER &timer, bool bForce, bool /*bDeleteScheduled*/)
+PVR_ERROR DeleteTimer(const PVR_TIMER &timer, bool bForce)
 {
   if (!VNSIData)
     return PVR_ERROR_SERVER_ERROR;
 
-  /* TODO: Change implementation to support bDeleteScheduled (introduced with PVR API 1.9.7 */
   return VNSIData->DeleteTimer(timer, bForce);
 }
 
