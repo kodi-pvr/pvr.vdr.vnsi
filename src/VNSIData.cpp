@@ -342,11 +342,14 @@ bool cVNSIData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel
     tag.strWriter           = "";
     tag.iYear               = 0;
     tag.strIMDBNumber       = "";
+    if (tag.strPlotOutline)
+      tag.strEpisodeName    = strdup(tag.strPlotOutline);
 
     PVR->TransferEpgEntry(handle, &tag);
     delete[] tag.strTitle;
     delete[] tag.strPlotOutline;
     delete[] tag.strPlot;
+    free((void*)tag.strEpisodeName);
   }
 
   delete vresp;
