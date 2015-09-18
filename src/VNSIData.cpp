@@ -344,6 +344,7 @@ bool cVNSIData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel
     tag.strIMDBNumber       = "";
     if (tag.strPlotOutline)
       tag.strEpisodeName    = strdup(tag.strPlotOutline);
+    tag.iFlags              = EPG_TAG_FLAG_UNDEFINED;
 
     PVR->TransferEpgEntry(handle, &tag);
     delete[] tag.strTitle;
