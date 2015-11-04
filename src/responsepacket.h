@@ -54,6 +54,10 @@ class cResponsePacket
 
     uint32_t  getPacketPos()      { return packetPos; }
 
+    size_t getRemainingLength() const {
+      return userDataLength - packetPos;
+    }
+
     char*     extract_String();
     uint8_t   extract_U8();
     uint32_t  extract_U32();
