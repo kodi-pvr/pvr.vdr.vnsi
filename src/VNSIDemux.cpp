@@ -340,8 +340,6 @@ void cVNSIDemux::StreamChange(cResponsePacket *resp)
       newStream.iIdentifier     = (composition_id & 0xffff) | ((ancillary_id & 0xffff) << 16);
 
       newStreams.push_back(newStream);
-
-      delete[] language;
     }
     else if (codecId.Codec().codec_type == XBMC_CODEC_TYPE_RDS)
     {
@@ -354,17 +352,12 @@ void cVNSIDemux::StreamChange(cResponsePacket *resp)
       newStream.iIdentifier     = -1;
 
       newStreams.push_back(newStream);
-
-      delete[] language;
     }
     else
     {
       m_streams.Clear();
-      delete[] type;
       return;
     }
-
-    delete[] type;
   }
 
   m_streams.UpdateStreams(newStreams);
@@ -378,7 +371,6 @@ void cVNSIDemux::StreamStatus(cResponsePacket *resp)
     XBMC->Log(LOG_DEBUG, "%s - %s", __FUNCTION__, status);
     XBMC->QueueNotification(QUEUE_INFO, status);
   }
-  delete[] status;
 }
 
 void cVNSIDemux::StreamSignalInfo(cResponsePacket *resp)
@@ -392,9 +384,6 @@ void cVNSIDemux::StreamSignalInfo(cResponsePacket *resp)
   m_Quality.fe_signal = resp->extract_U32();
   m_Quality.fe_ber    = resp->extract_U32();
   m_Quality.fe_unc    = resp->extract_U32();
-
-  delete[] name;
-  delete[] status;
 }
 
 bool cVNSIDemux::StreamContentInfo(cResponsePacket *resp)
@@ -419,8 +408,6 @@ bool cVNSIDemux::StreamContentInfo(cResponsePacket *resp)
         props->strLanguage[1]     = language[1];
         props->strLanguage[2]     = language[2];
         props->strLanguage[3]     = 0;
-
-        delete[] language;
       }
       else if (props->iCodecType == XBMC_CODEC_TYPE_VIDEO)
       {
@@ -441,8 +428,6 @@ bool cVNSIDemux::StreamContentInfo(cResponsePacket *resp)
         props->strLanguage[1] = language[1];
         props->strLanguage[2] = language[2];
         props->strLanguage[3] = 0;
-
-        delete[] language;
       }
     }
     else

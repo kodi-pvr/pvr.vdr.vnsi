@@ -138,9 +138,6 @@ bool cVNSISession::Login()
       XBMC->Log(LOG_NOTICE, "Logged in at '%lu+%i' to '%s' Version: '%s' with protocol version '%d'",
         vdrTime, vdrTimeOffset, ServerName, ServerVersion, protocol);
 
-    delete[] ServerName;
-    delete[] ServerVersion;
-
     delete vresp;
   }
   catch (const char * str)

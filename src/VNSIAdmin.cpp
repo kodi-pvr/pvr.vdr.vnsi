@@ -1443,9 +1443,6 @@ bool cVNSIAdmin::ReadChannelList(bool radio)
     }
     channel.m_radio       = radio;
 
-    delete[] strChannelName;
-    delete[] strProviderName;
-    delete[] strCaids;
     m_channels.m_channels.push_back(channel);
     m_channels.m_channelsMap[channel.m_id] = m_channels.m_channels.size() - 1;
   }
@@ -1483,7 +1480,6 @@ bool cVNSIAdmin::ReadChannelWhitelist(bool radio)
     provider.m_name = strProviderName;
     provider.m_caid = vresp->extract_U32();
     m_channels.m_providerWhitelist.push_back(provider);
-    delete [] strProviderName;
   }
   delete vresp;
 
