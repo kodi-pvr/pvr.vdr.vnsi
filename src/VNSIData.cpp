@@ -95,6 +95,7 @@ cResponsePacket* cVNSIData::ReadResult(cRequestPacket* vrp)
 
   if(!cVNSISession::TransmitMessage(vrp))
   {
+    CLockObject lock(m_mutex);
     m_queue.erase(vrp->getSerial());
     return NULL;
   }
