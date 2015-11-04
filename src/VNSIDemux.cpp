@@ -276,7 +276,7 @@ void cVNSIDemux::StreamChange(cResponsePacket *resp)
 {
   std::vector<XbmcPvrStream> newStreams;
 
-  while (!resp->end())
+  while (resp->getRemainingLength() >= 4 + 1)
   {
     uint32_t    pid = resp->extract_U32();
     const char* type  = resp->extract_String();
@@ -389,7 +389,7 @@ void cVNSIDemux::StreamSignalInfo(cResponsePacket *resp)
 bool cVNSIDemux::StreamContentInfo(cResponsePacket *resp)
 {
   ADDON::XbmcStreamProperties streams = m_streams;
-  while (!resp->end()) 
+  while (resp->getRemainingLength() >= 4)
   {
     uint32_t pid = resp->extract_U32();
     PVR_STREAM_PROPERTIES::PVR_STREAM* props = streams.GetStreamById(pid);

@@ -445,7 +445,7 @@ bool cVNSIChannelScan::ReadCountries()
   uint32_t retCode = vresp->extract_U32();
   if (retCode == VNSI_RET_OK)
   {
-    while (!vresp->end())
+    while (vresp->getRemainingLength() >= 4 + 2)
     {
       uint32_t    index     = vresp->extract_U32();
       const char *isoName   = vresp->extract_String();
@@ -481,7 +481,7 @@ bool cVNSIChannelScan::ReadSatellites()
   uint32_t retCode = vresp->extract_U32();
   if (retCode == VNSI_RET_OK)
   {
-    while (!vresp->end())
+    while (vresp->getRemainingLength() >= 4 + 2)
     {
       uint32_t    index     = vresp->extract_U32();
       const char *shortName = vresp->extract_String();

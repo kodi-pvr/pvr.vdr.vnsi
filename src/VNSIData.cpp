@@ -262,7 +262,7 @@ bool cVNSIData::GetChannelsList(ADDON_HANDLE handle, bool radio)
     return false;
   }
 
-  while (!vresp->end())
+  while (vresp->getRemainingLength() >= 3 * 4 + 3)
   {
     PVR_CHANNEL tag;
     memset(&tag, 0 , sizeof(tag));
@@ -317,7 +317,7 @@ bool cVNSIData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel
     return false;
   }
 
-  while (!vresp->end())
+  while (vresp->getRemainingLength() >= 5 * 4 + 3)
   {
     EPG_TAG tag;
     memset(&tag, 0 , sizeof(tag));
@@ -456,7 +456,7 @@ bool cVNSIData::GetTimersList(ADDON_HANDLE handle)
   uint32_t numTimers = vresp->extract_U32();
   if (numTimers > 0)
   {
-    while (!vresp->end())
+    while (vresp->getRemainingLength() >= 12 * 4 + 1)
     {
       PVR_TIMER tag;
       memset(&tag, 0, sizeof(tag));
@@ -692,7 +692,7 @@ PVR_ERROR cVNSIData::GetRecordingsList(ADDON_HANDLE handle)
   }
 
   CStdString strRecordingId;
-  while (!vresp->end())
+  while (vresp->getRemainingLength() >= 5 * 4 + 5)
   {
     PVR_RECORDING tag;
     memset(&tag, 0, sizeof(tag));
@@ -822,7 +822,8 @@ PVR_ERROR cVNSIData::GetRecordingEdl(const PVR_RECORDING& recinfo, PVR_EDL_ENTRY
   }
 
   *size = 0;
-  while (!vresp->end() && *size < PVR_ADDON_EDL_LENGTH)
+  while (vresp->getRemainingLength() >= 2 * 8 + 4 &&
+         *size < PVR_ADDON_EDL_LENGTH)
   {
     edl[*size].start = vresp->extract_S64();
     edl[*size].end = vresp->extract_S64();
@@ -874,7 +875,7 @@ PVR_ERROR cVNSIData::GetDeletedRecordingsList(ADDON_HANDLE handle)
   }
 
   CStdString strRecordingId;
-  while (!vresp->end())
+  while (vresp->getRemainingLength() >= 5 * 4 + 5)
   {
     PVR_RECORDING tag;
     memset(&tag, 0, sizeof(tag));
@@ -1144,7 +1145,7 @@ bool cVNSIData::GetChannelGroupList(ADDON_HANDLE handle, bool bRadio)
     return false;
   }
 
-  while (!vresp->end())
+  while (vresp->getRemainingLength() >= 1 + 1)
   {
     PVR_CHANNEL_GROUP tag;
     memset(&tag, 0, sizeof(tag));
@@ -1181,7 +1182,7 @@ bool cVNSIData::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GR
     return false;
   }
 
-  while (!vresp->end())
+  while (vresp->getRemainingLength() >= 2 * 4)
   {
     PVR_CHANNEL_GROUP_MEMBER tag;
     memset(&tag, 0, sizeof(tag));
