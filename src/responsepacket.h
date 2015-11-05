@@ -22,6 +22,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stddef.h>
 
 class cResponsePacket
 {
@@ -29,10 +30,10 @@ class cResponsePacket
     cResponsePacket();
     ~cResponsePacket();
 
-    void setResponse(uint8_t* packet, uint32_t packetLength);
-    void setStatus(uint8_t* packet, uint32_t packetLength);
-    void setStream(uint8_t* packet, uint32_t packetLength);
-    void setOSD(uint8_t* packet, uint32_t packetLength);
+    void setResponse(uint8_t* packet, size_t packetLength);
+    void setStatus(uint8_t* packet, size_t packetLength);
+    void setStream(uint8_t* packet, size_t packetLength);
+    void setOSD(uint8_t* packet, size_t packetLength);
 
     void extractHeader();
     void extractStreamHeader();
@@ -40,7 +41,7 @@ class cResponsePacket
 
     bool noResponse() { return (userData == NULL); };
 
-    uint32_t  getUserDataLength() const { return userDataLength; }
+    size_t    getUserDataLength() const { return userDataLength; }
     uint32_t  getChannelID() const { return channelID; }
     uint32_t  getRequestID() const { return requestID; }
     uint32_t  getStreamID() const { return streamID; }
@@ -51,7 +52,7 @@ class cResponsePacket
     uint32_t  getMuxSerial() const { return muxSerial; }
     void      getOSDData(uint32_t &wnd, uint32_t &color, uint32_t &x0, uint32_t &y0, uint32_t &x1, uint32_t &y1);
 
-    uint32_t  getPacketPos() const { return packetPos; }
+    size_t    getPacketPos() const { return packetPos; }
 
     size_t getRemainingLength() const {
       return userDataLength - packetPos;
@@ -69,15 +70,15 @@ class cResponsePacket
     uint8_t* getUserData();
 
     uint8_t* getHeader() { return header; };
-    unsigned int getStreamHeaderLength() const { return 36; };
-    unsigned int getHeaderLength() const { return 8; };
-    unsigned int getOSDHeaderLength() const { return 32; } ;
+    size_t getStreamHeaderLength() const { return 36; };
+    size_t getHeaderLength() const { return 8; };
+    size_t getOSDHeaderLength() const { return 32; } ;
 
   private:
     uint8_t  header[40];
     uint8_t* userData;
-    uint32_t userDataLength;
-    uint32_t packetPos;
+    size_t   userDataLength;
+    size_t   packetPos;
 
     uint32_t channelID;
 

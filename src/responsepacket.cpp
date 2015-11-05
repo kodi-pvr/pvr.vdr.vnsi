@@ -62,7 +62,7 @@ void cResponsePacket::getOSDData(uint32_t &wnd, uint32_t &color, uint32_t &x0, u
   y1 = osdY1;
 }
 
-void cResponsePacket::setResponse(uint8_t* tuserData, uint32_t tuserDataLength)
+void cResponsePacket::setResponse(uint8_t* tuserData, size_t tuserDataLength)
 {
   channelID       = VNSI_CHANNEL_REQUEST_RESPONSE;
   userData        = tuserData;
@@ -70,7 +70,7 @@ void cResponsePacket::setResponse(uint8_t* tuserData, uint32_t tuserDataLength)
   packetPos       = 0;
 }
 
-void cResponsePacket::setStatus(uint8_t* tuserData, uint32_t tuserDataLength)
+void cResponsePacket::setStatus(uint8_t* tuserData, size_t tuserDataLength)
 {
   channelID       = VNSI_CHANNEL_STATUS;
   userData        = tuserData;
@@ -78,7 +78,7 @@ void cResponsePacket::setStatus(uint8_t* tuserData, uint32_t tuserDataLength)
   packetPos       = 0;
 }
 
-void cResponsePacket::setStream(uint8_t* tuserData, uint32_t tuserDataLength)
+void cResponsePacket::setStream(uint8_t* tuserData, size_t tuserDataLength)
 {
   channelID       = VNSI_CHANNEL_STREAM;
   // set pointer to user data
@@ -87,7 +87,7 @@ void cResponsePacket::setStream(uint8_t* tuserData, uint32_t tuserDataLength)
   packetPos       = 0;
 }
 
-void cResponsePacket::setOSD(uint8_t* tuserData, uint32_t tuserDataLength)
+void cResponsePacket::setOSD(uint8_t* tuserData, size_t tuserDataLength)
 {
   channelID       = VNSI_CHANNEL_OSD;
   // set pointer to user data
