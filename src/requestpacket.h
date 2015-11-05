@@ -37,12 +37,12 @@ class cRequestPacket
     bool add_U64(uint64_t ull);
     bool add_S64(int64_t ll);
 
-    uint8_t* getPtr() { return buffer; }
-    size_t getLen() { return bufUsed; }
-    uint32_t getChannel() { return channel; }
-    uint32_t getSerial() { return serialNumber; }
+    uint8_t* getPtr() const { return buffer; }
+    size_t getLen() const { return bufUsed; }
+    uint32_t getChannel() const { return channel; }
+    uint32_t getSerial() const { return serialNumber; }
 
-    uint32_t getOpcode() { return opcode; }
+    uint32_t getOpcode() const { return opcode; }
 
   private:
     static uint32_t serialNumberCounter;
