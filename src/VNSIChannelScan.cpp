@@ -445,7 +445,7 @@ bool cVNSIChannelScan::ReadCountries()
   uint32_t retCode = vresp->extract_U32();
   if (retCode == VNSI_RET_OK)
   {
-    while (!vresp->end())
+    while (vresp->getRemainingLength() >= 4 + 2)
     {
       uint32_t    index     = vresp->extract_U32();
       const char *isoName   = vresp->extract_String();
@@ -453,9 +453,6 @@ bool cVNSIChannelScan::ReadCountries()
       m_spinCountries->AddLabel(longName, index);
       if (dvdlang == isoName)
         startIndex = index;
-
-      delete[] longName;
-      delete[] isoName;
     }
     if (startIndex >= 0)
       m_spinCountries->SetValue(startIndex);
@@ -484,14 +481,12 @@ bool cVNSIChannelScan::ReadSatellites()
   uint32_t retCode = vresp->extract_U32();
   if (retCode == VNSI_RET_OK)
   {
-    while (!vresp->end())
+    while (vresp->getRemainingLength() >= 4 + 2)
     {
       uint32_t    index     = vresp->extract_U32();
       const char *shortName = vresp->extract_String();
       const char *longName  = vresp->extract_String();
       m_spinSatellites->AddLabel(longName, index);
-      delete[] longName;
-      delete[] shortName;
     }
     m_spinSatellites->SetValue(6);      /* default to Astra 19.2         */
   }
@@ -539,13 +534,11 @@ bool cVNSIChannelScan::OnResponsePacket(cResponsePacket* resp)
   {
     char* str = resp->extract_String();
     m_window->SetControlLabel(LABEL_DEVICE, str);
-    delete[] str;
   }
   else if (requestID == VNSI_SCANNER_TRANSPONDER)
   {
     char* str = resp->extract_String();
     m_window->SetControlLabel(LABEL_TRANSPONDER, str);
-    delete[] str;
   }
   else if (requestID == VNSI_SCANNER_NEWCHANNEL)
   {
@@ -564,8 +557,6 @@ bool cVNSIChannelScan::OnResponsePacket(cResponsePacket* resp)
 
     m_window->AddItem(item, 0);
     GUI->ListItem_destroy(item);
-
-    delete[] str;
   }
   else if (requestID == VNSI_SCANNER_FINISHED)
   {

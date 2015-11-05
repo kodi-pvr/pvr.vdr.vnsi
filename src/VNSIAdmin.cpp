@@ -1423,7 +1423,7 @@ bool cVNSIAdmin::ReadChannelList(bool radio)
 
   m_channels.m_channels.clear();
   m_channels.m_channelsMap.clear();
-  while (!vresp->end())
+  while (vresp->getRemainingLength() >= 3 * 4 + 3)
   {
     CChannel channel;
     channel.m_blacklist = false;
@@ -1443,9 +1443,6 @@ bool cVNSIAdmin::ReadChannelList(bool radio)
     }
     channel.m_radio       = radio;
 
-    delete[] strChannelName;
-    delete[] strProviderName;
-    delete[] strCaids;
     m_channels.m_channels.push_back(channel);
     m_channels.m_channelsMap[channel.m_id] = m_channels.m_channels.size() - 1;
   }
@@ -1477,13 +1474,12 @@ bool cVNSIAdmin::ReadChannelWhitelist(bool radio)
 
   m_channels.m_providerWhitelist.clear();
   CProvider provider;
-  while (!vresp->end())
+  while (vresp->getRemainingLength() >= 1 + 4)
   {
     char *strProviderName = vresp->extract_String();
     provider.m_name = strProviderName;
     provider.m_caid = vresp->extract_U32();
     m_channels.m_providerWhitelist.push_back(provider);
-    delete [] strProviderName;
   }
   delete vresp;
 
@@ -1544,7 +1540,7 @@ bool cVNSIAdmin::ReadChannelBlacklist(bool radio)
   }
 
   m_channels.m_channelBlacklist.clear();
-  while (!vresp->end())
+  while (vresp->getRemainingLength() >= 4)
   {
     int id = vresp->extract_U32();
     m_channels.m_channelBlacklist.push_back(id);

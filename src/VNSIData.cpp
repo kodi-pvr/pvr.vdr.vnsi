@@ -95,6 +95,7 @@ cResponsePacket* cVNSIData::ReadResult(cRequestPacket* vrp)
 
   if(!cVNSISession::TransmitMessage(vrp))
   {
+    CLockObject lock(m_mutex);
     m_queue.erase(vrp->getSerial());
     return NULL;
   }
@@ -261,7 +262,7 @@ bool cVNSIData::GetChannelsList(ADDON_HANDLE handle, bool radio)
     return false;
   }
 
-  while (!vresp->end())
+  while (vresp->getRemainingLength() >= 3 * 4 + 3)
   {
     PVR_CHANNEL tag;
     memset(&tag, 0 , sizeof(tag));
@@ -289,9 +290,6 @@ bool cVNSIData::GetChannelsList(ADDON_HANDLE handle, bool radio)
     tag.bIsRadio          = radio;
 
     PVR->TransferChannelEntry(handle, &tag);
-    delete[] strChannelName;
-    delete[] strProviderName;
-    delete[] strCaids;
   }
 
   delete vresp;
@@ -319,7 +317,7 @@ bool cVNSIData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel
     return false;
   }
 
-  while (!vresp->end())
+  while (vresp->getRemainingLength() >= 5 * 4 + 3)
   {
     EPG_TAG tag;
     memset(&tag, 0 , sizeof(tag));
@@ -347,9 +345,6 @@ bool cVNSIData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel
     tag.iFlags              = EPG_TAG_FLAG_UNDEFINED;
 
     PVR->TransferEpgEntry(handle, &tag);
-    delete[] tag.strTitle;
-    delete[] tag.strPlotOutline;
-    delete[] tag.strPlot;
     free((void*)tag.strEpisodeName);
   }
 
@@ -436,7 +431,6 @@ PVR_ERROR cVNSIData::GetTimerInfo(unsigned int timernumber, PVR_TIMER &tag)
   tag.iWeekdays         = vresp->extract_U32();
   char *strTitle = vresp->extract_String();
   strncpy(tag.strTitle, strTitle, sizeof(tag.strTitle) - 1);
-  delete[] strTitle;
 
   delete vresp;
   return PVR_ERROR_NO_ERROR;
@@ -462,7 +456,7 @@ bool cVNSIData::GetTimersList(ADDON_HANDLE handle)
   uint32_t numTimers = vresp->extract_U32();
   if (numTimers > 0)
   {
-    while (!vresp->end())
+    while (vresp->getRemainingLength() >= 12 * 4 + 1)
     {
       PVR_TIMER tag;
       memset(&tag, 0, sizeof(tag));
@@ -494,8 +488,6 @@ bool cVNSIData::GetTimersList(ADDON_HANDLE handle)
       tag.iMarginEnd        = 0;
 
       PVR->TransferTimerEntry(handle, &tag);
-
-      delete[] strTitle;
     }
   }
   delete vresp;
@@ -700,7 +692,7 @@ PVR_ERROR cVNSIData::GetRecordingsList(ADDON_HANDLE handle)
   }
 
   CStdString strRecordingId;
-  while (!vresp->end())
+  while (vresp->getRemainingLength() >= 5 * 4 + 5)
   {
     PVR_RECORDING tag;
     memset(&tag, 0, sizeof(tag));
@@ -729,12 +721,6 @@ PVR_ERROR cVNSIData::GetRecordingsList(ADDON_HANDLE handle)
     strncpy(tag.strRecordingId, strRecordingId.c_str(), sizeof(tag.strRecordingId) - 1);
 
     PVR->TransferRecordingEntry(handle, &tag);
-
-    delete[] strChannelName;
-    delete[] strTitle;
-    delete[] strPlotOutline;
-    delete[] strPlot;
-    delete[] strDirectory;
   }
 
   delete vresp;
@@ -836,7 +822,8 @@ PVR_ERROR cVNSIData::GetRecordingEdl(const PVR_RECORDING& recinfo, PVR_EDL_ENTRY
   }
 
   *size = 0;
-  while (!vresp->end() && *size < PVR_ADDON_EDL_LENGTH)
+  while (vresp->getRemainingLength() >= 2 * 8 + 4 &&
+         *size < PVR_ADDON_EDL_LENGTH)
   {
     edl[*size].start = vresp->extract_S64();
     edl[*size].end = vresp->extract_S64();
@@ -888,7 +875,7 @@ PVR_ERROR cVNSIData::GetDeletedRecordingsList(ADDON_HANDLE handle)
   }
 
   CStdString strRecordingId;
-  while (!vresp->end())
+  while (vresp->getRemainingLength() >= 5 * 4 + 5)
   {
     PVR_RECORDING tag;
     memset(&tag, 0, sizeof(tag));
@@ -917,12 +904,6 @@ PVR_ERROR cVNSIData::GetDeletedRecordingsList(ADDON_HANDLE handle)
     strncpy(tag.strRecordingId, strRecordingId.c_str(), sizeof(tag.strRecordingId) - 1);
 
     PVR->TransferRecordingEntry(handle, &tag);
-
-    delete[] strChannelName;
-    delete[] strTitle;
-    delete[] strPlotOutline;
-    delete[] strPlot;
-    delete[] strDirectory;
   }
 
   delete vresp;
@@ -1070,7 +1051,6 @@ void *cVNSIData::Process()
         else
           XBMC->QueueNotification(QUEUE_INFO, strMessageTranslated);
 
-        delete[] msgstr;
         if (g_bCharsetConv)
           XBMC->FreeString(strMessageTranslated);
       }
@@ -1083,9 +1063,6 @@ void *cVNSIData::Process()
 
 //        PVR->Recording(str1, str2, on!=0?true:false);
         PVR->TriggerTimerUpdate();
-
-        delete[] str1;
-        delete[] str2;
       }
       else if (vresp->getRequestID() == VNSI_STATUS_TIMERCHANGE)
       {
@@ -1168,7 +1145,7 @@ bool cVNSIData::GetChannelGroupList(ADDON_HANDLE handle, bool bRadio)
     return false;
   }
 
-  while (!vresp->end())
+  while (vresp->getRemainingLength() >= 1 + 1)
   {
     PVR_CHANNEL_GROUP tag;
     memset(&tag, 0, sizeof(tag));
@@ -1179,8 +1156,6 @@ bool cVNSIData::GetChannelGroupList(ADDON_HANDLE handle, bool bRadio)
     tag.iPosition = 0;
 
     PVR->TransferChannelGroup(handle, &tag);
-
-    delete[] strGroupName;
   }
 
   delete vresp;
@@ -1207,7 +1182,7 @@ bool cVNSIData::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GR
     return false;
   }
 
-  while (!vresp->end())
+  while (vresp->getRemainingLength() >= 2 * 4)
   {
     PVR_CHANNEL_GROUP_MEMBER tag;
     memset(&tag, 0, sizeof(tag));
