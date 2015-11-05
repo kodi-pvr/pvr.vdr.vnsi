@@ -59,6 +59,6 @@ class cRequestPacket
 
     bool checkExtend(size_t by);
 
-    const static size_t headerLength = 16;
-    const static size_t userDataLenPos = 12;
+    constexpr static size_t headerLength = 16;
+    constexpr static size_t userDataLenPos = 12;
 };
