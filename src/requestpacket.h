@@ -21,6 +21,7 @@
  */
 
 #include <stdint.h>
+#include <stddef.h>
 
 class cRequestPacket
 {
@@ -28,7 +29,7 @@ class cRequestPacket
     cRequestPacket();
     ~cRequestPacket();
 
-    bool init(uint32_t opcode, bool stream = false, bool setUserDataLength = false, uint32_t userDataLength = 0);
+    bool init(uint32_t opcode, bool stream = false, bool setUserDataLength = false, size_t userDataLength = 0);
     bool add_String(const char* string);
     bool add_U8(uint8_t c);
     bool add_U32(uint32_t ul);
@@ -37,7 +38,7 @@ class cRequestPacket
     bool add_S64(int64_t ll);
 
     uint8_t* getPtr() { return buffer; }
-    uint32_t getLen() { return bufUsed; }
+    size_t getLen() { return bufUsed; }
     uint32_t getChannel() { return channel; }
     uint32_t getSerial() { return serialNumber; }
 
@@ -47,8 +48,8 @@ class cRequestPacket
     static uint32_t serialNumberCounter;
 
     uint8_t* buffer;
-    uint32_t bufSize;
-    uint32_t bufUsed;
+    size_t bufSize;
+    size_t bufUsed;
     bool lengthSet;
 
     uint32_t channel;
@@ -56,8 +57,8 @@ class cRequestPacket
 
     uint32_t opcode;
 
-    bool checkExtend(uint32_t by);
+    bool checkExtend(size_t by);
 
-    const static uint32_t headerLength = 16;
-    const static uint32_t userDataLenPos = 12;
+    const static size_t headerLength = 16;
+    const static size_t userDataLenPos = 12;
 };
