@@ -55,7 +55,7 @@ public:
   void LoadChannelBlacklist();
   void ExtractProviderWhitelist();
   void ExtractChannelBlacklist();
-  bool IsWhitelist(CChannel &channel);
+  bool IsWhitelist(const CChannel &channel) const;
   std::vector<CChannel> m_channels;
   std::map<int, int> m_channelsMap;
   std::vector<CProvider> m_providers;

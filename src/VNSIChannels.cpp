@@ -166,7 +166,7 @@ void CVNSIChannels::ExtractChannelBlacklist()
   }
 }
 
-bool CVNSIChannels::IsWhitelist(CChannel &channel)
+bool CVNSIChannels::IsWhitelist(const CChannel &channel) const
 {
   CProvider provider;
   provider.m_name = channel.m_provider;
