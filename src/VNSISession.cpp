@@ -22,8 +22,6 @@
 #include "VNSISession.h"
 #include "client.h"
 
-#include <memory>
-
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -153,7 +151,7 @@ bool cVNSISession::Login()
   return true;
 }
 
-cResponsePacket* cVNSISession::ReadMessage(int iInitialTimeout /*= 10000*/, int iDatapacketTimeout /*= 10000*/)
+std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /*= 10000*/, int iDatapacketTimeout /*= 10000*/)
 {
   uint32_t channelID = 0;
   uint32_t userDataLength = 0;
@@ -281,7 +279,7 @@ cResponsePacket* cVNSISession::ReadMessage(int iInitialTimeout /*= 10000*/, int 
       vresp->setResponse(userData, userDataLength);
   }
 
-  return vresp;
+  return std::unique_ptr<cResponsePacket>(vresp);
 }
 
 bool cVNSISession::TransmitMessage(cRequestPacket* vrp)
@@ -298,7 +296,7 @@ bool cVNSISession::TransmitMessage(cRequestPacket* vrp)
   return true;
 }
 
-cResponsePacket* cVNSISession::ReadResult(cRequestPacket* vrp)
+std::unique_ptr<cResponsePacket> cVNSISession::ReadResult(cRequestPacket* vrp)
 {
   if(!TransmitMessage(vrp))
   {
@@ -306,7 +304,7 @@ cResponsePacket* cVNSISession::ReadResult(cRequestPacket* vrp)
     return NULL;
   }
 
-  cResponsePacket *pkt = NULL;
+  std::unique_ptr<cResponsePacket> pkt;
 
   while((pkt = ReadMessage()))
   {
@@ -315,8 +313,6 @@ cResponsePacket* cVNSISession::ReadResult(cRequestPacket* vrp)
     {
       return pkt;
     }
-    else
-      delete pkt;
   }
 
   SignalConnectionLost();
@@ -325,13 +321,12 @@ cResponsePacket* cVNSISession::ReadResult(cRequestPacket* vrp)
 
 bool cVNSISession::ReadSuccess(cRequestPacket* vrp)
 {
-  cResponsePacket *pkt = NULL;
+  std::unique_ptr<cResponsePacket> pkt;
   if((pkt = ReadResult(vrp)) == NULL)
   {
     return false;
   }
   uint32_t retCode = pkt->extract_U32();
-  delete pkt;
 
   if(retCode != VNSI_RET_OK)
   {

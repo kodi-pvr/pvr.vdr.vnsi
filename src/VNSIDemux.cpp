@@ -67,41 +67,38 @@ DemuxPacket* cVNSIDemux::Read()
     return NULL;
   }
 
-  cResponsePacket *resp = ReadMessage(1000, g_iConnectTimeout * 1000);
+  auto resp = ReadMessage(1000, g_iConnectTimeout * 1000);
 
   if(resp == NULL)
     return PVR->AllocateDemuxPacket(0);
 
   if (resp->getChannelID() != VNSI_CHANNEL_STREAM)
   {
-    delete resp;
     return NULL;
   }
 
   if (resp->getOpCodeID() == VNSI_STREAM_CHANGE)
   {
-    StreamChange(resp);
+    StreamChange(resp.get());
     DemuxPacket* pkt = PVR->AllocateDemuxPacket(0);
     pkt->iStreamId  = DMX_SPECIALID_STREAMCHANGE;
-    delete resp;
     return pkt;
   }
   else if (resp->getOpCodeID() == VNSI_STREAM_STATUS)
   {
-    StreamStatus(resp);
+    StreamStatus(resp.get());
   }
   else if (resp->getOpCodeID() == VNSI_STREAM_SIGNALINFO)
   {
-    StreamSignalInfo(resp);
+    StreamSignalInfo(resp.get());
   }
   else if (resp->getOpCodeID() == VNSI_STREAM_CONTENTINFO)
   {
     // send stream updates only if there are changes
-    if(StreamContentInfo(resp))
+    if(StreamContentInfo(resp.get()))
     {
       DemuxPacket* pkt = PVR->AllocateDemuxPacket(0);
       pkt->iStreamId  = DMX_SPECIALID_STREAMCHANGE;
-      delete resp;
       return pkt;
     }
   }
@@ -120,7 +117,6 @@ DemuxPacket* cVNSIDemux::Read()
       p->dts        = (double)resp->getDTS() * DVD_TIME_BASE / 1000000;
       p->pts        = (double)resp->getPTS() * DVD_TIME_BASE / 1000000;
       p->iStreamId  = iStreamId;
-      delete resp;
 
       XbmcPvrStream *stream = m_streams.GetStreamById(pid);
       xbmc_codec_type_t type = XBMC_CODEC_TYPE_UNKNOWN;
@@ -157,7 +153,6 @@ DemuxPacket* cVNSIDemux::Read()
     m_ReferenceDTS = (double)resp->extract_U64() * DVD_TIME_BASE / 1000000;
   }
 
-  delete resp;
   return PVR->AllocateDemuxPacket(0);
 }
 
@@ -176,7 +171,7 @@ bool cVNSIDemux::SeekTime(int time, bool backwards, double *startpts)
     XBMC->Log(LOG_ERROR, "%s - failed to seek1", __FUNCTION__);
     return false;
   }
-  cResponsePacket *resp = ReadResult(&vrp);
+  auto resp = ReadResult(&vrp);
   if (!resp)
   {
     XBMC->Log(LOG_ERROR, "%s - failed to seek2", __FUNCTION__);
@@ -184,7 +179,6 @@ bool cVNSIDemux::SeekTime(int time, bool backwards, double *startpts)
   }
   uint32_t retCode = resp->extract_U32();
   uint32_t serial = resp->extract_U32();
-  delete resp;
 
   if (retCode == VNSI_RET_OK)
   {
@@ -206,14 +200,13 @@ bool cVNSIDemux::SwitchChannel(const PVR_CHANNEL &channelinfo)
     XBMC->Log(LOG_ERROR, "%s - failed to get timeshift mode", __FUNCTION__);
     return false;
   }
-  cResponsePacket *resp = ReadResult(&vrp1);
+  auto resp = ReadResult(&vrp1);
   if (!resp)
   {
     XBMC->Log(LOG_ERROR, "%s - failed to get timeshift mode", __FUNCTION__);
     return false;
   }
   m_bTimeshift = resp->extract_U32();
-  delete resp;
 
   cRequestPacket vrp2;
   if (!vrp2.init(VNSI_CHANNELSTREAM_OPEN) ||

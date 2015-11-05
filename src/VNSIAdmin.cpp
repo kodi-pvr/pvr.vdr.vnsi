@@ -1059,7 +1059,7 @@ bool cVNSIAdmin::OnInit()
       XBMC->Log(LOG_ERROR, "%s - failed to get timeshift mode", __FUNCTION__);
       return false;
     }
-    cResponsePacket *resp = ReadResult(&vrp);
+    auto resp = ReadResult(&vrp);
     if (!resp)
     {
       XBMC->Log(LOG_ERROR, "%s - failed to get timeshift mode", __FUNCTION__);
@@ -1067,7 +1067,6 @@ bool cVNSIAdmin::OnInit()
     }
     int mode = resp->extract_U32();
     m_spinTimeshiftMode->SetValue(mode);
-    delete resp;
   }
 
   m_spinTimeshiftBufferRam = GUI->Control_getSpin(m_window, CONTROL_SPIN_TIMESHIFT_BUFFER_RAM);
@@ -1086,7 +1085,7 @@ bool cVNSIAdmin::OnInit()
       XBMC->Log(LOG_ERROR, "%s - failed to get timeshift buffer size", __FUNCTION__);
       return false;
     }
-    cResponsePacket *resp = ReadResult(&vrp);
+    auto resp = ReadResult(&vrp);
     if (!resp)
     {
       XBMC->Log(LOG_ERROR, "%s - failed to get timeshift buffer size", __FUNCTION__);
@@ -1094,7 +1093,6 @@ bool cVNSIAdmin::OnInit()
     }
     int mode = resp->extract_U32();
     m_spinTimeshiftBufferRam->SetValue(mode);
-    delete resp;
   }
   m_spinTimeshiftBufferFile = GUI->Control_getSpin(m_window, CONTROL_SPIN_TIMESHIFT_BUFFER_FILE);
   m_spinTimeshiftBufferFile->Clear();
@@ -1111,7 +1109,7 @@ bool cVNSIAdmin::OnInit()
       XBMC->Log(LOG_ERROR, "%s - failed to get timeshift buffer (file) size", __FUNCTION__);
       return false;
     }
-    cResponsePacket *resp = ReadResult(&vrp);
+    auto resp = ReadResult(&vrp);
     if (!resp)
     {
       XBMC->Log(LOG_ERROR, "%s - failed to get timeshift buffer (file) size", __FUNCTION__);
@@ -1119,7 +1117,6 @@ bool cVNSIAdmin::OnInit()
     }
     int mode = resp->extract_U32();
     m_spinTimeshiftBufferFile->SetValue(mode);
-    delete resp;
   }
 
   // channel filters
@@ -1377,17 +1374,15 @@ bool cVNSIAdmin::ConnectOSD()
   if (!vrp.init(VNSI_OSD_CONNECT))
     return false;
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (vresp == NULL || vresp->noResponse())
   {
-    delete vresp;
     return false;
   }
   uint32_t osdWidth = vresp->extract_U32();
   uint32_t osdHeight = vresp->extract_U32();
   if (m_osdRender)
     m_osdRender->SetOSDSize(osdWidth, osdHeight);
-  delete vresp;
 
   return true;
 }
@@ -1411,7 +1406,7 @@ bool cVNSIAdmin::ReadChannelList(bool radio)
     return false;
   }
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
     XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
@@ -1443,7 +1438,6 @@ bool cVNSIAdmin::ReadChannelList(bool radio)
     m_channels.m_channels.push_back(channel);
     m_channels.m_channelsMap[channel.m_id] = m_channels.m_channels.size() - 1;
   }
-  delete vresp;
 
   return true;
 }
@@ -1462,7 +1456,7 @@ bool cVNSIAdmin::ReadChannelWhitelist(bool radio)
     return false;
   }
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
     XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
@@ -1478,7 +1472,6 @@ bool cVNSIAdmin::ReadChannelWhitelist(bool radio)
     provider.m_caid = vresp->extract_U32();
     m_channels.m_providerWhitelist.push_back(provider);
   }
-  delete vresp;
 
   return true;
 }
@@ -1505,7 +1498,7 @@ bool cVNSIAdmin::SaveChannelWhitelist(bool radio)
     vrp.add_S32(provider.m_caid);
   }
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
     XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
@@ -1529,7 +1522,7 @@ bool cVNSIAdmin::ReadChannelBlacklist(bool radio)
     return false;
   }
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
     XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
@@ -1542,7 +1535,6 @@ bool cVNSIAdmin::ReadChannelBlacklist(bool radio)
     int id = vresp->extract_U32();
     m_channels.m_channelBlacklist.push_back(id);
   }
-  delete vresp;
 
   return true;
 }
@@ -1568,7 +1560,7 @@ bool cVNSIAdmin::SaveChannelBlacklist(bool radio)
     vrp.add_S32(b);
   }
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
     XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);

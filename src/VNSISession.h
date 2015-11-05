@@ -24,6 +24,7 @@
 #include <string>
 #include "platform/threads/threads.h"
 
+#include <memory>
 
 class cResponsePacket;
 class cRequestPacket;
@@ -43,10 +44,10 @@ public:
   virtual bool      Login();
   virtual void      Close();
 
-  cResponsePacket*  ReadMessage(int iInitialTimeout = 10000, int iDatapacketTimeout = 10000);
+  std::unique_ptr<cResponsePacket> ReadMessage(int iInitialTimeout = 10000, int iDatapacketTimeout = 10000);
   bool              TransmitMessage(cRequestPacket* vrp);
 
-  cResponsePacket*  ReadResult(cRequestPacket* vrp);
+  std::unique_ptr<cResponsePacket> ReadResult(cRequestPacket* vrp);
   bool              ReadSuccess(cRequestPacket* m);
 
   int                GetProtocol() const { return m_protocol; }

@@ -71,7 +71,7 @@ public:
   PVR_ERROR   DeleteAllRecordingsFromTrash();
   PVR_ERROR   UndeleteAllRecordingsFromTrash();
 
-  cResponsePacket*  ReadResult(cRequestPacket* vrp);
+  std::unique_ptr<cResponsePacket> ReadResult(cRequestPacket* vrp);
 
 protected:
 
@@ -86,7 +86,7 @@ private:
   struct SMessage
   {
     PLATFORM::CEvent *event;
-    cResponsePacket  *pkt;
+    std::unique_ptr<cResponsePacket> pkt;
   };
   typedef std::map<int, SMessage> SMessages;
 
