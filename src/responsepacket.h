@@ -40,18 +40,18 @@ class cResponsePacket
 
     bool noResponse() { return (userData == NULL); };
 
-    uint32_t  getUserDataLength() { return userDataLength; }
-    uint32_t  getChannelID()      { return channelID; }
-    uint32_t  getRequestID()      { return requestID; }
-    uint32_t  getStreamID()       { return streamID; }
-    uint32_t  getOpCodeID()       { return opcodeID; }
-    uint32_t  getDuration()       { return duration; }
-    int64_t   getDTS()            { return dts; }
-    int64_t   getPTS()            { return pts; }
-    uint32_t  getMuxSerial()      { return muxSerial; }
+    uint32_t  getUserDataLength() const { return userDataLength; }
+    uint32_t  getChannelID() const { return channelID; }
+    uint32_t  getRequestID() const { return requestID; }
+    uint32_t  getStreamID() const { return streamID; }
+    uint32_t  getOpCodeID() const { return opcodeID; }
+    uint32_t  getDuration() const { return duration; }
+    int64_t   getDTS() const { return dts; }
+    int64_t   getPTS() const { return pts; }
+    uint32_t  getMuxSerial() const { return muxSerial; }
     void      getOSDData(uint32_t &wnd, uint32_t &color, uint32_t &x0, uint32_t &y0, uint32_t &x1, uint32_t &y1);
 
-    uint32_t  getPacketPos()      { return packetPos; }
+    uint32_t  getPacketPos() const { return packetPos; }
 
     size_t getRemainingLength() const {
       return userDataLength - packetPos;
@@ -69,9 +69,9 @@ class cResponsePacket
     uint8_t* getUserData();
 
     uint8_t* getHeader() { return header; };
-    unsigned int getStreamHeaderLength() { return 36; };
-    unsigned int getHeaderLength() { return 8; };
-    unsigned int getOSDHeaderLength() { return 32; } ;
+    unsigned int getStreamHeaderLength() const { return 36; };
+    unsigned int getHeaderLength() const { return 8; };
+    unsigned int getOSDHeaderLength() const { return 32; } ;
 
   private:
     uint8_t  header[40];
