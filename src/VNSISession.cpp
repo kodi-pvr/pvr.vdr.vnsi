@@ -366,10 +366,7 @@ bool cVNSISession::TryReconnect() {
 
 bool cVNSISession::IsOpen()
 {
-  bool bReturn(false);
-  if (m_socket && m_socket->IsOpen())
-    bReturn = true;
-  return bReturn;
+  return m_socket && m_socket->IsOpen();
 }
 
 void cVNSISession::SignalConnectionLost()
