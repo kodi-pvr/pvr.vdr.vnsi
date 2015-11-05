@@ -39,7 +39,6 @@ class cResponsePacket
     void extractOSDHeader();
 
     bool noResponse() { return (userData == NULL); };
-    int  serverError();
 
     uint32_t  getUserDataLength() { return userDataLength; }
     uint32_t  getChannelID()      { return channelID; }

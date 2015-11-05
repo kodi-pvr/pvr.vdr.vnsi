@@ -149,16 +149,8 @@ void cResponsePacket::extractOSDHeader()
   userDataLength = extract_U32();
 }
 
-int cResponsePacket::serverError()
-{
-  if ((packetPos == 0) && (userDataLength == 4) && !ntohl(*(uint32_t*)userData)) return 1;
-  else return 0;
-}
-
 char* cResponsePacket::extract_String()
 {
-  if (serverError()) return NULL;
-
   char *p = (char *)&userData[packetPos];
   const char *end = (const char *)memchr(p, '\0', userDataLength - packetPos);
   if (end == NULL)
