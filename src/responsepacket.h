@@ -66,8 +66,6 @@ class cResponsePacket
     int64_t   extract_S64();
     double    extract_Double();
 
-    bool      end();
-
     // If you call this, the memory becomes yours. Free with free()
     uint8_t* getUserData();
 

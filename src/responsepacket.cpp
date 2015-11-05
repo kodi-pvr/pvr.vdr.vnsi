@@ -149,11 +149,6 @@ void cResponsePacket::extractOSDHeader()
   userDataLength = extract_U32();
 }
 
-bool cResponsePacket::end()
-{
-  return (packetPos >= userDataLength);
-}
-
 int cResponsePacket::serverError()
 {
   if ((packetPos == 0) && (userDataLength == 4) && !ntohl(*(uint32_t*)userData)) return 1;
