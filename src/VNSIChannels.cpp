@@ -92,7 +92,7 @@ void CVNSIChannels::CreateProviders()
         m_providers.push_back(provider);
       }
     }
-    if (c_it->m_caids.size() == 0)
+    if (c_it->m_caids.empty())
     {
       provider.m_caid = 0;
       p_it = std::find(m_providers.begin(), m_providers.end(), provider);
@@ -152,7 +152,7 @@ void CVNSIChannels::ExtractProviderWhitelist()
   {
     m_providerWhitelist.clear();
   }
-  else if (m_providerWhitelist.size() == 0)
+  else if (m_providerWhitelist.empty())
   {
     m_providerWhitelist.clear();
     CProvider provider;
