@@ -32,7 +32,6 @@ cResponsePacket::cResponsePacket()
   userDataLength  = 0;
   packetPos       = 0;
   userData        = NULL;
-  ownBlock        = true;
   channelID       = 0;
   requestID       = 0;
   streamID        = 0;
@@ -40,8 +39,6 @@ cResponsePacket::cResponsePacket()
 
 cResponsePacket::~cResponsePacket()
 {
-  if (!ownBlock) return; // don't free if it's a getblock
-
   if (userData)
   {
     if (channelID == VNSI_CHANNEL_STREAM && opcodeID == VNSI_STREAM_MUXPKT)
@@ -223,6 +220,12 @@ int64_t cResponsePacket::extract_S64()
 
 uint8_t* cResponsePacket::getUserData()
 {
-  ownBlock = false;
   return userData;
+}
+
+uint8_t* cResponsePacket::stealUserData()
+{
+  uint8_t *result = userData;
+  userData = NULL;
+  return result;
 }

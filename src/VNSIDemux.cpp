@@ -114,7 +114,7 @@ DemuxPacket* cVNSIDemux::Read()
     // stream found ?
     if(iStreamId != -1 && resp->getMuxSerial() == m_MuxPacketSerial)
     {
-      DemuxPacket* p = (DemuxPacket*)resp->getUserData();
+      DemuxPacket* p = (DemuxPacket*)resp->stealUserData();
       p->iSize      = resp->getUserDataLength();
       p->duration   = (double)resp->getDuration() * DVD_TIME_BASE / 1000000;
       p->dts        = (double)resp->getDTS() * DVD_TIME_BASE / 1000000;

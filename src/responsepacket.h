@@ -67,6 +67,8 @@ class cResponsePacket
     double    extract_Double();
 
     // If you call this, the memory becomes yours. Free with free()
+    uint8_t* stealUserData();
+
     uint8_t* getUserData();
 
     uint8_t* getHeader() { return header; };
@@ -93,6 +95,4 @@ class cResponsePacket
     int32_t osdWnd;
     int32_t osdColor;
     int32_t osdX0,osdY0,osdX1,osdY1;
-
-    bool ownBlock;
 };

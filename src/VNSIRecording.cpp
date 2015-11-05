@@ -117,14 +117,12 @@ int cVNSIRecording::Read(unsigned char* buf, uint32_t buf_size)
   if (length > buf_size)
   {
     XBMC->Log(LOG_ERROR, "%s: PANIC - Received more bytes as requested", __FUNCTION__);
-    free(data);
     delete vresp;
     return 0;
   }
 
   memcpy(buf, data, length);
   m_currentPlayingRecordPosition += length;
-  free(data);
   delete vresp;
   return length;
 }

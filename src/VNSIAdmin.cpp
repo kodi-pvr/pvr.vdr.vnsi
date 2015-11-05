@@ -1320,7 +1320,6 @@ bool cVNSIAdmin::OnResponsePacket(cResponsePacket* resp)
       if (m_osdRender)
         m_osdRender->AddTexture(wnd, color, x0, y0, x1, y1, data[0]);
       m_osdMutex.Unlock();
-      free(data);
     }
     else if (resp->getOpCodeID() == VNSI_OSD_SETPALETTE)
     {
@@ -1330,7 +1329,6 @@ bool cVNSIAdmin::OnResponsePacket(cResponsePacket* resp)
       if (m_osdRender)
         m_osdRender->SetPalette(wnd, x0, (uint32_t*)data);
       m_osdMutex.Unlock();
-      free(data);
     }
     else if (resp->getOpCodeID() == VNSI_OSD_SETBLOCK)
     {
@@ -1343,7 +1341,6 @@ bool cVNSIAdmin::OnResponsePacket(cResponsePacket* resp)
         m_bIsOsdDirty = true;
       }
       m_osdMutex.Unlock();
-      free(data);
     }
     else if (resp->getOpCodeID() == VNSI_OSD_CLEAR)
     {
