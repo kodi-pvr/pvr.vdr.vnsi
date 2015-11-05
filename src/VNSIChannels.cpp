@@ -41,7 +41,7 @@ bool CProvider::operator==(const CProvider &rhs)
   return true;
 }
 
-void CChannel::SetCaids(char *caids)
+void CChannel::SetCaids(const char *caids)
 {
   m_caids.clear();
   std::string strCaids = caids;

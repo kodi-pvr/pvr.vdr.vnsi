@@ -36,7 +36,7 @@ public:
 class CChannel
 {
 public:
-  void SetCaids(char *caids);
+  void SetCaids(const char *caids);
   unsigned int m_id;
   unsigned int m_number;
   std::string m_name;
