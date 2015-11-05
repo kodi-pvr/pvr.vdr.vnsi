@@ -22,6 +22,8 @@
 #include "VNSISession.h"
 #include "client.h"
 
+#include <memory>
+
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -115,7 +117,7 @@ bool cVNSISession::Login()
     }
 
     // read welcome
-    cResponsePacket* vresp = ReadResult(&vrp);
+    std::unique_ptr<cResponsePacket> vresp(ReadResult(&vrp));
     if (!vresp)
       throw "failed to read greeting from server";
 
@@ -135,8 +137,6 @@ bool cVNSISession::Login()
     if (m_name.empty())
       XBMC->Log(LOG_NOTICE, "Logged in at '%lu+%i' to '%s' Version: '%s' with protocol version '%d'",
         vdrTime, vdrTimeOffset, ServerName, ServerVersion, protocol);
-
-    delete vresp;
   }
   catch (const char * str)
   {
