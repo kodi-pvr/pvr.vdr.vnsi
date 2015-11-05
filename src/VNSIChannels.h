@@ -27,7 +27,7 @@ class CProvider
 public:
   CProvider();
   CProvider(std::string name, int caid);
-  bool operator==(const CProvider &rhs);
+  bool operator==(const CProvider &rhs) const;
   std::string m_name;
   int m_caid;
   bool m_whitelist;

@@ -32,7 +32,7 @@ CProvider::CProvider(std::string name, int caid)
 {
 };
 
-bool CProvider::operator==(const CProvider &rhs)
+bool CProvider::operator==(const CProvider &rhs) const
 {
   if (rhs.m_caid != m_caid)
     return false;
