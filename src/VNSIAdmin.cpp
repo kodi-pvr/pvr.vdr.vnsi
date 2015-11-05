@@ -360,10 +360,10 @@ class cOSDRenderGL : public cOSDRender
 public:
   cOSDRenderGL();
   virtual ~cOSDRenderGL();
-  virtual void DisposeTexture(int wndId);
-  virtual void FreeResources();
-  virtual void Render();
-  virtual bool Init();
+  void DisposeTexture(int wndId) override;
+  void FreeResources() override;
+  void Render() override;
+  bool Init() override;
 protected:
   GLuint m_hwTextures[MAX_TEXTURES];
   std::queue<GLuint> m_disposedHwTextures;
@@ -610,10 +610,10 @@ class cOSDRenderDX : public cOSDRender
 public:
   cOSDRenderDX();
   virtual ~cOSDRenderDX();
-  virtual void DisposeTexture(int wndId);
-  virtual void FreeResources();
-  virtual void Render();
-  virtual void SetDevice(void *device) { m_device = (LPDIRECT3DDEVICE9)device; };
+  void DisposeTexture(int wndId) override;
+  void FreeResources() override;
+  void Render() override;
+  void SetDevice(void *device) override { m_device = (LPDIRECT3DDEVICE9)device; };
 protected:
   LPDIRECT3DDEVICE9 m_device;
   LPDIRECT3DTEXTURE9 m_hwTextures[MAX_TEXTURES];

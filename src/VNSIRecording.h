@@ -31,7 +31,7 @@ public:
   ~cVNSIRecording();
 
   bool OpenRecording(const PVR_RECORDING& recinfo);
-  void Close();
+  void Close() override;
 
   int Read(unsigned char* buf, uint32_t buf_size);
   long long Seek(long long pos, uint32_t whence);
@@ -40,7 +40,7 @@ public:
 
 protected:
 
-  void OnReconnect();
+  void OnReconnect() override;
   void GetLength();
 
 private:

@@ -43,7 +43,7 @@ public:
   cVNSIChannelScan();
   ~cVNSIChannelScan();
 
-  bool Open(const std::string& hostname, int port, const char* name = "XBMC channel scanner");
+  bool Open(const std::string& hostname, int port, const char* name = "XBMC channel scanner") override;
 
   bool OnClick(int controlId);
   bool OnFocus(int controlId);
@@ -57,7 +57,7 @@ public:
 
 protected:
 
-  bool OnResponsePacket(cResponsePacket* resp);
+  bool OnResponsePacket(cResponsePacket* resp) override;
 
 private:
 
