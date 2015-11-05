@@ -19,14 +19,13 @@
  *
  */
 
-#include <stdlib.h>
-#include <string.h>
-
 #include "responsepacket.h"
 #include "vnsicommand.h"
 #include "tools.h"
-#include "client.h"
 #include "platform/sockets/tcp.h"
+
+#include <stdlib.h>
+#include <string.h>
 
 cResponsePacket::cResponsePacket()
 {
