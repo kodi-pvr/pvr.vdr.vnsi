@@ -37,7 +37,7 @@ public:
   virtual ~cVNSIData();
 
   bool        Open(const std::string& hostname, int port, const char* name = NULL, const std::string& mac = "");
-  bool        Login();
+  bool        Login() override;
 
   bool        SupportChannelScan();
   bool        SupportRecordingsUndelete();
@@ -78,8 +78,8 @@ protected:
   virtual void *Process(void);
   virtual bool OnResponsePacket(cResponsePacket *pkt);
 
-  virtual void OnDisconnect();
-  virtual void OnReconnect();
+  void OnDisconnect() override;
+  void OnReconnect() override;
 
 private:
 

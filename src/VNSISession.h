@@ -49,9 +49,9 @@ public:
   cResponsePacket*  ReadResult(cRequestPacket* vrp);
   bool              ReadSuccess(cRequestPacket* m);
 
-  int                GetProtocol()   { return m_protocol; }
-  const std::string& GetServerName() { return m_server; }
-  const std::string& GetVersion()    { return m_version; }
+  int                GetProtocol() const { return m_protocol; }
+  const std::string& GetServerName() const { return m_server; }
+  const std::string& GetVersion() const { return m_version; }
 
 protected:
 
@@ -64,7 +64,7 @@ protected:
   virtual void OnReconnect();
 
   virtual void SignalConnectionLost();
-  bool ConnectionLost() { return m_connectionLost; }
+  bool ConnectionLost() const { return m_connectionLost; }
 
   std::string      m_hostname;
   int              m_port;

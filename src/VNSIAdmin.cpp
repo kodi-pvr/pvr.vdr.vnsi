@@ -360,10 +360,10 @@ class cOSDRenderGL : public cOSDRender
 public:
   cOSDRenderGL();
   virtual ~cOSDRenderGL();
-  virtual void DisposeTexture(int wndId);
-  virtual void FreeResources();
-  virtual void Render();
-  virtual bool Init();
+  void DisposeTexture(int wndId) override;
+  void FreeResources() override;
+  void Render() override;
+  bool Init() override;
 protected:
   GLuint m_hwTextures[MAX_TEXTURES];
   std::queue<GLuint> m_disposedHwTextures;
@@ -610,10 +610,10 @@ class cOSDRenderDX : public cOSDRender
 public:
   cOSDRenderDX();
   virtual ~cOSDRenderDX();
-  virtual void DisposeTexture(int wndId);
-  virtual void FreeResources();
-  virtual void Render();
-  virtual void SetDevice(void *device) { m_device = (LPDIRECT3DDEVICE9)device; };
+  void DisposeTexture(int wndId) override;
+  void FreeResources() override;
+  void Render() override;
+  void SetDevice(void *device) override { m_device = (LPDIRECT3DDEVICE9)device; };
 protected:
   LPDIRECT3DDEVICE9 m_device;
   LPDIRECT3DTEXTURE9 m_hwTextures[MAX_TEXTURES];
@@ -1502,10 +1502,10 @@ bool cVNSIAdmin::SaveChannelWhitelist(bool radio)
     return false;
   }
 
-  for(unsigned int i=0; i<m_channels.m_providerWhitelist.size(); i++)
+  for (const auto &provider : m_channels.m_providerWhitelist)
   {
-    vrp.add_String(m_channels.m_providerWhitelist[i].m_name.c_str());
-    vrp.add_S32(m_channels.m_providerWhitelist[i].m_caid);
+    vrp.add_String(provider.m_name.c_str());
+    vrp.add_S32(provider.m_caid);
   }
 
   cResponsePacket* vresp = ReadResult(&vrp);
@@ -1566,9 +1566,9 @@ bool cVNSIAdmin::SaveChannelBlacklist(bool radio)
     return false;
   }
 
-  for(unsigned int i=0; i<m_channels.m_channelBlacklist.size(); i++)
+  for (auto b : m_channels.m_channelBlacklist)
   {
-    vrp.add_S32(m_channels.m_channelBlacklist[i]);
+    vrp.add_S32(b);
   }
 
   cResponsePacket* vresp = ReadResult(&vrp);
@@ -1584,10 +1584,9 @@ bool cVNSIAdmin::SaveChannelBlacklist(bool radio)
 void cVNSIAdmin::ClearListItems()
 {
   m_window->ClearList();
-  std::vector<CAddonListItem*>::iterator it;
-  for(it=m_listItems.begin(); it!=m_listItems.end(); ++it)
+  for (auto *i : m_listItems)
   {
-    GUI->ListItem_destroy(*it);
+    GUI->ListItem_destroy(i);
   }
   m_listItems.clear();
   m_listItemsMap.clear();
@@ -1598,16 +1597,15 @@ void cVNSIAdmin::LoadListItemsProviders()
 {
   ClearListItems();
 
-  std::vector<CProvider>::iterator it;
   int count = 0;
-  for(it=m_channels.m_providers.begin(); it!=m_channels.m_providers.end(); ++it)
+  for (const auto &provider : m_channels.m_providers)
   {
     std::string tmp;
-    if(!it->m_name.empty())
-      tmp = it->m_name;
+    if(!provider.m_name.empty())
+      tmp = provider.m_name;
     else
       tmp = XBMC->GetLocalizedString(30114);
-    if (it->m_caid == 0)
+    if (provider.m_caid == 0)
     {
       tmp += " - FTA";
     }
@@ -1615,7 +1613,7 @@ void cVNSIAdmin::LoadListItemsProviders()
     {
       tmp += " - CAID: ";
       char buf[16];
-      sprintf(buf, "%04x", it->m_caid);
+      sprintf(buf, "%04x", provider.m_caid);
       tmp += buf;
     }
 
@@ -1625,7 +1623,7 @@ void cVNSIAdmin::LoadListItemsProviders()
     m_listItems.push_back(item);
     m_listItemsMap[hdl] = count;
 
-    if (it->m_whitelist)
+    if (provider.m_whitelist)
       item->SetProperty("IsWhitelist", "true");
     else
       item->SetProperty("IsWhitelist", "false");

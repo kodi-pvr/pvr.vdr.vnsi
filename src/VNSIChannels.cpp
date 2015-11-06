@@ -32,7 +32,7 @@ CProvider::CProvider(std::string name, int caid)
 {
 };
 
-bool CProvider::operator==(const CProvider &rhs)
+bool CProvider::operator==(const CProvider &rhs) const
 {
   if (rhs.m_caid != m_caid)
     return false;
@@ -41,7 +41,7 @@ bool CProvider::operator==(const CProvider &rhs)
   return true;
 }
 
-void CChannel::SetCaids(char *caids)
+void CChannel::SetCaids(const char *caids)
 {
   m_caids.clear();
   std::string strCaids = caids;
@@ -76,26 +76,25 @@ CVNSIChannels::CVNSIChannels()
 
 void CVNSIChannels::CreateProviders()
 {
-  std::vector<CChannel>::iterator c_it;
-  std::vector<CProvider>::iterator p_it;
   CProvider provider;
   m_providers.clear();
-  for (c_it=m_channels.begin(); c_it!=m_channels.end(); ++c_it)
+
+  for (const auto &channel : m_channels)
   {
-    provider.m_name = c_it->m_provider;
-    for(unsigned int i=0; i<c_it->m_caids.size(); i++)
+    provider.m_name = channel.m_provider;
+    for (auto caid : channel.m_caids)
     {
-      provider.m_caid = c_it->m_caids[i];
-      p_it = std::find(m_providers.begin(), m_providers.end(), provider);
+      provider.m_caid = caid;
+      auto p_it = std::find(m_providers.begin(), m_providers.end(), provider);
       if (p_it == m_providers.end())
       {
         m_providers.push_back(provider);
       }
     }
-    if (c_it->m_caids.size() == 0)
+    if (channel.m_caids.empty())
     {
       provider.m_caid = 0;
-      p_it = std::find(m_providers.begin(), m_providers.end(), provider);
+      auto p_it = std::find(m_providers.begin(), m_providers.end(), provider);
       if (p_it == m_providers.end())
       {
         m_providers.push_back(provider);
@@ -106,18 +105,15 @@ void CVNSIChannels::CreateProviders()
 
 void CVNSIChannels::LoadProviderWhitelist()
 {
-  std::vector<CProvider>::iterator p_it;
-
   bool select = m_providerWhitelist.empty();
-  for(p_it=m_providers.begin(); p_it!=m_providers.end(); ++p_it)
+  for (auto &provider : m_providers)
   {
-    p_it->m_whitelist = select;
+    provider.m_whitelist = select;
   }
 
-  std::vector<CProvider>::iterator w_it;
-  for(w_it=m_providerWhitelist.begin(); w_it!=m_providerWhitelist.end(); ++w_it)
+  for (auto &w : m_providerWhitelist)
   {
-    p_it = std::find(m_providers.begin(), m_providers.end(), *w_it);
+    auto p_it = std::find(m_providers.begin(), m_providers.end(), w);
     if(p_it != m_providers.end())
     {
       p_it->m_whitelist = true;
@@ -127,10 +123,9 @@ void CVNSIChannels::LoadProviderWhitelist()
 
 void CVNSIChannels::LoadChannelBlacklist()
 {
-  std::map<int, int>::iterator it;
-  for(unsigned int i=0; i<m_channelBlacklist.size(); i++)
+  for (auto b : m_channelBlacklist)
   {
-    it = m_channelsMap.find(m_channelBlacklist[i]);
+    auto it = m_channelsMap.find(b);
     if(it!=m_channelsMap.end())
     {
       int idx = it->second;
@@ -141,18 +136,17 @@ void CVNSIChannels::LoadChannelBlacklist()
 
 void CVNSIChannels::ExtractProviderWhitelist()
 {
-  std::vector<CProvider>::iterator it;
   m_providerWhitelist.clear();
-  for(it=m_providers.begin(); it!=m_providers.end(); ++it)
+  for (const auto &provider : m_providers)
   {
-    if(it->m_whitelist)
-      m_providerWhitelist.push_back(*it);
+    if(provider.m_whitelist)
+      m_providerWhitelist.push_back(provider);
   }
   if(m_providerWhitelist.size() == m_providers.size())
   {
     m_providerWhitelist.clear();
   }
-  else if (m_providerWhitelist.size() == 0)
+  else if (m_providerWhitelist.empty())
   {
     m_providerWhitelist.clear();
     CProvider provider;
@@ -165,29 +159,28 @@ void CVNSIChannels::ExtractProviderWhitelist()
 void CVNSIChannels::ExtractChannelBlacklist()
 {
   m_channelBlacklist.clear();
-  for(unsigned int i=0; i<m_channels.size(); i++)
+  for (const auto &channel : m_channels)
   {
-    if(m_channels[i].m_blacklist)
-      m_channelBlacklist.push_back(m_channels[i].m_id);
+    if(channel.m_blacklist)
+      m_channelBlacklist.push_back(channel.m_id);
   }
 }
 
-bool CVNSIChannels::IsWhitelist(CChannel &channel)
+bool CVNSIChannels::IsWhitelist(const CChannel &channel) const
 {
   CProvider provider;
-  std::vector<CProvider>::iterator p_it;
   provider.m_name = channel.m_provider;
   if (channel.m_caids.empty())
   {
     provider.m_caid = 0;
-    p_it = std::find(m_providers.begin(), m_providers.end(), provider);
+    auto p_it = std::find(m_providers.begin(), m_providers.end(), provider);
     if(p_it!=m_providers.end() && p_it->m_whitelist)
       return true;
   }
-  for(unsigned int i=0; i<channel.m_caids.size(); i++)
+  for (auto caid : channel.m_caids)
   {
-    provider.m_caid = channel.m_caids[i];
-    p_it = std::find(m_providers.begin(), m_providers.end(), provider);
+    provider.m_caid = caid;
+    auto p_it = std::find(m_providers.begin(), m_providers.end(), provider);
     if(p_it!=m_providers.end() && p_it->m_whitelist)
       return true;
   }

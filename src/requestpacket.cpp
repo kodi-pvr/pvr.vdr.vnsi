@@ -45,7 +45,7 @@ cRequestPacket::~cRequestPacket()
   free(buffer);
 }
 
-bool cRequestPacket::init(uint32_t topcode, bool stream, bool setUserDataLength, uint32_t userDataLength)
+bool cRequestPacket::init(uint32_t topcode, bool stream, bool setUserDataLength, size_t userDataLength)
 {
   if (buffer) return false;
 
@@ -86,7 +86,7 @@ bool cRequestPacket::init(uint32_t topcode, bool stream, bool setUserDataLength,
 
 bool cRequestPacket::add_String(const char* string)
 {
-  uint32_t len = strlen(string) + 1;
+  size_t len = strlen(string) + 1;
   if (!checkExtend(len)) return false;
   memcpy(buffer + bufUsed, string, len);
   bufUsed += len;
@@ -167,7 +167,7 @@ bool cRequestPacket::add_S64(int64_t ll)
   return true;
 }
 
-bool cRequestPacket::checkExtend(uint32_t by)
+bool cRequestPacket::checkExtend(size_t by)
 {
   if (lengthSet) return true;
   if ((bufUsed + by) <= bufSize) return true;

@@ -27,7 +27,7 @@ class CProvider
 public:
   CProvider();
   CProvider(std::string name, int caid);
-  bool operator==(const CProvider &rhs);
+  bool operator==(const CProvider &rhs) const;
   std::string m_name;
   int m_caid;
   bool m_whitelist;
@@ -36,7 +36,7 @@ public:
 class CChannel
 {
 public:
-  void SetCaids(char *caids);
+  void SetCaids(const char *caids);
   unsigned int m_id;
   unsigned int m_number;
   std::string m_name;
@@ -55,7 +55,7 @@ public:
   void LoadChannelBlacklist();
   void ExtractProviderWhitelist();
   void ExtractChannelBlacklist();
-  bool IsWhitelist(CChannel &channel);
+  bool IsWhitelist(const CChannel &channel) const;
   std::vector<CChannel> m_channels;
   std::map<int, int> m_channelsMap;
   std::vector<CProvider> m_providers;

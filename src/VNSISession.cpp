@@ -22,6 +22,8 @@
 #include "VNSISession.h"
 #include "client.h"
 
+#include <memory>
+
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -61,11 +63,9 @@ void cVNSISession::Close()
   {
     m_socket->Close();
   }
-  if (m_socket)
-  {
-    delete m_socket;
-    m_socket = NULL;
-  }
+
+  delete m_socket;
+  m_socket = NULL;
 }
 
 bool cVNSISession::Open(const std::string& hostname, int port, const char *name)
@@ -117,7 +117,7 @@ bool cVNSISession::Login()
     }
 
     // read welcome
-    cResponsePacket* vresp = ReadResult(&vrp);
+    std::unique_ptr<cResponsePacket> vresp(ReadResult(&vrp));
     if (!vresp)
       throw "failed to read greeting from server";
 
@@ -137,8 +137,6 @@ bool cVNSISession::Login()
     if (m_name.empty())
       XBMC->Log(LOG_NOTICE, "Logged in at '%lu+%i' to '%s' Version: '%s' with protocol version '%d'",
         vdrTime, vdrTimeOffset, ServerName, ServerVersion, protocol);
-
-    delete vresp;
   }
   catch (const char * str)
   {
@@ -366,10 +364,7 @@ bool cVNSISession::TryReconnect() {
 
 bool cVNSISession::IsOpen()
 {
-  bool bReturn(false);
-  if (m_socket && m_socket->IsOpen())
-    bReturn = true;
-  return bReturn;
+  return m_socket && m_socket->IsOpen();
 }
 
 void cVNSISession::SignalConnectionLost()

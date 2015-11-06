@@ -33,7 +33,7 @@ public:
   cVNSIAdmin();
   ~cVNSIAdmin();
 
-  bool Open(const std::string& hostname, int port, const char* name = "XBMC osd client");
+  bool Open(const std::string& hostname, int port, const char* name = "XBMC osd client") override;
 
   bool OnClick(int controlId);
   bool OnFocus(int controlId);
@@ -56,9 +56,9 @@ public:
   static bool DirtyCB(GUIHANDLE cbhdl);
 
 protected:
-  virtual bool OnResponsePacket(cResponsePacket* resp);
-  virtual void OnDisconnect() {};
-  virtual void OnReconnect() {};
+  bool OnResponsePacket(cResponsePacket* resp) override;
+  void OnDisconnect() override {};
+  void OnReconnect() override {};
   bool ConnectOSD();
   bool IsVdrAction(int action);
   bool ReadChannelList(bool radio);
