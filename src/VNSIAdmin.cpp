@@ -402,6 +402,7 @@ bool cOSDRenderGL::Init()
   if(!vis_shader->CompileAndLink())
   {
     delete vis_shader;
+    vis_shader = NULL;
     return false;
   }
 #endif
@@ -837,6 +838,7 @@ bool cVNSIAdmin::Open(const std::string& hostname, int port, const char* name)
   if(!m_osdRender->Init())
   {
     delete m_osdRender;
+    m_osdRender = NULL;
     return false;
   }
 
