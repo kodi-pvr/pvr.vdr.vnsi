@@ -286,23 +286,28 @@ bool cVNSIChannelScan::OnClick(int controlId)
   }
   else if (controlId == BUTTON_START)
   {
-    if (!m_running)
-    {
-      m_running = true;
-      m_stopped = false;
-      m_Canceled = false;
-      m_window->SetProperty("Scanning", "running");
-      m_window->SetControlLabel(BUTTON_START, XBMC->GetLocalizedString(222));
-      StartScan();
+    try {
+      if (!m_running)
+      {
+        m_running = true;
+        m_stopped = false;
+        m_Canceled = false;
+        m_window->SetProperty("Scanning", "running");
+        m_window->SetControlLabel(BUTTON_START, XBMC->GetLocalizedString(222));
+        StartScan();
+      }
+      else if (!m_stopped)
+      {
+        m_stopped = true;
+        m_Canceled = true;
+        StopScan();
+      }
+      else
+        ReturnFromProcessView();
+    } catch (std::exception e) {
+      XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+      return false;
     }
-    else if (!m_stopped)
-    {
-      m_stopped = true;
-      m_Canceled = true;
-      StopScan();
-    }
-    else
-      ReturnFromProcessView();
   }
   return true;
 }

@@ -217,23 +217,30 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   }
   free(buffer);
 
-  VNSIData = new cVNSIData;
-  if (!VNSIData->Open(g_szHostname, g_iPort, NULL, g_szWolMac))
-  {
-    ADDON_Destroy();
-    m_CurStatus = ADDON_STATUS_LOST_CONNECTION;
-    return m_CurStatus;
-  }
+  try {
+    VNSIData = new cVNSIData;
+    if (!VNSIData->Open(g_szHostname, g_iPort, NULL, g_szWolMac))
+    {
+      ADDON_Destroy();
+      m_CurStatus = ADDON_STATUS_LOST_CONNECTION;
+      return m_CurStatus;
+    }
 
-  if (!VNSIData->Login())
-  {
-    ADDON_Destroy();
-    m_CurStatus = ADDON_STATUS_LOST_CONNECTION;
-    return m_CurStatus;
-  }
+    if (!VNSIData->Login())
+    {
+      ADDON_Destroy();
+      m_CurStatus = ADDON_STATUS_LOST_CONNECTION;
+      return m_CurStatus;
+    }
 
-  if (!VNSIData->EnableStatusInterface(g_bHandleMessages))
-  {
+    if (!VNSIData->EnableStatusInterface(g_bHandleMessages))
+    {
+      ADDON_Destroy();
+      m_CurStatus = ADDON_STATUS_LOST_CONNECTION;
+      return m_CurStatus;
+    }
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     ADDON_Destroy();
     m_CurStatus = ADDON_STATUS_LOST_CONNECTION;
     return m_CurStatus;
@@ -467,8 +474,13 @@ PVR_ERROR GetDriveSpace(long long *iTotal, long long *iUsed)
 PVR_ERROR OpenDialogChannelScan(void)
 {
   cVNSIChannelScan scanner;
-  scanner.Open(g_szHostname, g_iPort);
-  return PVR_ERROR_NO_ERROR;
+  try {
+    scanner.Open(g_szHostname, g_iPort);
+    return PVR_ERROR_NO_ERROR;
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
+  }
 }
 
 /*******************************************/
@@ -479,7 +491,12 @@ PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time
   if (!VNSIData)
     return PVR_ERROR_SERVER_ERROR;
 
-  return (VNSIData->GetEPGForChannel(handle, channel, iStart, iEnd) ? PVR_ERROR_NO_ERROR: PVR_ERROR_SERVER_ERROR);
+  try {
+    return (VNSIData->GetEPGForChannel(handle, channel, iStart, iEnd) ? PVR_ERROR_NO_ERROR: PVR_ERROR_SERVER_ERROR);
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
+  }
 }
 
 
@@ -491,7 +508,12 @@ int GetChannelsAmount(void)
   if (!VNSIData)
     return 0;
 
-  return VNSIData->GetChannelsCount();
+  try {
+    return VNSIData->GetChannelsCount();
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return 0;
+  }
 }
 
 PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio)
@@ -499,7 +521,12 @@ PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio)
   if (!VNSIData)
     return PVR_ERROR_SERVER_ERROR;
 
-  return (VNSIData->GetChannelsList(handle, bRadio) ? PVR_ERROR_NO_ERROR : PVR_ERROR_SERVER_ERROR);
+  try {
+    return (VNSIData->GetChannelsList(handle, bRadio) ? PVR_ERROR_NO_ERROR : PVR_ERROR_SERVER_ERROR);
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
+  }
 }
 
 
@@ -511,7 +538,12 @@ int GetChannelGroupsAmount()
   if (!VNSIData)
     return PVR_ERROR_SERVER_ERROR;
 
-  return VNSIData->GetChannelGroupCount(g_bAutoChannelGroups);
+  try {
+    return VNSIData->GetChannelGroupCount(g_bAutoChannelGroups);
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
+  }
 }
 
 PVR_ERROR GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
@@ -519,10 +551,15 @@ PVR_ERROR GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
   if (!VNSIData)
     return PVR_ERROR_SERVER_ERROR;
 
-  if(VNSIData->GetChannelGroupCount(g_bAutoChannelGroups) > 0)
-    return VNSIData->GetChannelGroupList(handle, bRadio) ? PVR_ERROR_NO_ERROR : PVR_ERROR_SERVER_ERROR;
+  try {
+    if(VNSIData->GetChannelGroupCount(g_bAutoChannelGroups) > 0)
+      return VNSIData->GetChannelGroupList(handle, bRadio) ? PVR_ERROR_NO_ERROR : PVR_ERROR_SERVER_ERROR;
 
-  return PVR_ERROR_NO_ERROR;
+    return PVR_ERROR_NO_ERROR;
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
+  }
 }
 
 PVR_ERROR GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group)
@@ -530,7 +567,12 @@ PVR_ERROR GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &g
   if (!VNSIData)
     return PVR_ERROR_SERVER_ERROR;
 
-  return VNSIData->GetChannelGroupMembers(handle, group) ? PVR_ERROR_NO_ERROR : PVR_ERROR_SERVER_ERROR;
+  try {
+    return VNSIData->GetChannelGroupMembers(handle, group) ? PVR_ERROR_NO_ERROR : PVR_ERROR_SERVER_ERROR;
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
+  }
 }
 
 
@@ -548,7 +590,12 @@ int GetTimersAmount(void)
   if (!VNSIData)
     return 0;
 
-  return VNSIData->GetTimersCount();
+  try {
+    return VNSIData->GetTimersCount();
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return 0;
+  }
 }
 
 PVR_ERROR GetTimers(ADDON_HANDLE handle)
@@ -556,8 +603,13 @@ PVR_ERROR GetTimers(ADDON_HANDLE handle)
   if (!VNSIData)
     return PVR_ERROR_SERVER_ERROR;
 
-  /* TODO: Change implementation to get support for the timer features introduced with PVR API 1.9.7 */
-  return (VNSIData->GetTimersList(handle) ? PVR_ERROR_NO_ERROR : PVR_ERROR_SERVER_ERROR);
+  try {
+    /* TODO: Change implementation to get support for the timer features introduced with PVR API 1.9.7 */
+    return (VNSIData->GetTimersList(handle) ? PVR_ERROR_NO_ERROR : PVR_ERROR_SERVER_ERROR);
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
+  }
 }
 
 PVR_ERROR AddTimer(const PVR_TIMER &timer)
@@ -565,7 +617,12 @@ PVR_ERROR AddTimer(const PVR_TIMER &timer)
   if (!VNSIData)
     return PVR_ERROR_SERVER_ERROR;
 
-  return VNSIData->AddTimer(timer);
+  try {
+    return VNSIData->AddTimer(timer);
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
+  }
 }
 
 PVR_ERROR DeleteTimer(const PVR_TIMER &timer, bool bForce)
@@ -573,7 +630,12 @@ PVR_ERROR DeleteTimer(const PVR_TIMER &timer, bool bForce)
   if (!VNSIData)
     return PVR_ERROR_SERVER_ERROR;
 
-  return VNSIData->DeleteTimer(timer, bForce);
+  try {
+    return VNSIData->DeleteTimer(timer, bForce);
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
+  }
 }
 
 PVR_ERROR UpdateTimer(const PVR_TIMER &timer)
@@ -581,7 +643,12 @@ PVR_ERROR UpdateTimer(const PVR_TIMER &timer)
   if (!VNSIData)
     return PVR_ERROR_SERVER_ERROR;
 
-  return VNSIData->UpdateTimer(timer);
+  try {
+    return VNSIData->UpdateTimer(timer);
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
+  }
 }
 
 
@@ -593,10 +660,15 @@ int GetRecordingsAmount(bool deleted)
   if (!VNSIData)
     return 0;
 
-  if (!deleted)
-    return VNSIData->GetRecordingsCount();
-  else
-    return VNSIData->GetDeletedRecordingsCount();
+  try {
+    if (!deleted)
+      return VNSIData->GetRecordingsCount();
+    else
+      return VNSIData->GetDeletedRecordingsCount();
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
+  }
 }
 
 PVR_ERROR GetRecordings(ADDON_HANDLE handle, bool deleted)
@@ -604,10 +676,15 @@ PVR_ERROR GetRecordings(ADDON_HANDLE handle, bool deleted)
   if (!VNSIData)
     return PVR_ERROR_SERVER_ERROR;
 
-  if (!deleted)
-    return VNSIData->GetRecordingsList(handle);
-  else
-    return VNSIData->GetDeletedRecordingsList(handle);
+  try {
+    if (!deleted)
+      return VNSIData->GetRecordingsList(handle);
+    else
+      return VNSIData->GetDeletedRecordingsList(handle);
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
+  }
 }
 
 PVR_ERROR RenameRecording(const PVR_RECORDING &recording)
@@ -615,7 +692,12 @@ PVR_ERROR RenameRecording(const PVR_RECORDING &recording)
   if (!VNSIData)
     return PVR_ERROR_SERVER_ERROR;
 
-  return VNSIData->RenameRecording(recording, recording.strTitle);
+  try {
+    return VNSIData->RenameRecording(recording, recording.strTitle);
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
+  }
 }
 
 PVR_ERROR DeleteRecording(const PVR_RECORDING &recording)
@@ -623,7 +705,12 @@ PVR_ERROR DeleteRecording(const PVR_RECORDING &recording)
   if (!VNSIData)
     return PVR_ERROR_SERVER_ERROR;
 
-  return VNSIData->DeleteRecording(recording);
+  try {
+    return VNSIData->DeleteRecording(recording);
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
+  }
 }
 
 PVR_ERROR UndeleteRecording(const PVR_RECORDING& recording)
@@ -631,7 +718,12 @@ PVR_ERROR UndeleteRecording(const PVR_RECORDING& recording)
   if (!VNSIData)
     return PVR_ERROR_SERVER_ERROR;
 
-  return VNSIData->UndeleteRecording(recording);
+  try {
+    return VNSIData->UndeleteRecording(recording);
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
+  }
 }
 
 PVR_ERROR DeleteAllRecordingsFromTrash()
@@ -639,7 +731,12 @@ PVR_ERROR DeleteAllRecordingsFromTrash()
   if (!VNSIData)
     return PVR_ERROR_SERVER_ERROR;
 
-  return VNSIData->DeleteAllRecordingsFromTrash();
+  try {
+    return VNSIData->DeleteAllRecordingsFromTrash();
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
+  }
 }
 
 /*******************************************/
@@ -649,8 +746,16 @@ bool OpenLiveStream(const PVR_CHANNEL &channel)
 {
   CloseLiveStream();
 
-  VNSIDemuxer = new cVNSIDemux;
-  return VNSIDemuxer->OpenChannel(channel);
+  try {
+    VNSIDemuxer = new cVNSIDemux;
+    return VNSIDemuxer->OpenChannel(channel);
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    delete VNSIDemuxer;
+    VNSIDemuxer = NULL;
+    return false;
+  }
+
 }
 
 void CloseLiveStream(void)
@@ -681,7 +786,13 @@ DemuxPacket* DemuxRead(void)
   if (!VNSIDemuxer)
     return NULL;
 
-  DemuxPacket *pkt = VNSIDemuxer->Read();
+  DemuxPacket *pkt;
+  try {
+    pkt = VNSIDemuxer->Read();
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return NULL;
+  }
 
   TimeshiftMutex.Lock();
   IsTimeshift = VNSIDemuxer->IsTimeshift();
@@ -702,8 +813,12 @@ int GetCurrentClientChannel(void)
 
 bool SwitchChannel(const PVR_CHANNEL &channel)
 {
-  if (VNSIDemuxer)
-    return VNSIDemuxer->SwitchChannel(channel);
+  try {
+    if (VNSIDemuxer)
+      return VNSIDemuxer->SwitchChannel(channel);
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+  }
 
   return false;
 }
@@ -713,8 +828,12 @@ PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
   if (!VNSIDemuxer)
     return PVR_ERROR_SERVER_ERROR;
 
-  return (VNSIDemuxer->GetSignalStatus(signalStatus) ? PVR_ERROR_NO_ERROR : PVR_ERROR_SERVER_ERROR);
-
+  try {
+    return (VNSIDemuxer->GetSignalStatus(signalStatus) ? PVR_ERROR_NO_ERROR : PVR_ERROR_SERVER_ERROR);
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
+  }
 }
 
 bool CanPauseStream(void)
@@ -736,8 +855,12 @@ bool CanSeekStream(void)
 bool SeekTime(int time, bool backwards, double *startpts)
 {
   bool ret = false;
-  if (VNSIDemuxer)
-    ret = VNSIDemuxer->SeekTime(time, backwards, startpts);
+  try {
+    if (VNSIDemuxer)
+      ret = VNSIDemuxer->SeekTime(time, backwards, startpts);
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+  }
   return ret;
 }
 
@@ -803,7 +926,15 @@ bool OpenRecordedStream(const PVR_RECORDING &recording)
   CloseRecordedStream();
 
   VNSIRecording = new cVNSIRecording;
-  return VNSIRecording->OpenRecording(recording);
+  try {
+    return VNSIRecording->OpenRecording(recording);
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    VNSIRecording->Close();
+    delete VNSIRecording;
+    VNSIRecording = NULL;
+    return NULL;
+  }
 }
 
 void CloseRecordedStream(void)
@@ -821,13 +952,22 @@ int ReadRecordedStream(unsigned char *pBuffer, unsigned int iBufferSize)
   if (!VNSIRecording)
     return -1;
 
-  return VNSIRecording->Read(pBuffer, iBufferSize);
+  try {
+    return VNSIRecording->Read(pBuffer, iBufferSize);
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return -1;
+  }
 }
 
 long long SeekRecordedStream(long long iPosition, int iWhence /* = SEEK_SET */)
 {
-  if (VNSIRecording)
-    return VNSIRecording->Seek(iPosition, iWhence);
+  try {
+    if (VNSIRecording)
+      return VNSIRecording->Seek(iPosition, iWhence);
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+  }
 
   return -1;
 }
@@ -853,7 +993,12 @@ PVR_ERROR GetRecordingEdl(const PVR_RECORDING& recinfo, PVR_EDL_ENTRY edl[], int
   if(!VNSIData)
     return PVR_ERROR_UNKNOWN;
 
-  return VNSIData->GetRecordingEdl(recinfo, edl, size);
+  try {
+    return VNSIData->GetRecordingEdl(recinfo, edl, size);
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
+  }
 }
 
 
@@ -862,12 +1007,17 @@ PVR_ERROR GetRecordingEdl(const PVR_RECORDING& recinfo, PVR_EDL_ENTRY edl[], int
 
 PVR_ERROR CallMenuHook(const PVR_MENUHOOK &menuhook, const PVR_MENUHOOK_DATA &item)
 {
-  if (menuhook.iHookId == 1)
-  {
-    cVNSIAdmin osd;
-    osd.Open(g_szHostname, g_iPort);
+  try {
+    if (menuhook.iHookId == 1)
+    {
+      cVNSIAdmin osd;
+      osd.Open(g_szHostname, g_iPort);
+    }
+    return PVR_ERROR_NO_ERROR;
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
   }
-  return PVR_ERROR_NO_ERROR;
 }
 
 /** UNUSED API FUNCTIONS */

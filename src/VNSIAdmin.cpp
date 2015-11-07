@@ -1252,13 +1252,23 @@ bool cVNSIAdmin::Dirty()
 bool cVNSIAdmin::OnInitCB(GUIHANDLE cbhdl)
 {
   cVNSIAdmin* osd = static_cast<cVNSIAdmin*>(cbhdl);
-  return osd->OnInit();
+  try {
+    return osd->OnInit();
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return false;
+  }
 }
 
 bool cVNSIAdmin::OnClickCB(GUIHANDLE cbhdl, int controlId)
 {
   cVNSIAdmin* osd = static_cast<cVNSIAdmin*>(cbhdl);
-  return osd->OnClick(controlId);
+  try {
+    return osd->OnClick(controlId);
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return false;
+  }
 }
 
 bool cVNSIAdmin::OnFocusCB(GUIHANDLE cbhdl, int controlId)
@@ -1270,7 +1280,12 @@ bool cVNSIAdmin::OnFocusCB(GUIHANDLE cbhdl, int controlId)
 bool cVNSIAdmin::OnActionCB(GUIHANDLE cbhdl, int actionId)
 {
   cVNSIAdmin* osd = static_cast<cVNSIAdmin*>(cbhdl);
-  return osd->OnAction(actionId);
+  try {
+    return osd->OnAction(actionId);
+  } catch (std::exception e) {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return false;
+  }
 }
 
 bool cVNSIAdmin::CreateCB(GUIHANDLE cbhdl, int x, int y, int w, int h, void *device)
