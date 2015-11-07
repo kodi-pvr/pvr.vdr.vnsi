@@ -61,7 +61,7 @@ bool cRequestPacket::init(uint32_t topcode, bool stream, bool setUserDataLength,
   }
 
   buffer = (uint8_t*)malloc(bufSize);
-  if (!buffer) return false;
+  if (!buffer) throw std::bad_alloc();
 
   if (!stream)
     channel     = VNSI_CHANNEL_REQUEST_RESPONSE;
@@ -176,7 +176,7 @@ bool cRequestPacket::checkExtend(size_t by)
   {
     newBuf = (uint8_t*)malloc(bufUsed + by);
     if (!newBuf) {
-      return false;
+      throw std::bad_alloc();
     }
     memcpy(newBuf, buffer, bufUsed);
     free(buffer);
