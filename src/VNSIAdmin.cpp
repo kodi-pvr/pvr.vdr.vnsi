@@ -396,9 +396,6 @@ bool cOSDRenderGL::Init()
 #if defined(HAVE_GLES2)
   vis_shader = new CVisGUIShader(vert, frag);
 
-  if(!vis_shader)
-    return false;
-
   if(!vis_shader->CompileAndLink())
   {
     delete vis_shader;
