@@ -164,13 +164,10 @@ bool cVNSIDemux::SeekTime(int time, bool backwards, double *startpts)
   if (startpts)
     *startpts = seek_pts;
 
-  if (!vrp.init(VNSI_CHANNELSTREAM_SEEK) ||
-      !vrp.add_S64(seek_pts) ||
-      !vrp.add_U8(backwards))
-  {
-    XBMC->Log(LOG_ERROR, "%s - failed to seek1", __FUNCTION__);
-    return false;
-  }
+  vrp.init(VNSI_CHANNELSTREAM_SEEK);
+  vrp.add_S64(seek_pts);
+  vrp.add_U8(backwards);
+
   auto resp = ReadResult(&vrp);
   if (!resp)
   {
@@ -194,12 +191,9 @@ bool cVNSIDemux::SwitchChannel(const PVR_CHANNEL &channelinfo)
   XBMC->Log(LOG_DEBUG, "changing to channel %d", channelinfo.iChannelNumber);
 
   cRequestPacket vrp1;
+  vrp1.init(VNSI_GETSETUP);
+  vrp1.add_String(CONFNAME_TIMESHIFT);
 
-  if (!vrp1.init(VNSI_GETSETUP) || !vrp1.add_String(CONFNAME_TIMESHIFT))
-  {
-    XBMC->Log(LOG_ERROR, "%s - failed to get timeshift mode", __FUNCTION__);
-    return false;
-  }
   auto resp = ReadResult(&vrp1);
   if (!resp)
   {
@@ -209,11 +203,12 @@ bool cVNSIDemux::SwitchChannel(const PVR_CHANNEL &channelinfo)
   m_bTimeshift = resp->extract_U32();
 
   cRequestPacket vrp2;
-  if (!vrp2.init(VNSI_CHANNELSTREAM_OPEN) ||
-      !vrp2.add_U32(channelinfo.iUniqueId) ||
-      !vrp2.add_S32(g_iPriority) ||
-      !vrp2.add_U8(1) ||
-      !ReadSuccess(&vrp2))
+  vrp2.init(VNSI_CHANNELSTREAM_OPEN);
+  vrp2.add_U32(channelinfo.iUniqueId);
+  vrp2.add_S32(g_iPriority);
+  vrp2.add_U8(1);
+
+  if (!ReadSuccess(&vrp2))
   {
     XBMC->Log(LOG_ERROR, "%s - failed to set channel", __FUNCTION__);
     return false;

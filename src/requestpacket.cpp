@@ -45,7 +45,7 @@ cRequestPacket::~cRequestPacket()
   free(buffer);
 }
 
-bool cRequestPacket::init(uint32_t topcode, bool stream, bool setUserDataLength, size_t userDataLength)
+void cRequestPacket::init(uint32_t topcode, bool stream, bool setUserDataLength, size_t userDataLength)
 {
   assert(buffer == NULL);
 
@@ -80,14 +80,12 @@ bool cRequestPacket::init(uint32_t topcode, bool stream, bool setUserDataLength,
   ul = htonl(userDataLength);
   memcpy(&buffer[userDataLenPos], &ul, sizeof(uint32_t));
   bufUsed = headerLength;
-
-  return true;
 }
 
-bool cRequestPacket::add_String(const char* string)
+void cRequestPacket::add_String(const char* string)
 {
   size_t len = strlen(string) + 1;
-  if (!checkExtend(len)) return false;
+  checkExtend(len);
   memcpy(buffer + bufUsed, string, len);
   bufUsed += len;
   if (!lengthSet)
@@ -95,12 +93,11 @@ bool cRequestPacket::add_String(const char* string)
     uint32_t tmp = htonl(bufUsed - headerLength);
     memcpy(&buffer[userDataLenPos], &tmp, sizeof(uint32_t));
   }
-  return true;
 }
 
-bool cRequestPacket::add_U8(uint8_t c)
+void cRequestPacket::add_U8(uint8_t c)
 {
-  if (!checkExtend(sizeof(uint8_t))) return false;
+  checkExtend(sizeof(uint8_t));
   buffer[bufUsed] = c;
   bufUsed += sizeof(uint8_t);
   if (!lengthSet)
@@ -108,12 +105,11 @@ bool cRequestPacket::add_U8(uint8_t c)
     uint32_t tmp = htonl(bufUsed - headerLength);
     memcpy(&buffer[userDataLenPos], &tmp, sizeof(uint32_t));
   }
-  return true;
 }
 
-bool cRequestPacket::add_S32(int32_t l)
+void cRequestPacket::add_S32(int32_t l)
 {
-  if (!checkExtend(sizeof(int32_t))) return false;
+  checkExtend(sizeof(int32_t));
   int32_t tmp = htonl(l);
   memcpy(&buffer[bufUsed], &tmp, sizeof(int32_t));
   bufUsed += sizeof(int32_t);
@@ -122,12 +118,11 @@ bool cRequestPacket::add_S32(int32_t l)
     uint32_t tmp = htonl(bufUsed - headerLength);
     memcpy(&buffer[userDataLenPos], &tmp, sizeof(uint32_t));
   }
-  return true;
 }
 
-bool cRequestPacket::add_U32(uint32_t ul)
+void cRequestPacket::add_U32(uint32_t ul)
 {
-  if (!checkExtend(sizeof(uint32_t))) return false;
+  checkExtend(sizeof(uint32_t));
   uint32_t tmp = htonl(ul);
   memcpy(&buffer[bufUsed], &tmp, sizeof(uint32_t));
   bufUsed += sizeof(uint32_t);
@@ -136,12 +131,11 @@ bool cRequestPacket::add_U32(uint32_t ul)
     uint32_t tmp = htonl(bufUsed - headerLength);
     memcpy(&buffer[userDataLenPos], &tmp, sizeof(uint32_t));
   }
-  return true;
 }
 
-bool cRequestPacket::add_U64(uint64_t ull)
+void cRequestPacket::add_U64(uint64_t ull)
 {
-  if (!checkExtend(sizeof(uint64_t))) return false;
+  checkExtend(sizeof(uint64_t));
   uint64_t tmp = htonll(ull);
   memcpy(&buffer[bufUsed], &tmp, sizeof(uint64_t));
   bufUsed += sizeof(uint64_t);
@@ -150,12 +144,11 @@ bool cRequestPacket::add_U64(uint64_t ull)
     uint32_t tmp = htonl(bufUsed - headerLength);
     memcpy(&buffer[userDataLenPos], &tmp, sizeof(uint32_t));
   }
-  return true;
 }
 
-bool cRequestPacket::add_S64(int64_t ll)
+void cRequestPacket::add_S64(int64_t ll)
 {
-  if (!checkExtend(sizeof(int64_t))) return false;
+  checkExtend(sizeof(int64_t));
   int64_t tmp = htonll(ll);
   memcpy(&buffer[bufUsed], &tmp, sizeof(int64_t));
   bufUsed += sizeof(int64_t);
@@ -164,13 +157,12 @@ bool cRequestPacket::add_S64(int64_t ll)
     uint32_t tmp = htonl(bufUsed - headerLength);
     memcpy(&buffer[userDataLenPos], &tmp, sizeof(uint32_t));
   }
-  return true;
 }
 
-bool cRequestPacket::checkExtend(size_t by)
+void cRequestPacket::checkExtend(size_t by)
 {
-  if (lengthSet) return true;
-  if ((bufUsed + by) <= bufSize) return true;
+  if (lengthSet) return;
+  if ((bufUsed + by) <= bufSize) return;
   uint8_t* newBuf = (uint8_t*)realloc(buffer, bufUsed + by);
   if (!newBuf)
   {
@@ -183,6 +175,5 @@ bool cRequestPacket::checkExtend(size_t by)
   }
   buffer = newBuf;
   bufSize = bufUsed + by;
-  return true;
 }
 

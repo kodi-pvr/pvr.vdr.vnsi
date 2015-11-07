@@ -49,11 +49,8 @@ bool cVNSIRecording::OpenRecording(const PVR_RECORDING& recinfo)
     return false;
 
   cRequestPacket vrp;
-  if (!vrp.init(VNSI_RECSTREAM_OPEN) ||
-      !vrp.add_U32(atoi(recinfo.strRecordingId)))
-  {
-    return false;
-  }
+  vrp.init(VNSI_RECSTREAM_OPEN);
+  vrp.add_U32(atoi(recinfo.strRecordingId));
 
   auto vresp = ReadResult(&vrp);
   if (!vresp)
@@ -100,12 +97,9 @@ int cVNSIRecording::Read(unsigned char* buf, uint32_t buf_size)
   }
 
   cRequestPacket vrp;
-  if (!vrp.init(VNSI_RECSTREAM_GETBLOCK) ||
-      !vrp.add_U64(m_currentPlayingRecordPosition) ||
-      !vrp.add_U32(buf_size))
-  {
-    return 0;
-  }
+  vrp.init(VNSI_RECSTREAM_GETBLOCK);
+  vrp.add_U64(m_currentPlayingRecordPosition);
+  vrp.add_U32(buf_size);
 
   auto vresp = ReadResult(&vrp);
   if (!vresp)
@@ -181,8 +175,7 @@ void cVNSIRecording::OnReconnect()
 void cVNSIRecording::GetLength()
 {
   cRequestPacket vrp;
-  if (!vrp.init(VNSI_RECSTREAM_GETLENGTH))
-    return;
+  vrp.init(VNSI_RECSTREAM_GETLENGTH);
 
   auto vresp = ReadResult(&vrp);
   if (!vresp)

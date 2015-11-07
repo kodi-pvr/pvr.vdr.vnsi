@@ -142,20 +142,20 @@ void cVNSIChannelScan::StartScan()
 
   cRequestPacket vrp;
   uint32_t retCode = VNSI_RET_ERROR;
-  if (!vrp.init(VNSI_SCAN_START))                          goto SCANError;
-  if (!vrp.add_U32(source))                               goto SCANError;
-  if (!vrp.add_U8(m_radioButtonTV->IsSelected()))         goto SCANError;
-  if (!vrp.add_U8(m_radioButtonRadio->IsSelected()))      goto SCANError;
-  if (!vrp.add_U8(m_radioButtonFTA->IsSelected()))        goto SCANError;
-  if (!vrp.add_U8(m_radioButtonScrambled->IsSelected()))  goto SCANError;
-  if (!vrp.add_U8(m_radioButtonHD->IsSelected()))         goto SCANError;
-  if (!vrp.add_U32(m_spinCountries->GetValue()))          goto SCANError;
-  if (!vrp.add_U32(m_spinDVBCInversion->GetValue()))      goto SCANError;
-  if (!vrp.add_U32(m_spinDVBCSymbolrates->GetValue()))    goto SCANError;
-  if (!vrp.add_U32(m_spinDVBCqam->GetValue()))            goto SCANError;
-  if (!vrp.add_U32(m_spinDVBTInversion->GetValue()))      goto SCANError;
-  if (!vrp.add_U32(m_spinSatellites->GetValue()))         goto SCANError;
-  if (!vrp.add_U32(m_spinATSCType->GetValue()))           goto SCANError;
+  vrp.init(VNSI_SCAN_START);
+  vrp.add_U32(source);
+  vrp.add_U8(m_radioButtonTV->IsSelected());
+  vrp.add_U8(m_radioButtonRadio->IsSelected());
+  vrp.add_U8(m_radioButtonFTA->IsSelected());
+  vrp.add_U8(m_radioButtonScrambled->IsSelected());
+  vrp.add_U8(m_radioButtonHD->IsSelected());
+  vrp.add_U32(m_spinCountries->GetValue());
+  vrp.add_U32(m_spinDVBCInversion->GetValue());
+  vrp.add_U32(m_spinDVBCSymbolrates->GetValue());
+  vrp.add_U32(m_spinDVBCqam->GetValue());
+  vrp.add_U32(m_spinDVBTInversion->GetValue());
+  vrp.add_U32(m_spinSatellites->GetValue());
+  vrp.add_U32(m_spinATSCType->GetValue());
 
   {
     auto vresp = ReadResult(&vrp);
@@ -180,8 +180,7 @@ SCANError:
 void cVNSIChannelScan::StopScan()
 {
   cRequestPacket vrp;
-  if (!vrp.init(VNSI_SCAN_STOP))
-    return;
+  vrp.init(VNSI_SCAN_STOP);
 
   auto vresp = ReadResult(&vrp);
   if (!vresp)
@@ -440,8 +439,7 @@ bool cVNSIChannelScan::ReadCountries()
   //dvdlang = dvdlang.ToUpper();
 
   cRequestPacket vrp;
-  if (!vrp.init(VNSI_SCAN_GETCOUNTRIES))
-    return false;
+  vrp.init(VNSI_SCAN_GETCOUNTRIES);
 
   auto vresp = ReadResult(&vrp);
   if (!vresp)
@@ -476,8 +474,7 @@ bool cVNSIChannelScan::ReadSatellites()
   m_spinSatellites->Clear();
 
   cRequestPacket vrp;
-  if (!vrp.init(VNSI_SCAN_GETSATELLITES))
-    return false;
+  vrp.init(VNSI_SCAN_GETSATELLITES);
 
   auto vresp = ReadResult(&vrp);
   if (!vresp)

@@ -882,10 +882,10 @@ bool cVNSIAdmin::OnClick(int controlId)
   {
     int value = m_spinTimeshiftMode->GetValue();
     cRequestPacket vrp;
-    if (!vrp.init(VNSI_STORESETUP) ||
-        !vrp.add_String(CONFNAME_TIMESHIFT) ||
-        !vrp.add_U32(value) ||
-        !ReadSuccess(&vrp))
+    vrp.init(VNSI_STORESETUP);
+    vrp.add_String(CONFNAME_TIMESHIFT);
+    vrp.add_U32(value);
+    if (!ReadSuccess(&vrp))
     {
       XBMC->Log(LOG_ERROR, "%s - failed to set timeshift mode", __FUNCTION__);
     }
@@ -895,10 +895,10 @@ bool cVNSIAdmin::OnClick(int controlId)
   {
     int value = m_spinTimeshiftBufferRam->GetValue();
     cRequestPacket vrp;
-    if (!vrp.init(VNSI_STORESETUP) ||
-        !vrp.add_String(CONFNAME_TIMESHIFTBUFFERSIZE) ||
-        !vrp.add_U32(value) ||
-        !ReadSuccess(&vrp))
+    vrp.init(VNSI_STORESETUP);
+    vrp.add_String(CONFNAME_TIMESHIFTBUFFERSIZE);
+    vrp.add_U32(value);
+    if (!ReadSuccess(&vrp))
     {
       XBMC->Log(LOG_ERROR, "%s - failed to set timeshift buffer", __FUNCTION__);
     }
@@ -908,10 +908,10 @@ bool cVNSIAdmin::OnClick(int controlId)
   {
     int value = m_spinTimeshiftBufferFile->GetValue();
     cRequestPacket vrp;
-    if (!vrp.init(VNSI_STORESETUP) ||
-        !vrp.add_String(CONFNAME_TIMESHIFTBUFFERFILESIZE) ||
-        !vrp.add_U32(value) ||
-        !ReadSuccess(&vrp))
+    vrp.init(VNSI_STORESETUP);
+    vrp.add_String(CONFNAME_TIMESHIFTBUFFERFILESIZE);
+    vrp.add_U32(value);
+    if (!ReadSuccess(&vrp))
     {
       XBMC->Log(LOG_ERROR, "%s - failed to set timeshift buffer file", __FUNCTION__);
     }
@@ -1036,11 +1036,7 @@ bool cVNSIAdmin::OnInit()
   m_renderControl->Init();
 
   cRequestPacket vrp;
-  if (!vrp.init(VNSI_OSD_HITKEY))
-  {
-    XBMC->Log(LOG_ERROR, "%s - Can't init cRequestPacket", __FUNCTION__);
-    return false;
-  }
+  vrp.init(VNSI_OSD_HITKEY);
   vrp.add_U32(0);
   cVNSISession::TransmitMessage(&vrp);
 #endif
@@ -1054,11 +1050,8 @@ bool cVNSIAdmin::OnInit()
 
   {
     cRequestPacket vrp;
-    if (!vrp.init(VNSI_GETSETUP) || !vrp.add_String(CONFNAME_TIMESHIFT))
-    {
-      XBMC->Log(LOG_ERROR, "%s - failed to get timeshift mode", __FUNCTION__);
-      return false;
-    }
+    vrp.init(VNSI_GETSETUP);
+    vrp.add_String(CONFNAME_TIMESHIFT);
     auto resp = ReadResult(&vrp);
     if (!resp)
     {
@@ -1080,11 +1073,8 @@ bool cVNSIAdmin::OnInit()
 
   {
     cRequestPacket vrp;
-    if (!vrp.init(VNSI_GETSETUP) || !vrp.add_String(CONFNAME_TIMESHIFTBUFFERSIZE))
-    {
-      XBMC->Log(LOG_ERROR, "%s - failed to get timeshift buffer size", __FUNCTION__);
-      return false;
-    }
+    vrp.init(VNSI_GETSETUP);
+    vrp.add_String(CONFNAME_TIMESHIFTBUFFERSIZE);
     auto resp = ReadResult(&vrp);
     if (!resp)
     {
@@ -1104,11 +1094,8 @@ bool cVNSIAdmin::OnInit()
 
   {
     cRequestPacket vrp;
-    if (!vrp.init(VNSI_GETSETUP) || !vrp.add_String(CONFNAME_TIMESHIFTBUFFERFILESIZE))
-    {
-      XBMC->Log(LOG_ERROR, "%s - failed to get timeshift buffer (file) size", __FUNCTION__);
-      return false;
-    }
+    vrp.init(VNSI_GETSETUP);
+    vrp.add_String(CONFNAME_TIMESHIFTBUFFERFILESIZE);
     auto resp = ReadResult(&vrp);
     if (!resp)
     {
@@ -1146,11 +1133,7 @@ bool cVNSIAdmin::OnAction(int actionId)
     {
       // send all actions to vdr
       cRequestPacket vrp;
-      if (!vrp.init(VNSI_OSD_HITKEY))
-      {
-        XBMC->Log(LOG_ERROR, "%s - Can't init cRequestPacket", __FUNCTION__);
-        return false;
-      }
+      vrp.init(VNSI_OSD_HITKEY);
       vrp.add_U32(actionId);
       cVNSISession::TransmitMessage(&vrp);
       return true;
@@ -1386,8 +1369,7 @@ bool cVNSIAdmin::OnResponsePacket(cResponsePacket* resp)
 bool cVNSIAdmin::ConnectOSD()
 {
   cRequestPacket vrp;
-  if (!vrp.init(VNSI_OSD_CONNECT))
-    return false;
+  vrp.init(VNSI_OSD_CONNECT);
 
   auto vresp = ReadResult(&vrp);
   if (vresp == NULL || vresp->noResponse())
@@ -1405,21 +1387,9 @@ bool cVNSIAdmin::ConnectOSD()
 bool cVNSIAdmin::ReadChannelList(bool radio)
 {
   cRequestPacket vrp;
-  if (!vrp.init(VNSI_CHANNELS_GETCHANNELS))
-  {
-    XBMC->Log(LOG_ERROR, "%s - Can't init cRequestPacket", __FUNCTION__);
-    return false;
-  }
-  if (!vrp.add_U32(radio))
-  {
-    XBMC->Log(LOG_ERROR, "%s - Can't add parameter to cRequestPacket", __FUNCTION__);
-    return false;
-  }
-  if (!vrp.add_U8(0)) // apply no filter
-  {
-    XBMC->Log(LOG_ERROR, "%s - Can't add parameter to cRequestPacket", __FUNCTION__);
-    return false;
-  }
+  vrp.init(VNSI_CHANNELS_GETCHANNELS);
+  vrp.add_U32(radio);
+  vrp.add_U8(0); // apply no filter
 
   auto vresp = ReadResult(&vrp);
   if (!vresp)
@@ -1460,16 +1430,8 @@ bool cVNSIAdmin::ReadChannelList(bool radio)
 bool cVNSIAdmin::ReadChannelWhitelist(bool radio)
 {
   cRequestPacket vrp;
-  if (!vrp.init(VNSI_CHANNELS_GETWHITELIST))
-  {
-    XBMC->Log(LOG_ERROR, "%s - Can't init cRequestPacket", __FUNCTION__);
-    return false;
-  }
-  if (!vrp.add_U8(radio))
-  {
-    XBMC->Log(LOG_ERROR, "%s - Can't add parameter to cRequestPacket", __FUNCTION__);
-    return false;
-  }
+  vrp.init(VNSI_CHANNELS_GETWHITELIST);
+  vrp.add_U8(radio);
 
   auto vresp = ReadResult(&vrp);
   if (!vresp)
@@ -1496,16 +1458,8 @@ bool cVNSIAdmin::SaveChannelWhitelist(bool radio)
   m_channels.ExtractProviderWhitelist();
 
   cRequestPacket vrp;
-  if (!vrp.init(VNSI_CHANNELS_SETWHITELIST))
-  {
-    XBMC->Log(LOG_ERROR, "%s - Can't init cRequestPacket", __FUNCTION__);
-    return false;
-  }
-  if (!vrp.add_U8(radio))
-  {
-    XBMC->Log(LOG_ERROR, "%s - Can't add parameter to cRequestPacket", __FUNCTION__);
-    return false;
-  }
+  vrp.init(VNSI_CHANNELS_SETWHITELIST);
+  vrp.add_U8(radio);
 
   for (const auto &provider : m_channels.m_providerWhitelist)
   {
@@ -1526,16 +1480,8 @@ bool cVNSIAdmin::SaveChannelWhitelist(bool radio)
 bool cVNSIAdmin::ReadChannelBlacklist(bool radio)
 {
   cRequestPacket vrp;
-  if (!vrp.init(VNSI_CHANNELS_GETBLACKLIST))
-  {
-    XBMC->Log(LOG_ERROR, "%s - Can't init cRequestPacket", __FUNCTION__);
-    return false;
-  }
-  if (!vrp.add_U8(radio))
-  {
-    XBMC->Log(LOG_ERROR, "%s - Can't add parameter to cRequestPacket", __FUNCTION__);
-    return false;
-  }
+  vrp.init(VNSI_CHANNELS_GETBLACKLIST);
+  vrp.add_U8(radio);
 
   auto vresp = ReadResult(&vrp);
   if (!vresp)
@@ -1559,16 +1505,8 @@ bool cVNSIAdmin::SaveChannelBlacklist(bool radio)
   m_channels.ExtractChannelBlacklist();
 
   cRequestPacket vrp;
-  if (!vrp.init(VNSI_CHANNELS_SETBLACKLIST))
-  {
-    XBMC->Log(LOG_ERROR, "%s - Can't init cRequestPacket", __FUNCTION__);
-    return false;
-  }
-  if (!vrp.add_U8(radio))
-  {
-    XBMC->Log(LOG_ERROR, "%s - Can't add parameter to cRequestPacket", __FUNCTION__);
-    return false;
-  }
+  vrp.init(VNSI_CHANNELS_SETBLACKLIST);
+  vrp.add_U8(radio);
 
   for (auto b : m_channels.m_channelBlacklist)
   {
