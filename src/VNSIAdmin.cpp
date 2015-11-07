@@ -870,6 +870,7 @@ bool cVNSIAdmin::Open(const std::string& hostname, int port, const char* name)
   if (m_osdRender)
   {
     delete m_osdRender;
+    m_osdRender = NULL;
   }
 
   return true;
