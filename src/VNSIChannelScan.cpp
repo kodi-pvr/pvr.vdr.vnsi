@@ -141,7 +141,6 @@ void cVNSIChannelScan::StartScan()
   }
 
   cRequestPacket vrp;
-  cResponsePacket* vresp = NULL;
   uint32_t retCode = VNSI_RET_ERROR;
   if (!vrp.init(VNSI_SCAN_START))                          goto SCANError;
   if (!vrp.add_U32(source))                               goto SCANError;
@@ -158,13 +157,15 @@ void cVNSIChannelScan::StartScan()
   if (!vrp.add_U32(m_spinSatellites->GetValue()))         goto SCANError;
   if (!vrp.add_U32(m_spinATSCType->GetValue()))           goto SCANError;
 
-  vresp = ReadResult(&vrp);
-  if (!vresp)
-    goto SCANError;
+  {
+    auto vresp = ReadResult(&vrp);
+    if (!vresp)
+      goto SCANError;
 
-  retCode = vresp->extract_U32();
-  if (retCode != VNSI_RET_OK)
-    goto SCANError;
+    retCode = vresp->extract_U32();
+    if (retCode != VNSI_RET_OK)
+      goto SCANError;
+  }
 
   return;
 
@@ -182,7 +183,7 @@ void cVNSIChannelScan::StopScan()
   if (!vrp.init(VNSI_SCAN_STOP))
     return;
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (!vresp)
     return;
 
@@ -437,7 +438,7 @@ bool cVNSIChannelScan::ReadCountries()
   if (!vrp.init(VNSI_SCAN_GETCOUNTRIES))
     return false;
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (!vresp)
     return false;
 
@@ -461,7 +462,6 @@ bool cVNSIChannelScan::ReadCountries()
   {
     XBMC->Log(LOG_ERROR, "%s - Return error after reading countries (%i)", __FUNCTION__, retCode);
   }
-  delete vresp;
   return retCode == VNSI_RET_OK;
 }
 
@@ -474,7 +474,7 @@ bool cVNSIChannelScan::ReadSatellites()
   if (!vrp.init(VNSI_SCAN_GETSATELLITES))
     return false;
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (!vresp)
     return false;
 
@@ -494,7 +494,6 @@ bool cVNSIChannelScan::ReadSatellites()
   {
     XBMC->Log(LOG_ERROR, "%s - Return error after reading satellites (%i)", __FUNCTION__, retCode);
   }
-  delete vresp;
   return retCode == VNSI_RET_OK;
 }
 

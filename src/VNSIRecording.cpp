@@ -55,7 +55,7 @@ bool cVNSIRecording::OpenRecording(const PVR_RECORDING& recinfo)
     return false;
   }
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (!vresp)
     return false;
 
@@ -69,7 +69,6 @@ bool cVNSIRecording::OpenRecording(const PVR_RECORDING& recinfo)
   else
     XBMC->Log(LOG_ERROR, "%s - Can't open recording '%s'", __FUNCTION__, recinfo.strTitle);
 
-  delete vresp;
   return (returnCode == VNSI_RET_OK);
 }
 
@@ -108,7 +107,7 @@ int cVNSIRecording::Read(unsigned char* buf, uint32_t buf_size)
     return 0;
   }
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (!vresp)
     return -1;
 
@@ -117,15 +116,11 @@ int cVNSIRecording::Read(unsigned char* buf, uint32_t buf_size)
   if (length > buf_size)
   {
     XBMC->Log(LOG_ERROR, "%s: PANIC - Received more bytes as requested", __FUNCTION__);
-    free(data);
-    delete vresp;
     return 0;
   }
 
   memcpy(buf, data, length);
   m_currentPlayingRecordPosition += length;
-  free(data);
-  delete vresp;
   return length;
 }
 
@@ -189,10 +184,9 @@ void cVNSIRecording::GetLength()
   if (!vrp.init(VNSI_RECSTREAM_GETLENGTH))
     return;
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (!vresp)
     return;
 
   m_currentPlayingRecordBytes = vresp->extract_U64();
-  delete vresp;
 }

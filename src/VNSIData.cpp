@@ -83,7 +83,7 @@ void cVNSIData::OnReconnect()
   PVR->TriggerRecordingUpdate();
 }
 
-cResponsePacket* cVNSIData::ReadResult(cRequestPacket* vrp)
+std::unique_ptr<cResponsePacket> cVNSIData::ReadResult(cRequestPacket* vrp)
 {
   m_mutex.Lock();
 
@@ -107,7 +107,7 @@ cResponsePacket* cVNSIData::ReadResult(cRequestPacket* vrp)
 
   m_mutex.Lock();
 
-  cResponsePacket* vresp = message.pkt;
+  auto vresp = std::move(message.pkt);
   delete message.event;
 
   m_queue.erase(vrp->getSerial());
@@ -126,7 +126,7 @@ bool cVNSIData::GetDriveSpace(long long *total, long long *used)
     return false;
   }
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
     XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
@@ -144,7 +144,6 @@ bool cVNSIData::GetDriveSpace(long long *total, long long *used)
   *total *= 1024;
   *used  *= 1024;
 
-  delete vresp;
   return true;
 }
 
@@ -157,7 +156,7 @@ bool cVNSIData::SupportChannelScan()
     return false;
   }
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
     XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
@@ -165,7 +164,6 @@ bool cVNSIData::SupportChannelScan()
   }
 
   uint32_t ret = vresp->extract_U32();
-  delete vresp;
   return ret == VNSI_RET_OK ? true : false;
 }
 
@@ -180,7 +178,7 @@ bool cVNSIData::SupportRecordingsUndelete()
       return false;
     }
 
-    cResponsePacket* vresp = ReadResult(&vrp);
+    auto vresp = ReadResult(&vrp);
     if (!vresp)
     {
       XBMC->Log(LOG_INFO, "%s - Can't get response packed", __FUNCTION__);
@@ -188,7 +186,6 @@ bool cVNSIData::SupportRecordingsUndelete()
     }
 
     uint32_t ret = vresp->extract_U32();
-    delete vresp;
     return ret == VNSI_RET_OK ? true : false;
   }
 
@@ -202,7 +199,7 @@ bool cVNSIData::EnableStatusInterface(bool onOff)
   if (!vrp.init(VNSI_ENABLESTATUSINTERFACE)) return false;
   if (!vrp.add_U8(onOff)) return false;
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
     XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
@@ -210,7 +207,6 @@ bool cVNSIData::EnableStatusInterface(bool onOff)
   }
 
   uint32_t ret = vresp->extract_U32();
-  delete vresp;
   return ret == VNSI_RET_OK ? true : false;
 }
 
@@ -223,7 +219,7 @@ int cVNSIData::GetChannelsCount()
     return -1;
   }
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
     XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
@@ -231,8 +227,6 @@ int cVNSIData::GetChannelsCount()
   }
 
   uint32_t count = vresp->extract_U32();
-
-  delete vresp;
   return count;
 }
 
@@ -255,7 +249,7 @@ bool cVNSIData::GetChannelsList(ADDON_HANDLE handle, bool radio)
     return false;
   }
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
     XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
@@ -292,7 +286,6 @@ bool cVNSIData::GetChannelsList(ADDON_HANDLE handle, bool radio)
     PVR->TransferChannelEntry(handle, &tag);
   }
 
-  delete vresp;
   return true;
 }
 
@@ -310,7 +303,7 @@ bool cVNSIData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel
     return false;
   }
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
     XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
@@ -348,7 +341,6 @@ bool cVNSIData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel
     free((void*)tag.strEpisodeName);
   }
 
-  delete vresp;
   return true;
 }
 
@@ -364,7 +356,7 @@ int cVNSIData::GetTimersCount()
     return -1;
   }
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
     XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
@@ -373,7 +365,6 @@ int cVNSIData::GetTimersCount()
 
   uint32_t count = vresp->extract_U32();
 
-  delete vresp;
   return count;
 }
 
@@ -390,18 +381,16 @@ PVR_ERROR cVNSIData::GetTimerInfo(unsigned int timernumber, PVR_TIMER &tag)
   if (!vrp.add_U32(timernumber))
     return PVR_ERROR_UNKNOWN;
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
     XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
-    delete vresp;
     return PVR_ERROR_UNKNOWN;
   }
 
   uint32_t returnCode = vresp->extract_U32();
   if (returnCode != VNSI_RET_OK)
   {
-    delete vresp;
     if (returnCode == VNSI_RET_DATAUNKNOWN)
       return PVR_ERROR_FAILED;
     else if (returnCode == VNSI_RET_ERROR)
@@ -432,7 +421,6 @@ PVR_ERROR cVNSIData::GetTimerInfo(unsigned int timernumber, PVR_TIMER &tag)
   char *strTitle = vresp->extract_String();
   strncpy(tag.strTitle, strTitle, sizeof(tag.strTitle) - 1);
 
-  delete vresp;
   return PVR_ERROR_NO_ERROR;
 }
 
@@ -445,10 +433,9 @@ bool cVNSIData::GetTimersList(ADDON_HANDLE handle)
     return false;
   }
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
-    delete vresp;
     XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return false;
   }
@@ -490,7 +477,6 @@ bool cVNSIData::GetTimersList(ADDON_HANDLE handle)
       PVR->TransferTimerEntry(handle, &tag);
     }
   }
-  delete vresp;
   return true;
 }
 
@@ -552,15 +538,13 @@ PVR_ERROR cVNSIData::AddTimer(const PVR_TIMER &timerinfo)
   if (!vrp.add_String(path.c_str()))      return PVR_ERROR_UNKNOWN;
   if (!vrp.add_String(""))                return PVR_ERROR_UNKNOWN;
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (vresp == NULL || vresp->noResponse())
   {
-    delete vresp;
     XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return PVR_ERROR_UNKNOWN;
   }
   uint32_t returnCode = vresp->extract_U32();
-  delete vresp;
   if (returnCode == VNSI_RET_DATALOCKED)
     return PVR_ERROR_ALREADY_PRESENT;
   else if (returnCode == VNSI_RET_DATAINVALID)
@@ -583,14 +567,12 @@ PVR_ERROR cVNSIData::DeleteTimer(const PVR_TIMER &timerinfo, bool force)
   if (!vrp.add_U32(force))
     return PVR_ERROR_UNKNOWN;
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (vresp == NULL || vresp->noResponse())
   {
-    delete vresp;
     return PVR_ERROR_UNKNOWN;
   }
   uint32_t returnCode = vresp->extract_U32();
-  delete vresp;
 
   if (returnCode == VNSI_RET_DATALOCKED)
     return PVR_ERROR_FAILED;
@@ -635,14 +617,12 @@ PVR_ERROR cVNSIData::UpdateTimer(const PVR_TIMER &timerinfo)
   if (!vrp.add_String(timerinfo.strTitle))   return PVR_ERROR_UNKNOWN;
   if (!vrp.add_String(""))                return PVR_ERROR_UNKNOWN;
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (vresp == NULL || vresp->noResponse())
   {
-    delete vresp;
     return PVR_ERROR_UNKNOWN;
   }
   uint32_t returnCode = vresp->extract_U32();
-  delete vresp;
   if (returnCode == VNSI_RET_DATAUNKNOWN)
     return PVR_ERROR_FAILED;
   else if (returnCode == VNSI_RET_DATAINVALID)
@@ -662,7 +642,7 @@ int cVNSIData::GetRecordingsCount()
     return -1;
   }
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
     XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
@@ -670,8 +650,6 @@ int cVNSIData::GetRecordingsCount()
   }
 
   uint32_t count = vresp->extract_U32();
-
-  delete vresp;
   return count;
 }
 
@@ -684,7 +662,7 @@ PVR_ERROR cVNSIData::GetRecordingsList(ADDON_HANDLE handle)
     return PVR_ERROR_UNKNOWN;
   }
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
     XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
@@ -723,8 +701,6 @@ PVR_ERROR cVNSIData::GetRecordingsList(ADDON_HANDLE handle)
     PVR->TransferRecordingEntry(handle, &tag);
   }
 
-  delete vresp;
-
   return PVR_ERROR_NO_ERROR;
 }
 
@@ -746,15 +722,13 @@ PVR_ERROR cVNSIData::RenameRecording(const PVR_RECORDING& recinfo, const char* n
   if (!vrp.add_String(newname))
     return PVR_ERROR_UNKNOWN;
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (vresp == NULL || vresp->noResponse())
   {
-    delete vresp;
     return PVR_ERROR_SERVER_ERROR;
   }
 
   uint32_t returnCode = vresp->extract_U32();
-  delete vresp;
 
   if(returnCode != 0)
    return PVR_ERROR_FAILED;
@@ -774,15 +748,13 @@ PVR_ERROR cVNSIData::DeleteRecording(const PVR_RECORDING& recinfo)
   if (!vrp.add_U32(atoi(recinfo.strRecordingId)))
     return PVR_ERROR_UNKNOWN;
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (vresp == NULL || vresp->noResponse())
   {
-    delete vresp;
     return PVR_ERROR_UNKNOWN;
   }
 
   uint32_t returnCode = vresp->extract_U32();
-  delete vresp;
 
   switch(returnCode)
   {
@@ -814,10 +786,9 @@ PVR_ERROR cVNSIData::GetRecordingEdl(const PVR_RECORDING& recinfo, PVR_EDL_ENTRY
   if (!vrp.add_U32(atoi(recinfo.strRecordingId)))
     return PVR_ERROR_UNKNOWN;
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (vresp == NULL || vresp->noResponse())
   {
-    delete vresp;
     return PVR_ERROR_UNKNOWN;
   }
 
@@ -831,8 +802,6 @@ PVR_ERROR cVNSIData::GetRecordingEdl(const PVR_RECORDING& recinfo, PVR_EDL_ENTRY
     (*size)++;
   }
 
-  delete vresp;
-
   return PVR_ERROR_NO_ERROR;
 }
 
@@ -845,7 +814,7 @@ int cVNSIData::GetDeletedRecordingsCount()
     return -1;
   }
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
     XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
@@ -853,8 +822,6 @@ int cVNSIData::GetDeletedRecordingsCount()
   }
 
   uint32_t count = vresp->extract_U32();
-
-  delete vresp;
   return count;
 }
 
@@ -867,7 +834,7 @@ PVR_ERROR cVNSIData::GetDeletedRecordingsList(ADDON_HANDLE handle)
     return PVR_ERROR_UNKNOWN;
   }
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
     XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
@@ -906,8 +873,6 @@ PVR_ERROR cVNSIData::GetDeletedRecordingsList(ADDON_HANDLE handle)
     PVR->TransferRecordingEntry(handle, &tag);
   }
 
-  delete vresp;
-
   return PVR_ERROR_NO_ERROR;
 }
 
@@ -923,16 +888,13 @@ PVR_ERROR cVNSIData::UndeleteRecording(const PVR_RECORDING& recinfo)
   if (!vrp.add_U32(atoi(recinfo.strRecordingId)))
     return PVR_ERROR_UNKNOWN;
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (vresp == NULL || vresp->noResponse())
   {
-    delete vresp;
     return PVR_ERROR_UNKNOWN;
   }
 
   uint32_t returnCode = vresp->extract_U32();
-  delete vresp;
-
   switch(returnCode)
   {
     case VNSI_RET_DATALOCKED:
@@ -960,16 +922,13 @@ PVR_ERROR cVNSIData::DeleteAllRecordingsFromTrash()
     return PVR_ERROR_UNKNOWN;
   }
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (vresp == NULL || vresp->noResponse())
   {
-    delete vresp;
     return PVR_ERROR_UNKNOWN;
   }
 
   uint32_t returnCode = vresp->extract_U32();
-  delete vresp;
-
   switch(returnCode)
   {
     case VNSI_RET_DATALOCKED:
@@ -995,7 +954,7 @@ bool cVNSIData::OnResponsePacket(cResponsePacket* pkt)
 
 void *cVNSIData::Process()
 {
-  cResponsePacket* vresp;
+  std::unique_ptr<cResponsePacket> vresp;
 
   while (!IsStopped())
   {
@@ -1020,12 +979,8 @@ void *cVNSIData::Process()
       SMessages::iterator it = m_queue.find(vresp->getRequestID());
       if (it != m_queue.end())
       {
-        it->second.pkt = vresp;
+        it->second.pkt = std::move(vresp);
         it->second.event->Broadcast();
-      }
-      else
-      {
-        delete vresp;
       }
     }
 
@@ -1085,16 +1040,13 @@ void *cVNSIData::Process()
         XBMC->Log(LOG_DEBUG, "Server requested Epg update for channel: %d", channel);
         PVR->TriggerEpgUpdate(channel);
       }
-
-      delete vresp;
     }
 
     // UNKOWN CHANNELID
 
-    else if (!OnResponsePacket(vresp))
+    else if (!OnResponsePacket(vresp.get()))
     {
       XBMC->Log(LOG_ERROR, "%s - Rxd a response packet on channel %lu !!", __FUNCTION__, vresp->getChannelID());
-      delete vresp;
     }
   }
   return NULL;
@@ -1114,16 +1066,14 @@ int cVNSIData::GetChannelGroupCount(bool automatic)
     return 0;
   }
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (vresp == NULL || vresp->noResponse())
   {
-    delete vresp;
     return 0;
   }
 
   uint32_t count = vresp->extract_U32();
 
-  delete vresp;
   return count;
 }
 
@@ -1138,10 +1088,9 @@ bool cVNSIData::GetChannelGroupList(ADDON_HANDLE handle, bool bRadio)
 
   vrp.add_U8(bRadio);
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (vresp == NULL || vresp->noResponse())
   {
-    delete vresp;
     return false;
   }
 
@@ -1158,7 +1107,6 @@ bool cVNSIData::GetChannelGroupList(ADDON_HANDLE handle, bool bRadio)
     PVR->TransferChannelGroup(handle, &tag);
   }
 
-  delete vresp;
   return true;
 }
 
@@ -1175,10 +1123,9 @@ bool cVNSIData::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GR
   vrp.add_U8(group.bIsRadio);
   vrp.add_U8(1); // filter channels
 
-  cResponsePacket* vresp = ReadResult(&vrp);
+  auto vresp = ReadResult(&vrp);
   if (vresp == NULL || vresp->noResponse())
   {
-    delete vresp;
     return false;
   }
 
@@ -1194,6 +1141,5 @@ bool cVNSIData::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GR
     PVR->TransferChannelGroupMember(handle, &tag);
   }
 
-  delete vresp;
   return true;
 }

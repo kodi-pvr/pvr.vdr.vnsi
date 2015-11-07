@@ -19,14 +19,13 @@
  *
  */
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-
 #include "requestpacket.h"
 #include "vnsicommand.h"
 #include "tools.h"
 #include "platform/sockets/tcp.h"
+
+#include <stdlib.h>
+#include <string.h>
 
 uint32_t cRequestPacket::serialNumberCounter = 1;
 
