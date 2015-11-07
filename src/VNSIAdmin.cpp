@@ -885,7 +885,7 @@ bool cVNSIAdmin::OnClick(int controlId)
     if (!vrp.init(VNSI_STORESETUP) ||
         !vrp.add_String(CONFNAME_TIMESHIFT) ||
         !vrp.add_U32(value) ||
-        ReadSuccess(&vrp))
+        !ReadSuccess(&vrp))
     {
       XBMC->Log(LOG_ERROR, "%s - failed to set timeshift mode", __FUNCTION__);
     }
@@ -898,7 +898,7 @@ bool cVNSIAdmin::OnClick(int controlId)
     if (!vrp.init(VNSI_STORESETUP) ||
         !vrp.add_String(CONFNAME_TIMESHIFTBUFFERSIZE) ||
         !vrp.add_U32(value) ||
-        ReadSuccess(&vrp))
+        !ReadSuccess(&vrp))
     {
       XBMC->Log(LOG_ERROR, "%s - failed to set timeshift buffer", __FUNCTION__);
     }
@@ -911,7 +911,7 @@ bool cVNSIAdmin::OnClick(int controlId)
     if (!vrp.init(VNSI_STORESETUP) ||
         !vrp.add_String(CONFNAME_TIMESHIFTBUFFERFILESIZE) ||
         !vrp.add_U32(value) ||
-        ReadSuccess(&vrp))
+        !ReadSuccess(&vrp))
     {
       XBMC->Log(LOG_ERROR, "%s - failed to set timeshift buffer file", __FUNCTION__);
     }
