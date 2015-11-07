@@ -24,6 +24,7 @@
 #include "tools.h"
 #include "platform/sockets/tcp.h"
 
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -46,7 +47,7 @@ cRequestPacket::~cRequestPacket()
 
 bool cRequestPacket::init(uint32_t topcode, bool stream, bool setUserDataLength, size_t userDataLength)
 {
-  if (buffer) return false;
+  assert(buffer == NULL);
 
   if (setUserDataLength)
   {
