@@ -29,13 +29,13 @@ class cRequestPacket
     cRequestPacket();
     ~cRequestPacket();
 
-    bool init(uint32_t opcode, bool stream = false, bool setUserDataLength = false, size_t userDataLength = 0);
-    bool add_String(const char* string);
-    bool add_U8(uint8_t c);
-    bool add_U32(uint32_t ul);
-    bool add_S32(int32_t l);
-    bool add_U64(uint64_t ull);
-    bool add_S64(int64_t ll);
+    void init(uint32_t opcode, bool stream = false, bool setUserDataLength = false, size_t userDataLength = 0);
+    void add_String(const char* string);
+    void add_U8(uint8_t c);
+    void add_U32(uint32_t ul);
+    void add_S32(int32_t l);
+    void add_U64(uint64_t ull);
+    void add_S64(int64_t ll);
 
     uint8_t* getPtr() const { return buffer; }
     size_t getLen() const { return bufUsed; }
@@ -57,7 +57,7 @@ class cRequestPacket
 
     uint32_t opcode;
 
-    bool checkExtend(size_t by);
+    void checkExtend(size_t by);
 
     constexpr static size_t headerLength = 16;
     constexpr static size_t userDataLenPos = 12;

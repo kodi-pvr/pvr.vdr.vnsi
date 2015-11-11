@@ -102,16 +102,16 @@ bool cVNSISession::Login()
   try
   {
     cRequestPacket vrp;
-    if (!vrp.init(VNSI_LOGIN))                  throw "Can't init cRequestPacket";
-    if (!vrp.add_U32(VNSI_PROTOCOLVERSION))     throw "Can't add protocol version to RequestPacket";
-    if (!vrp.add_U8(false))                     throw "Can't add netlog flag";
+    vrp.init(VNSI_LOGIN);
+    vrp.add_U32(VNSI_PROTOCOLVERSION);
+    vrp.add_U8(false); // netlog
     if (!m_name.empty())
     {
-      if (!vrp.add_String(m_name.c_str()))      throw "Can't add client name to RequestPacket";
+      vrp.add_String(m_name.c_str());
     }
     else
     {
-      if (!vrp.add_String("XBMC Media Center")) throw "Can't add client name to RequestPacket";
+      vrp.add_String("XBMC Media Center");
     }
 
     // read welcome

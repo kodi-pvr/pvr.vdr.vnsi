@@ -24,6 +24,7 @@
 #include "tools.h"
 #include "platform/sockets/tcp.h"
 
+#include <stdexcept>
 #include <stdlib.h>
 #include <string.h>
 
@@ -151,7 +152,7 @@ char* cResponsePacket::extract_String()
   const char *end = (const char *)memchr(p, '\0', userDataLength - packetPos);
   if (end == NULL)
     /* string is not terminated - fail */
-    return NULL;
+    throw std::out_of_range("Malformed VNSI packet");
 
   int length = end - p;
   packetPos += length + 1;
@@ -160,7 +161,8 @@ char* cResponsePacket::extract_String()
 
 uint8_t cResponsePacket::extract_U8()
 {
-  if ((packetPos + sizeof(uint8_t)) > userDataLength) return 0;
+  if ((packetPos + sizeof(uint8_t)) > userDataLength)
+    throw std::out_of_range("Malformed VNSI packet");
   uint8_t uc = userData[packetPos];
   packetPos += sizeof(uint8_t);
   return uc;
@@ -168,7 +170,8 @@ uint8_t cResponsePacket::extract_U8()
 
 uint32_t cResponsePacket::extract_U32()
 {
-  if ((packetPos + sizeof(uint32_t)) > userDataLength) return 0;
+  if ((packetPos + sizeof(uint32_t)) > userDataLength)
+    throw std::out_of_range("Malformed VNSI packet");
   uint32_t ul;
   memcpy(&ul, &userData[packetPos], sizeof(uint32_t));
   ul = ntohl(ul);
@@ -178,7 +181,8 @@ uint32_t cResponsePacket::extract_U32()
 
 uint64_t cResponsePacket::extract_U64()
 {
-  if ((packetPos + sizeof(uint64_t)) > userDataLength) return 0;
+  if ((packetPos + sizeof(uint64_t)) > userDataLength)
+    throw std::out_of_range("Malformed VNSI packet");
   uint64_t ull;
   memcpy(&ull, &userData[packetPos], sizeof(uint64_t));
   ull = ntohll(ull);
@@ -188,7 +192,8 @@ uint64_t cResponsePacket::extract_U64()
 
 double cResponsePacket::extract_Double()
 {
-  if ((packetPos + sizeof(uint64_t)) > userDataLength) return 0;
+  if ((packetPos + sizeof(uint64_t)) > userDataLength)
+    throw std::out_of_range("Malformed VNSI packet");
   uint64_t ull;
   memcpy(&ull, &userData[packetPos], sizeof(uint64_t));
   ull = ntohll(ull);
@@ -200,7 +205,8 @@ double cResponsePacket::extract_Double()
 
 int32_t cResponsePacket::extract_S32()
 {
-  if ((packetPos + sizeof(int32_t)) > userDataLength) return 0;
+  if ((packetPos + sizeof(int32_t)) > userDataLength)
+    throw std::out_of_range("Malformed VNSI packet");
   int32_t l;
   memcpy(&l, &userData[packetPos], sizeof(int32_t));
   l = ntohl(l);
@@ -210,7 +216,8 @@ int32_t cResponsePacket::extract_S32()
 
 int64_t cResponsePacket::extract_S64()
 {
-  if ((packetPos + sizeof(int64_t)) > userDataLength) return 0;
+  if ((packetPos + sizeof(int64_t)) > userDataLength)
+    throw std::out_of_range("Malformed VNSI packet");
   int64_t ll;
   memcpy(&ll, &userData[packetPos], sizeof(int64_t));
   ll = ntohll(ll);
