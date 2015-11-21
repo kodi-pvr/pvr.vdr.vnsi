@@ -31,20 +31,16 @@ using namespace PLATFORM;
 cVNSIData::SMessage &
 cVNSIData::Queue::Enqueue(uint32_t serial)
 {
-  m_mutex.Lock();
-  SMessage &message(m_queue[serial]);
-  m_mutex.Unlock();
-  return message;
+  const CLockObject lock(m_mutex);
+  return m_queue[serial];
 }
 
 std::unique_ptr<cResponsePacket>
 cVNSIData::Queue::Dequeue(uint32_t serial, SMessage &message)
 {
-  m_mutex.Lock();
+  const CLockObject lock(m_mutex);
   auto vresp = std::move(message.pkt);
   m_queue.erase(serial);
-  m_mutex.Unlock();
-
   return vresp;
 }
 
