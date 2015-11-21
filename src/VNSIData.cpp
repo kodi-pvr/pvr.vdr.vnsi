@@ -89,7 +89,6 @@ std::unique_ptr<cResponsePacket> cVNSIData::ReadResult(cRequestPacket* vrp)
 
   SMessage &message(m_queue[vrp->getSerial()]);
   message.event = new CEvent;
-  message.pkt   = NULL;
 
   m_mutex.Unlock();
 
