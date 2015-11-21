@@ -85,7 +85,7 @@ private:
 
   struct SMessage
   {
-    PLATFORM::CEvent *event;
+    PLATFORM::CEvent event;
     std::unique_ptr<cResponsePacket> pkt;
   };
   typedef std::map<int, SMessage> SMessages;

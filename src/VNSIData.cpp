@@ -88,7 +88,6 @@ std::unique_ptr<cResponsePacket> cVNSIData::ReadResult(cRequestPacket* vrp)
   m_mutex.Lock();
 
   SMessage &message(m_queue[vrp->getSerial()]);
-  message.event = new CEvent;
 
   m_mutex.Unlock();
 
@@ -99,7 +98,7 @@ std::unique_ptr<cResponsePacket> cVNSIData::ReadResult(cRequestPacket* vrp)
     return NULL;
   }
 
-  if (!message.event->Wait(g_iConnectTimeout * 1000))
+  if (!message.event.Wait(g_iConnectTimeout * 1000))
   {
     XBMC->Log(LOG_ERROR, "%s - request timed out after %d seconds", __FUNCTION__, g_iConnectTimeout);
   }
@@ -107,7 +106,6 @@ std::unique_ptr<cResponsePacket> cVNSIData::ReadResult(cRequestPacket* vrp)
   m_mutex.Lock();
 
   auto vresp = std::move(message.pkt);
-  delete message.event;
 
   m_queue.erase(vrp->getSerial());
 
@@ -878,7 +876,7 @@ void *cVNSIData::Process()
       if (it != m_queue.end())
       {
         it->second.pkt = std::move(vresp);
-        it->second.event->Broadcast();
+        it->second.event.Broadcast();
       }
     }
 
