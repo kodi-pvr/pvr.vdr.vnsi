@@ -226,7 +226,6 @@ std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /
     vresp->extractOSDHeader();
     userDataLength = vresp->getUserDataLength();
 
-    if (userDataLength > 5000000) return NULL; // how big can these packets get?
     userData = NULL;
     if (userDataLength > 0)
     {
@@ -257,7 +256,6 @@ std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /
     vresp->extractHeader();
     userDataLength = vresp->getUserDataLength();
 
-    if (userDataLength > 5000000) return NULL; // how big can these packets get?
     userData = NULL;
     if (userDataLength > 0)
     {
