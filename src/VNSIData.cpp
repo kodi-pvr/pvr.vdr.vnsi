@@ -28,6 +28,33 @@
 using namespace ADDON;
 using namespace PLATFORM;
 
+cVNSIData::SMessage &
+cVNSIData::Queue::Enqueue(uint32_t serial)
+{
+  const CLockObject lock(m_mutex);
+  return m_queue[serial];
+}
+
+std::unique_ptr<cResponsePacket>
+cVNSIData::Queue::Dequeue(uint32_t serial, SMessage &message)
+{
+  const CLockObject lock(m_mutex);
+  auto vresp = std::move(message.pkt);
+  m_queue.erase(serial);
+  return vresp;
+}
+
+void
+cVNSIData::Queue::Set(std::unique_ptr<cResponsePacket> &&vresp)
+{
+  CLockObject lock(m_mutex);
+  SMessages::iterator it = m_queue.find(vresp->getRequestID());
+  if (it != m_queue.end()) {
+    it->second.pkt = std::move(vresp);
+    it->second.event.Broadcast();
+  }
+}
+
 cVNSIData::cVNSIData()
 {
 }
@@ -85,36 +112,15 @@ void cVNSIData::OnReconnect()
 
 std::unique_ptr<cResponsePacket> cVNSIData::ReadResult(cRequestPacket* vrp)
 {
-  m_mutex.Lock();
+  SMessage &message = m_queue.Enqueue(vrp->getSerial());
 
-  SMessage &message(m_queue[vrp->getSerial()]);
-  message.event = new CEvent;
-  message.pkt   = NULL;
-
-  m_mutex.Unlock();
-
-  if(!cVNSISession::TransmitMessage(vrp))
-  {
-    CLockObject lock(m_mutex);
-    m_queue.erase(vrp->getSerial());
-    return NULL;
-  }
-
-  if (!message.event->Wait(g_iConnectTimeout * 1000))
+  if (cVNSISession::TransmitMessage(vrp) &&
+      !message.event.Wait(g_iConnectTimeout * 1000))
   {
     XBMC->Log(LOG_ERROR, "%s - request timed out after %d seconds", __FUNCTION__, g_iConnectTimeout);
   }
 
-  m_mutex.Lock();
-
-  auto vresp = std::move(message.pkt);
-  delete message.event;
-
-  m_queue.erase(vrp->getSerial());
-
-  m_mutex.Unlock();
-
-  return vresp;
+  return m_queue.Dequeue(vrp->getSerial(), message);
 }
 
 bool cVNSIData::GetDriveSpace(long long *total, long long *used)
@@ -874,13 +880,7 @@ void *cVNSIData::Process()
     // CHANNEL_REQUEST_RESPONSE
     if (vresp->getChannelID() == VNSI_CHANNEL_REQUEST_RESPONSE)
     {
-      CLockObject lock(m_mutex);
-      SMessages::iterator it = m_queue.find(vresp->getRequestID());
-      if (it != m_queue.end())
-      {
-        it->second.pkt = std::move(vresp);
-        it->second.event->Broadcast();
-      }
+      m_queue.Set(std::move(vresp));
     }
 
     // CHANNEL_STATUS

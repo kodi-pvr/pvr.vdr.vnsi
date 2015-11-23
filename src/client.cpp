@@ -34,6 +34,7 @@
 
 using namespace std;
 using namespace ADDON;
+using namespace PLATFORM;
 
 ADDON_STATUS m_CurStatus      = ADDON_STATUS_UNKNOWN;
 
@@ -794,12 +795,11 @@ DemuxPacket* DemuxRead(void)
     return NULL;
   }
 
-  TimeshiftMutex.Lock();
+  const CLockObject lock(TimeshiftMutex);
   IsTimeshift = VNSIDemuxer->IsTimeshift();
   TimeshiftStartTime = VNSIDemuxer->GetBufferTimeStart();
   TimeshiftEndTime = VNSIDemuxer->GetBufferTimeEnd();
   TimeshiftPlayTime = VNSIDemuxer->GetPlayingTime();
-  TimeshiftMutex.Unlock();
   return pkt;
 }
 
@@ -869,9 +869,8 @@ time_t GetPlayingTime()
   time_t time = 0;
   if (VNSIDemuxer)
   {
-	TimeshiftMutex.Lock();
+    const CLockObject lock(TimeshiftMutex);
 	time = TimeshiftPlayTime;
-    TimeshiftMutex.Unlock();
   }
   return time;
 }
@@ -881,9 +880,8 @@ time_t GetBufferTimeStart()
   time_t time = 0;
   if (VNSIDemuxer)
   {
-	TimeshiftMutex.Lock();
+    const CLockObject lock(TimeshiftMutex);
 	time = TimeshiftStartTime;
-    TimeshiftMutex.Unlock();
   }
   return time;
 }
@@ -893,9 +891,8 @@ time_t GetBufferTimeEnd()
   time_t time = 0;
   if (VNSIDemuxer)
   {
-	TimeshiftMutex.Lock();
+    const CLockObject lock(TimeshiftMutex);
 	time = TimeshiftEndTime;
-    TimeshiftMutex.Unlock();
   }
   return time;
 }
@@ -905,9 +902,8 @@ bool IsTimeshifting()
   bool ret = false;
   if (VNSIDemuxer)
   {
-	TimeshiftMutex.Lock();
+    const CLockObject lock(TimeshiftMutex);
     ret = IsTimeshift;
-    TimeshiftMutex.Unlock();
   }
   return ret;
 }

@@ -85,12 +85,23 @@ private:
 
   struct SMessage
   {
-    PLATFORM::CEvent *event;
+    PLATFORM::CEvent event;
     std::unique_ptr<cResponsePacket> pkt;
   };
-  typedef std::map<int, SMessage> SMessages;
 
-  SMessages        m_queue;
+  class Queue {
+    typedef std::map<int, SMessage> SMessages;
+    SMessages m_queue;
+    PLATFORM::CMutex m_mutex;
+
+  public:
+    SMessage &Enqueue(uint32_t serial);
+    std::unique_ptr<cResponsePacket> Dequeue(uint32_t serial,
+                                             SMessage &message);
+    void Set(std::unique_ptr<cResponsePacket> &&vresp);
+  };
+
+  Queue m_queue;
+
   std::string      m_videodir;
-  PLATFORM::CMutex m_mutex;
 };

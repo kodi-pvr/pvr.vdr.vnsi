@@ -135,6 +135,7 @@ CVisGUIShader *vis_shader = NULL;
 
 
 using namespace ADDON;
+using namespace PLATFORM;
 
 
 class cOSDTexture
@@ -870,6 +871,7 @@ bool cVNSIAdmin::Open(const std::string& hostname, int port, const char* name)
   if (m_osdRender)
   {
     delete m_osdRender;
+    m_osdRender = NULL;
   }
 
   return true;
@@ -1205,25 +1207,23 @@ bool cVNSIAdmin::Create(int x, int y, int w, int h, void* device)
 
 void cVNSIAdmin::Render()
 {
-  m_osdMutex.Lock();
+  const CLockObject lock(m_osdMutex);
   if (m_osdRender)
   {
     m_osdRender->Render();
     m_osdRender->FreeResources();
   }
   m_bIsOsdDirty = false;
-  m_osdMutex.Unlock();
 }
 
 void cVNSIAdmin::Stop()
 {
-  m_osdMutex.Lock();
+  const CLockObject lock(m_osdMutex);
   if (m_osdRender)
   {
     delete m_osdRender;
     m_osdRender = NULL;
   }
-  m_osdMutex.Unlock();
 }
 
 bool cVNSIAdmin::Dirty()
@@ -1310,47 +1310,44 @@ bool cVNSIAdmin::OnResponsePacket(cResponsePacket* resp)
     {
       data = resp->getUserData();
       len = resp->getUserDataLength();
-      m_osdMutex.Lock();
+      const CLockObject lock(m_osdMutex);
       if (m_osdRender)
         m_osdRender->AddTexture(wnd, color, x0, y0, x1, y1, data[0]);
-      m_osdMutex.Unlock();
     }
     else if (resp->getOpCodeID() == VNSI_OSD_SETPALETTE)
     {
       data = resp->getUserData();
       len = resp->getUserDataLength();
-      m_osdMutex.Lock();
+      const CLockObject lock(m_osdMutex);
       if (m_osdRender)
         m_osdRender->SetPalette(wnd, x0, (uint32_t*)data);
-      m_osdMutex.Unlock();
     }
     else if (resp->getOpCodeID() == VNSI_OSD_SETBLOCK)
     {
       data = resp->getUserData();
       len = resp->getUserDataLength();
-      m_osdMutex.Lock();
+      const CLockObject lock(m_osdMutex);
       if (m_osdRender)
       {
         m_osdRender->SetBlock(wnd, x0, y0, x1, y1, color, data, len);
         m_bIsOsdDirty = true;
       }
-      m_osdMutex.Unlock();
     }
     else if (resp->getOpCodeID() == VNSI_OSD_CLEAR)
     {
-      m_osdMutex.Lock();
+      const CLockObject lock(m_osdMutex);
       if (m_osdRender)
         m_osdRender->Clear(wnd);
       m_bIsOsdDirty = true;
-      m_osdMutex.Unlock();
     }
     else if (resp->getOpCodeID() == VNSI_OSD_CLOSE)
     {
-      m_osdMutex.Lock();
-      if (m_osdRender)
-        m_osdRender->DisposeTexture(wnd);
-      m_bIsOsdDirty = true;
-      m_osdMutex.Unlock();
+      {
+        const CLockObject lock(m_osdMutex);
+        if (m_osdRender)
+          m_osdRender->DisposeTexture(wnd);
+        m_bIsOsdDirty = true;
+      }
       m_window->SetFocusId(CONTROL_MENU);
     }
     else if (resp->getOpCodeID() == VNSI_OSD_MOVEWINDOW)
