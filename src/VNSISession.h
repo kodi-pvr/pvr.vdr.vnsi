@@ -22,14 +22,14 @@
 
 #include <stdint.h>
 #include <string>
-#include "platform/threads/threads.h"
+#include <threads/threads.h>
 
 #include <memory>
 
 class cResponsePacket;
 class cRequestPacket;
 
-namespace PLATFORM
+namespace P8PLATFORM
 {
   class CTcpConnection;
 }
@@ -70,7 +70,7 @@ protected:
   std::string      m_hostname;
   int              m_port;
   std::string      m_name;
-  PLATFORM::CMutex m_mutex;
+  P8PLATFORM::CMutex m_mutex;
   int              m_protocol;
   std::string      m_server;
   std::string      m_version;
@@ -79,7 +79,7 @@ private:
 
   bool readData(uint8_t* buffer, int totalBytes, int timeout);
 
-  PLATFORM::CTcpConnection *m_socket;
-  PLATFORM::CMutex          m_readMutex;
+  P8PLATFORM::CTcpConnection *m_socket;
+  P8PLATFORM::CMutex          m_readMutex;
   bool                      m_connectionLost;
 };

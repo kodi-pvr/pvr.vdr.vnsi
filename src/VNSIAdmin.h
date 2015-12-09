@@ -89,5 +89,5 @@ private:
   int m_width, m_height;
   int m_osdWidth, m_osdHeight;
   cOSDRender *m_osdRender;
-  PLATFORM::CMutex m_osdMutex;
+  P8PLATFORM::CMutex m_osdMutex;
 };

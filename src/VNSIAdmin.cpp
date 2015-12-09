@@ -135,7 +135,7 @@ CVisGUIShader *vis_shader = NULL;
 
 
 using namespace ADDON;
-using namespace PLATFORM;
+using namespace P8PLATFORM;
 
 
 class cOSDTexture
