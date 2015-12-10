@@ -445,34 +445,52 @@ PVR_ERROR cVNSIData::AddTimer(const PVR_TIMER &timerinfo)
 
   // add directory in front of the title
   std::string path;
-  if(strlen(timerinfo.strDirectory) > 0) {
+  if (strlen(timerinfo.strDirectory) > 0)
+  {
     path += timerinfo.strDirectory;
-    if(path == "/") {
+    if (path == "/")
+    {
       path.clear();
     }
-    else if(path.size() > 1) {
-      if(path[0] == '/') {
+    else if (path.size() > 1)
+    {
+      if (path[0] == '/')
+      {
         path = path.substr(1);
       }
     }
 
-    if(path.size() > 0 && path[path.size()-1] != '/') {
+    if (path.size() > 0 && path[path.size()-1] != '/')
+    {
       path += "/";
     }
   }
 
   // replace directory separators
-  for(std::size_t i=0; i<path.size(); i++) {
-    if(path[i] == '/' || path[i] == '\\') {
+  for (std::size_t i=0; i<path.size(); i++)
+  {
+    if (path[i] == '/' || path[i] == '\\')
+    {
       path[i] = '~';
     }
   }
 
-  if(strlen(timerinfo.strTitle) > 0) {
+  if (strlen(timerinfo.strTitle) > 0)
+  {
     path += timerinfo.strTitle;
   }
 
-  if(path.empty()) {
+  // replace colons
+  for (std::size_t i=0; i<path.size(); i++)
+  {
+    if (path[i] == ':')
+    {
+      path[i] = '|';
+    }
+  }
+
+  if (path.empty())
+  {
     XBMC->Log(LOG_ERROR, "%s - Empty filename !", __FUNCTION__);
     return PVR_ERROR_UNKNOWN;
   }
