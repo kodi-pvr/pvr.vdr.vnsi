@@ -22,7 +22,7 @@
 #include "requestpacket.h"
 #include "vnsicommand.h"
 #include "tools.h"
-#include "platform/sockets/tcp.h"
+#include "p8-platform/sockets/tcp.h"
 
 #include <assert.h>
 #include <stdlib.h>
