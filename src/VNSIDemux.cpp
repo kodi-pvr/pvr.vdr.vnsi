@@ -206,7 +206,7 @@ bool cVNSIDemux::SwitchChannel(const PVR_CHANNEL &channelinfo)
   vrp2.init(VNSI_CHANNELSTREAM_OPEN);
   vrp2.add_U32(channelinfo.iUniqueId);
   vrp2.add_S32(g_iPriority);
-  vrp2.add_U8(1);
+  vrp2.add_U8(g_iTimeshift);
 
   if (!ReadSuccess(&vrp2))
   {
