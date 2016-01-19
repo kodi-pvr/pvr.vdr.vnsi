@@ -23,10 +23,10 @@
 #include "responsepacket.h"
 #include "requestpacket.h"
 #include "vnsicommand.h"
-#include "platform/util/StdString.h"
+#include "p8-platform/util/StdString.h"
 
 using namespace ADDON;
-using namespace PLATFORM;
+using namespace P8PLATFORM;
 
 cVNSIData::SMessage &
 cVNSIData::Queue::Enqueue(uint32_t serial)

@@ -31,8 +31,8 @@
 #include "requestpacket.h"
 #include "vnsicommand.h"
 #include "tools.h"
-#include "platform/sockets/tcp.h"
-#include "platform/util/timeutils.h"
+#include "p8-platform/sockets/tcp.h"
+#include "p8-platform/util/timeutils.h"
 
 /* Needed on Mac OS/X */
  
@@ -41,7 +41,7 @@
 #endif
 
 using namespace ADDON;
-using namespace PLATFORM;
+using namespace P8PLATFORM;
 
 cVNSISession::cVNSISession()
   : m_protocol(0)

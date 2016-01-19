@@ -29,7 +29,7 @@
 class cResponsePacket;
 class cRequestPacket;
 
-class cVNSIData : public cVNSISession, public PLATFORM::CThread
+class cVNSIData : public cVNSISession, public P8PLATFORM::CThread
 {
 public:
 
@@ -85,14 +85,14 @@ private:
 
   struct SMessage
   {
-    PLATFORM::CEvent event;
+    P8PLATFORM::CEvent event;
     std::unique_ptr<cResponsePacket> pkt;
   };
 
   class Queue {
     typedef std::map<int, SMessage> SMessages;
     SMessages m_queue;
-    PLATFORM::CMutex m_mutex;
+    P8PLATFORM::CMutex m_mutex;
 
   public:
     SMessage &Enqueue(uint32_t serial);

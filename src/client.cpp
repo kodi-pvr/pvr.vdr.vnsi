@@ -26,7 +26,7 @@
 #include "VNSIData.h"
 #include "VNSIChannelScan.h"
 #include "VNSIAdmin.h"
-#include "platform/util/util.h"
+#include "p8-platform/util/util.h"
 
 #include <sstream>
 #include <string>
@@ -34,7 +34,7 @@
 
 using namespace std;
 using namespace ADDON;
-using namespace PLATFORM;
+using namespace P8PLATFORM;
 
 ADDON_STATUS m_CurStatus      = ADDON_STATUS_UNKNOWN;
 
@@ -66,7 +66,7 @@ bool IsTimeshift;
 time_t TimeshiftStartTime;
 time_t TimeshiftEndTime;
 time_t TimeshiftPlayTime;
-PLATFORM::CMutex TimeshiftMutex;
+P8PLATFORM::CMutex TimeshiftMutex;
 
 extern "C" {
 
