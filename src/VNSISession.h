@@ -29,7 +29,7 @@
 class cResponsePacket;
 class cRequestPacket;
 
-namespace PLATFORM
+namespace P8PLATFORM
 {
   class CTcpConnection;
 }
