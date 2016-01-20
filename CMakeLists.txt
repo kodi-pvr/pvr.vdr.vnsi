@@ -61,7 +61,7 @@ list(APPEND VDR_SOURCES src/client.cpp
                         src/VNSIRecording.cpp
                         src/VNSISession.cpp)
 
-list(APPEND DEPLIBS ${platform_LIBRARIES})
+list(APPEND DEPLIBS ${p8-platform_LIBRARIES})
 if(WIN32)
   list(APPEND DEPLIBS ws2_32)
 endif()
