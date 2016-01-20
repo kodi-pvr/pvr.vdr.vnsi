@@ -747,10 +747,16 @@ bool OpenLiveStream(const PVR_CHANNEL &channel)
 {
   CloseLiveStream();
 
-  try {
+  try
+  {
     VNSIDemuxer = new cVNSIDemux;
+    TimeshiftStartTime = 0;
+    TimeshiftEndTime = 0;
+    TimeshiftPlayTime = 0;
     return VNSIDemuxer->OpenChannel(channel);
-  } catch (std::exception e) {
+  }
+  catch (std::exception e)
+  {
     XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     delete VNSIDemuxer;
     VNSIDemuxer = NULL;
@@ -779,7 +785,8 @@ PVR_ERROR GetStreamProperties(PVR_STREAM_PROPERTIES* pProperties)
 
 void DemuxAbort(void)
 {
-  if (VNSIDemuxer) VNSIDemuxer->Abort();
+  if (VNSIDemuxer)
+    VNSIDemuxer->Abort();
 }
 
 DemuxPacket* DemuxRead(void)
@@ -852,10 +859,24 @@ bool CanSeekStream(void)
   return ret;
 }
 
+bool IsRealTimeStream()
+{
+  if (VNSIDemuxer)
+  {
+    const CLockObject lock(TimeshiftMutex);
+    if (!IsTimeshift)
+      return true;
+    if (TimeshiftEndTime - TimeshiftPlayTime < 10)
+      return true;
+  }
+  return false;
+}
+
 bool SeekTime(int time, bool backwards, double *startpts)
 {
   bool ret = false;
-  try {
+  try
+  {
     if (VNSIDemuxer)
       ret = VNSIDemuxer->SeekTime(time, backwards, startpts);
   } catch (std::exception e) {
@@ -870,7 +891,7 @@ time_t GetPlayingTime()
   if (VNSIDemuxer)
   {
     const CLockObject lock(TimeshiftMutex);
-	time = TimeshiftPlayTime;
+    time = TimeshiftPlayTime;
   }
   return time;
 }
@@ -881,7 +902,7 @@ time_t GetBufferTimeStart()
   if (VNSIDemuxer)
   {
     const CLockObject lock(TimeshiftMutex);
-	time = TimeshiftStartTime;
+    time = TimeshiftStartTime;
   }
   return time;
 }
@@ -892,7 +913,7 @@ time_t GetBufferTimeEnd()
   if (VNSIDemuxer)
   {
     const CLockObject lock(TimeshiftMutex);
-	time = TimeshiftEndTime;
+    time = TimeshiftEndTime;
   }
   return time;
 }
