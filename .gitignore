@@ -1,0 +1,23 @@
+# build artifacts
+build/
+debian/changelog
+debian/files
+debian/kodi-pvr-vdr.vnsi-dbg.debhelper.log
+debian/kodi-pvr-vdr.vnsi-dbg.substvars
+debian/kodi-pvr-vdr.vnsi-dbg/
+debian/kodi-pvr-vdr.vnsi.debhelper.log
+debian/kodi-pvr-vdr.vnsi.postinst.debhelper
+debian/kodi-pvr-vdr.vnsi.postrm.debhelper
+debian/kodi-pvr-vdr.vnsi.substvars
+debian/kodi-pvr-vdr.vnsi/
+debian/tmp/
+obj-x86_64-linux-gnu/
+pvr.vdr.vnsi/addon.xml
+
+# clion
+.idea/
+
+# Eclipse/CDT
+.cproject
+.project
+.settings/
