@@ -810,14 +810,6 @@ DemuxPacket* DemuxRead(void)
   return pkt;
 }
 
-int GetCurrentClientChannel(void)
-{
-  if (VNSIDemuxer)
-    return VNSIDemuxer->CurrentChannel();
-
-  return -1;
-}
-
 bool SwitchChannel(const PVR_CHANNEL &channel)
 {
   try {
