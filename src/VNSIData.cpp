@@ -657,6 +657,9 @@ PVR_ERROR cVNSIData::GetRecordingsList(ADDON_HANDLE handle)
     strRecordingId.Format("%i", vresp->extract_U32());
     strncpy(tag.strRecordingId, strRecordingId.c_str(), sizeof(tag.strRecordingId) - 1);
 
+    /* TODO: PVR API 5.0.0: Implement this */
+    tag.iChannelUid = PVR_CHANNEL_INVALID_UID;
+
     PVR->TransferRecordingEntry(handle, &tag);
   }
 
@@ -802,6 +805,9 @@ PVR_ERROR cVNSIData::GetDeletedRecordingsList(ADDON_HANDLE handle)
 
     strRecordingId.Format("%i", vresp->extract_U32());
     strncpy(tag.strRecordingId, strRecordingId.c_str(), sizeof(tag.strRecordingId) - 1);
+
+    /* TODO: PVR API 5.0.0: Implement this */
+    tag.iChannelUid = PVR_CHANNEL_INVALID_UID;
 
     PVR->TransferRecordingEntry(handle, &tag);
   }

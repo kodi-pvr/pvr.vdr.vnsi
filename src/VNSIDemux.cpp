@@ -235,9 +235,6 @@ bool cVNSIDemux::GetSignalStatus(PVR_SIGNAL_STATUS &qualityinfo)
   qualityinfo.iSNR = (uint16_t)m_Quality.fe_snr;
   qualityinfo.iBER = (uint32_t)m_Quality.fe_ber;
   qualityinfo.iUNC = (uint32_t)m_Quality.fe_unc;
-  qualityinfo.dVideoBitrate = 0;
-  qualityinfo.dAudioBitrate = 0;
-  qualityinfo.dDolbyBitrate = 0;
 
   return true;
 }
