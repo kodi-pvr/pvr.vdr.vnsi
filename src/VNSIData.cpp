@@ -359,8 +359,10 @@ PVR_ERROR cVNSIData::GetTimerInfo(unsigned int timernumber, PVR_TIMER &tag)
       return PVR_ERROR_SERVER_ERROR;
   }
 
-  /* TODO: Implement own timer types to get support for the timer features introduced with PVR API 1.9.7 */
-  tag.iTimerType = PVR_TIMER_TYPE_NONE;
+  if (GetProtocol() >= 9)
+  {
+    tag.iTimerType = vresp->extract_U32();
+  }
 
   tag.iClientIndex      = vresp->extract_U32();
   int iActive           = vresp->extract_U32();
@@ -382,6 +384,12 @@ PVR_ERROR cVNSIData::GetTimerInfo(unsigned int timernumber, PVR_TIMER &tag)
   tag.iWeekdays         = vresp->extract_U32();
   char *strTitle = vresp->extract_String();
   strncpy(tag.strTitle, strTitle, sizeof(tag.strTitle) - 1);
+
+  if (GetProtocol() >= 9)
+  {
+    char *epgSearch = vresp->extract_String();
+    strncpy(tag.strEpgSearchString, epgSearch, sizeof(tag.strEpgSearchString) - 1);
+  }
 
   return PVR_ERROR_NO_ERROR;
 }
@@ -406,8 +414,10 @@ bool cVNSIData::GetTimersList(ADDON_HANDLE handle)
       PVR_TIMER tag;
       memset(&tag, 0, sizeof(tag));
 
-      /* TODO: Implement own timer types to get support for the timer features introduced with PVR API 1.9.7 */
-      tag.iTimerType = PVR_TIMER_TYPE_NONE;
+      if (GetProtocol() >= 9)
+      {
+        tag.iTimerType = vresp->extract_U32();
+      }
 
       tag.iClientIndex      = vresp->extract_U32();
       int iActive           = vresp->extract_U32();
@@ -431,6 +441,12 @@ bool cVNSIData::GetTimersList(ADDON_HANDLE handle)
       strncpy(tag.strTitle, strTitle, sizeof(tag.strTitle) - 1);
       tag.iMarginStart      = 0;
       tag.iMarginEnd        = 0;
+
+      if (GetProtocol() >= 9)
+      {
+        char *epgSearch = vresp->extract_String();
+        strncpy(tag.strEpgSearchString, epgSearch, sizeof(tag.strEpgSearchString) - 1);
+      }
 
       PVR->TransferTimerEntry(handle, &tag);
     }
@@ -499,6 +515,11 @@ PVR_ERROR cVNSIData::AddTimer(const PVR_TIMER &timerinfo)
   uint32_t starttime = timerinfo.startTime - timerinfo.iMarginStart*60;
   uint32_t endtime = timerinfo.endTime + timerinfo.iMarginEnd*60;
 
+  if (GetProtocol() >= 9)
+  {
+    vrp.add_U32(timerinfo.iTimerType);
+  }
+
   vrp.add_U32(timerinfo.state == PVR_TIMER_STATE_SCHEDULED);
   vrp.add_U32(timerinfo.iPriority);
   vrp.add_U32(timerinfo.iLifetime);
@@ -509,6 +530,11 @@ PVR_ERROR cVNSIData::AddTimer(const PVR_TIMER &timerinfo)
   vrp.add_U32(timerinfo.iWeekdays);
   vrp.add_String(path.c_str());
   vrp.add_String("");
+
+  if (GetProtocol() >= 9)
+  {
+    vrp.add_String(timerinfo.strEpgSearchString);
+  }
 
   auto vresp = ReadResult(&vrp);
   if (vresp == NULL || vresp->noResponse())
@@ -572,7 +598,12 @@ PVR_ERROR cVNSIData::UpdateTimer(const PVR_TIMER &timerinfo)
 
   cRequestPacket vrp;
   vrp.init(VNSI_TIMER_UPDATE);
+
   vrp.add_U32(timerinfo.iClientIndex);
+  if (GetProtocol() >= 9)
+  {
+    vrp.add_U32(timerinfo.iTimerType);
+  }
   vrp.add_U32(timerinfo.state == PVR_TIMER_STATE_SCHEDULED);
   vrp.add_U32(timerinfo.iPriority);
   vrp.add_U32(timerinfo.iLifetime);
@@ -583,6 +614,11 @@ PVR_ERROR cVNSIData::UpdateTimer(const PVR_TIMER &timerinfo)
   vrp.add_U32(timerinfo.iWeekdays);
   vrp.add_String(timerinfo.strTitle);
   vrp.add_String("");
+
+  if (GetProtocol() >= 9)
+  {
+    vrp.add_String(timerinfo.strEpgSearchString);
+  }
 
   auto vresp = ReadResult(&vrp);
   if (vresp == NULL || vresp->noResponse())
@@ -596,6 +632,72 @@ PVR_ERROR cVNSIData::UpdateTimer(const PVR_TIMER &timerinfo)
     return PVR_ERROR_INVALID_PARAMETERS;
   else if (returnCode == VNSI_RET_ERROR)
     return PVR_ERROR_SERVER_ERROR;
+
+  return PVR_ERROR_NO_ERROR;
+}
+
+PVR_ERROR cVNSIData::GetTimerTypes(PVR_TIMER_TYPE types[], int *size)
+{
+  *size = 0;
+  // One-shot manual
+  memset(&types[*size], 0, sizeof(types[*size]));
+  types[*size].iId = VNSI_TIMER_TYPE_MAN;
+  strncpy(types[*size].strDescription, XBMC->GetLocalizedString(30200), 64);
+  types[*size].iAttributes = PVR_TIMER_TYPE_IS_MANUAL               |
+                             PVR_TIMER_TYPE_SUPPORTS_ENABLE_DISABLE |
+                             PVR_TIMER_TYPE_SUPPORTS_CHANNELS       |
+                             PVR_TIMER_TYPE_SUPPORTS_START_TIME     |
+                             PVR_TIMER_TYPE_SUPPORTS_END_TIME       |
+                             PVR_TIMER_TYPE_SUPPORTS_PRIORITY       |
+                             PVR_TIMER_TYPE_SUPPORTS_LIFETIME       |
+                             PVR_TIMER_TYPE_SUPPORTS_RECORDING_FOLDERS;
+
+  (*size)++;
+
+  // Repeating manual
+  memset(&types[*size], 0, sizeof(types[*size]));
+  types[*size].iId = VNSI_TIMER_TYPE_MAN_REPEAT;
+  strncpy(types[*size].strDescription, XBMC->GetLocalizedString(30201), 64);
+  types[*size].iAttributes = PVR_TIMER_TYPE_IS_MANUAL               |
+                             PVR_TIMER_TYPE_IS_REPEATING            |
+                             PVR_TIMER_TYPE_SUPPORTS_ENABLE_DISABLE |
+                             PVR_TIMER_TYPE_SUPPORTS_CHANNELS       |
+                             PVR_TIMER_TYPE_SUPPORTS_START_TIME     |
+                             PVR_TIMER_TYPE_SUPPORTS_END_TIME       |
+                             PVR_TIMER_TYPE_SUPPORTS_PRIORITY       |
+                             PVR_TIMER_TYPE_SUPPORTS_LIFETIME       |
+                             PVR_TIMER_TYPE_SUPPORTS_FIRST_DAY      |
+                             PVR_TIMER_TYPE_SUPPORTS_WEEKDAYS       |
+                             PVR_TIMER_TYPE_SUPPORTS_RECORDING_FOLDERS;
+  (*size)++;
+
+  // One-shot epg-based
+  memset(&types[*size], 0, sizeof(types[*size]));
+  types[*size].iId = VNSI_TIMER_TYPE_EPG;
+  strncpy(types[*size].strDescription, XBMC->GetLocalizedString(30202), 64);
+  types[*size].iAttributes = PVR_TIMER_TYPE_SUPPORTS_ENABLE_DISABLE    |
+                             PVR_TIMER_TYPE_REQUIRES_EPG_TAG_ON_CREATE |
+                             PVR_TIMER_TYPE_SUPPORTS_CHANNELS          |
+                             PVR_TIMER_TYPE_SUPPORTS_START_TIME        |
+                             PVR_TIMER_TYPE_SUPPORTS_END_TIME          |
+                             PVR_TIMER_TYPE_SUPPORTS_PRIORITY          |
+                             PVR_TIMER_TYPE_SUPPORTS_LIFETIME          |
+                             PVR_TIMER_TYPE_SUPPORTS_RECORDING_FOLDERS;
+  (*size)++;
+
+  // addition timer supported by backend
+  if (GetProtocol() >= 9)
+  {
+    cRequestPacket vrp;
+    vrp.init(VNSI_TIMER_GETTYPES);
+    auto vresp = ReadResult(&vrp);
+    if (!vresp)
+    {
+      XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+      return PVR_ERROR_NO_ERROR;
+    }
+    uint32_t types = vresp->extract_U32();
+  }
 
   return PVR_ERROR_NO_ERROR;
 }
@@ -641,6 +743,25 @@ PVR_ERROR cVNSIData::GetRecordingsList(ADDON_HANDLE handle)
 
     char *strChannelName = vresp->extract_String();
     strncpy(tag.strChannelName, strChannelName, sizeof(tag.strChannelName) - 1);
+    if (GetProtocol() >= 9)
+    {
+      tag.iChannelUid = -1;
+      uint32_t uuid = vresp->extract_U32();
+      if (uuid > 0)
+        tag.iChannelUid = uuid;
+      uint8_t type = vresp->extract_U8();
+      if (type == 1)
+	tag.iChannelUid = PVR_RECORDING_CHANNEL_TYPE_TV;
+      else if (type == 2)
+	tag.iChannelUid = PVR_RECORDING_CHANNEL_TYPE_RADIO;
+      else
+	tag.channelType = PVR_RECORDING_CHANNEL_TYPE_UNKNOWN;
+    }
+    else
+    {
+      tag.iChannelUid = PVR_CHANNEL_INVALID_UID;
+      tag.channelType = PVR_RECORDING_CHANNEL_TYPE_UNKNOWN;
+    }
 
     char *strTitle = vresp->extract_String();
     strncpy(tag.strTitle, strTitle, sizeof(tag.strTitle) - 1);
@@ -656,14 +777,6 @@ PVR_ERROR cVNSIData::GetRecordingsList(ADDON_HANDLE handle)
 
     strRecordingId.Format("%i", vresp->extract_U32());
     strncpy(tag.strRecordingId, strRecordingId.c_str(), sizeof(tag.strRecordingId) - 1);
-
-    /* TODO: PVR API 5.0.0: Implement this */
-    tag.iChannelUid = PVR_CHANNEL_INVALID_UID;
-
-    /* TODO: PVR API 5.1.0: Implement this */
-    tag.channelType = PVR_RECORDING_CHANNEL_TYPE_UNKNOWN;
-
-    PVR->TransferRecordingEntry(handle, &tag);
   }
 
   return PVR_ERROR_NO_ERROR;
@@ -793,6 +906,12 @@ PVR_ERROR cVNSIData::GetDeletedRecordingsList(ADDON_HANDLE handle)
 
     char *strChannelName = vresp->extract_String();
     strncpy(tag.strChannelName, strChannelName, sizeof(tag.strChannelName) - 1);
+    if (GetProtocol() >= 9)
+    {
+      tag.iChannelUid = vresp->extract_S32();
+    }
+    else
+      tag.iChannelUid = PVR_CHANNEL_INVALID_UID;
 
     char *strTitle = vresp->extract_String();
     strncpy(tag.strTitle, strTitle, sizeof(tag.strTitle) - 1);
@@ -808,9 +927,6 @@ PVR_ERROR cVNSIData::GetDeletedRecordingsList(ADDON_HANDLE handle)
 
     strRecordingId.Format("%i", vresp->extract_U32());
     strncpy(tag.strRecordingId, strRecordingId.c_str(), sizeof(tag.strRecordingId) - 1);
-
-    /* TODO: PVR API 5.0.0: Implement this */
-    tag.iChannelUid = PVR_CHANNEL_INVALID_UID;
 
     PVR->TransferRecordingEntry(handle, &tag);
   }

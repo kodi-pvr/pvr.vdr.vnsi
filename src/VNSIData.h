@@ -59,6 +59,7 @@ public:
   PVR_ERROR   DeleteTimer(const PVR_TIMER &timerinfo, bool force = false);
   PVR_ERROR   RenameTimer(const PVR_TIMER &timerinfo, const char *newname);
   PVR_ERROR   UpdateTimer(const PVR_TIMER &timerinfo);
+  PVR_ERROR GetTimerTypes(PVR_TIMER_TYPE types[], int *size);
 
   int         GetRecordingsCount();
   PVR_ERROR   GetRecordingsList(ADDON_HANDLE handle);
