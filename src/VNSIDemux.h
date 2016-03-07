@@ -24,7 +24,7 @@
 #include "client.h"
 #include <string>
 #include <map>
-#include "kodi/xbmc_stream_utils.hpp"
+#include "kodi/xbmc_pvr_types.h"
 
 class cResponsePacket;
 
@@ -67,14 +67,14 @@ protected:
 
 private:
 
-  ADDON::XbmcStreamProperties m_streams;
-  PVR_CHANNEL                 m_channelinfo;
-  SQuality                    m_Quality;
-  bool                        m_bTimeshift;
-  uint32_t                    m_MuxPacketSerial;
-  time_t                      m_ReferenceTime;
-  double                      m_ReferenceDTS;
-  double                      m_CurrentDTS;
-  time_t                      m_BufferTimeStart;
-  time_t                      m_BufferTimeEnd;
+  PVR_STREAM_PROPERTIES m_streams;
+  PVR_CHANNEL m_channelinfo;
+  SQuality m_Quality;
+  bool m_bTimeshift;
+  uint32_t m_MuxPacketSerial;
+  time_t m_ReferenceTime;
+  double m_ReferenceDTS;
+  double m_CurrentDTS;
+  time_t m_BufferTimeStart;
+  time_t m_BufferTimeEnd;
 };
