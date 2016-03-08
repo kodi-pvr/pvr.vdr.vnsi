@@ -52,12 +52,18 @@ bool cVNSIDemux::OpenChannel(const PVR_CHANNEL &channelinfo)
 
 bool cVNSIDemux::GetStreamProperties(PVR_STREAM_PROPERTIES* props)
 {
-  return m_streams.GetProperties(props);
+  for (int i=0; i<m_streams.iStreamCount; i++)
+  {
+    memcpy(&props->stream[i], &m_streams.stream[i], sizeof(PVR_STREAM_PROPERTIES::PVR_STREAM));
+  }
+
+  props->iStreamCount = m_streams.iStreamCount;
+  return true;
 }
 
 void cVNSIDemux::Abort()
 {
-  m_streams.Clear();
+  m_streams.iStreamCount = 0;
 }
 
 DemuxPacket* cVNSIDemux::Read()
@@ -106,22 +112,26 @@ DemuxPacket* cVNSIDemux::Read()
   {
     // figure out the stream id for this packet
     int pid = resp->getStreamID();
-    int iStreamId = m_streams.GetStreamId(pid);
 
     // stream found ?
-    if(iStreamId != -1 && resp->getMuxSerial() == m_MuxPacketSerial)
+    if(pid >= 0 && resp->getMuxSerial() == m_MuxPacketSerial)
     {
       DemuxPacket* p = (DemuxPacket*)resp->stealUserData();
-      p->iSize      = resp->getUserDataLength();
-      p->duration   = (double)resp->getDuration() * DVD_TIME_BASE / 1000000;
-      p->dts        = (double)resp->getDTS() * DVD_TIME_BASE / 1000000;
-      p->pts        = (double)resp->getPTS() * DVD_TIME_BASE / 1000000;
-      p->iStreamId  = iStreamId;
+      p->iSize = resp->getUserDataLength();
+      p->duration = (double)resp->getDuration() * DVD_TIME_BASE / 1000000;
+      p->dts = (double)resp->getDTS() * DVD_TIME_BASE / 1000000;
+      p->pts = (double)resp->getPTS() * DVD_TIME_BASE / 1000000;
+      p->iStreamId = pid;
 
-      XbmcPvrStream *stream = m_streams.GetStreamById(pid);
+      int idx = -1;
+      for (int i=0; i<m_streams.iStreamCount; i++)
+      {
+        if (m_streams.stream[i].iPID == pid)
+          idx = i;
+      }
       xbmc_codec_type_t type = XBMC_CODEC_TYPE_UNKNOWN;
-      if (stream != NULL)
-        type = stream->iCodecType;
+      if (idx >= 0)
+        type = m_streams.stream[idx].iCodecType;
       if (type == XBMC_CODEC_TYPE_VIDEO || type == XBMC_CODEC_TYPE_AUDIO)
       {
         if (p->dts != DVD_NOPTS_VALUE)
@@ -131,10 +141,9 @@ DemuxPacket* cVNSIDemux::Read()
       }
       return p;
     }
-    else if (iStreamId != -1 && resp->getMuxSerial() != m_MuxPacketSerial)
+    else if (pid >= 0 && resp->getMuxSerial() != m_MuxPacketSerial)
     {
       // ignore silently, may happen after a seek
-      XBMC->Log(LOG_DEBUG, "-------------------- serial: %d", resp->getMuxSerial());
     }
     else
     {
@@ -215,7 +224,7 @@ bool cVNSIDemux::SwitchChannel(const PVR_CHANNEL &channelinfo)
   }
 
   m_channelinfo = channelinfo;
-  m_streams.Clear();
+  m_streams.iStreamCount = 0;
   m_MuxPacketSerial = 0;
   m_ReferenceTime = 0;
   m_BufferTimeStart = 0;
@@ -259,22 +268,20 @@ time_t cVNSIDemux::GetBufferTimeEnd()
 
 void cVNSIDemux::StreamChange(cResponsePacket *resp)
 {
-  std::vector<XbmcPvrStream> newStreams;
+  int count = 0;
+  m_streams.iStreamCount = 0;
 
   while (resp->getRemainingLength() >= 4 + 1)
   {
     uint32_t    pid = resp->extract_U32();
     const char* type  = resp->extract_String();
 
-    XbmcPvrStream newStream;
-    m_streams.GetStreamData(pid, &newStream);
-
     CodecDescriptor codecId = CodecDescriptor::GetCodecByName(type);
     if (codecId.Codec().codec_type != XBMC_CODEC_TYPE_UNKNOWN)
     {
-      newStream.iPhysicalId     = pid;
-      newStream.iCodecType      = codecId.Codec().codec_type;
-      newStream.iCodecId        = codecId.Codec().codec_id;
+      m_streams.stream[count].iPID = pid;
+      m_streams.stream[count].iCodecType = codecId.Codec().codec_type;
+      m_streams.stream[count].iCodecId = codecId.Codec().codec_id;
     }
     else
     {
@@ -285,67 +292,56 @@ void cVNSIDemux::StreamChange(cResponsePacket *resp)
     {
       const char *language = resp->extract_String();
 
-      newStream.iChannels       = resp->extract_U32();
-      newStream.iSampleRate     = resp->extract_U32();
-      newStream.iBlockAlign     = resp->extract_U32();
-      newStream.iBitRate        = resp->extract_U32();
-      newStream.iBitsPerSample  = resp->extract_U32();
-      newStream.strLanguage[0]  = language[0];
-      newStream.strLanguage[1]  = language[1];
-      newStream.strLanguage[2]  = language[2];
-      newStream.strLanguage[3]  = 0;
-      newStream.iIdentifier     = -1;
-
-      newStreams.push_back(newStream);
+      m_streams.stream[count].iChannels = resp->extract_U32();
+      m_streams.stream[count].iSampleRate = resp->extract_U32();
+      m_streams.stream[count].iBlockAlign = resp->extract_U32();
+      m_streams.stream[count].iBitRate = resp->extract_U32();
+      m_streams.stream[count].iBitsPerSample = resp->extract_U32();
+      m_streams.stream[count].strLanguage[0] = language[0];
+      m_streams.stream[count].strLanguage[1] = language[1];
+      m_streams.stream[count].strLanguage[2] = language[2];
+      m_streams.stream[count].strLanguage[3] = 0;
     }
     else if (codecId.Codec().codec_type == XBMC_CODEC_TYPE_VIDEO)
     {
-      newStream.iFPSScale       = resp->extract_U32();
-      newStream.iFPSRate        = resp->extract_U32();
-      newStream.iHeight         = resp->extract_U32();
-      newStream.iWidth          = resp->extract_U32();
-      newStream.fAspect         = (float)resp->extract_Double();
-      newStream.strLanguage[0]  = 0;
-      newStream.strLanguage[1]  = 0;
-      newStream.strLanguage[2]  = 0;
-      newStream.strLanguage[3]  = 0;
-      newStream.iIdentifier     = -1;
-
-      newStreams.push_back(newStream);
+      m_streams.stream[count].iFPSScale = resp->extract_U32();
+      m_streams.stream[count].iFPSRate = resp->extract_U32();
+      m_streams.stream[count].iHeight = resp->extract_U32();
+      m_streams.stream[count].iWidth = resp->extract_U32();
+      m_streams.stream[count].fAspect = (float)resp->extract_Double();
+      m_streams.stream[count].strLanguage[0] = 0;
+      m_streams.stream[count].strLanguage[1] = 0;
+      m_streams.stream[count].strLanguage[2] = 0;
+      m_streams.stream[count].strLanguage[3] = 0;
     }
     else if (codecId.Codec().codec_type == XBMC_CODEC_TYPE_SUBTITLE)
     {
-      const char *language    = resp->extract_String();
+      const char *language = resp->extract_String();
       uint32_t composition_id = resp->extract_U32();
-      uint32_t ancillary_id   = resp->extract_U32();
-      newStream.strLanguage[0]  = language[0];
-      newStream.strLanguage[1]  = language[1];
-      newStream.strLanguage[2]  = language[2];
-      newStream.strLanguage[3]  = 0;
-      newStream.iIdentifier     = (composition_id & 0xffff) | ((ancillary_id & 0xffff) << 16);
-
-      newStreams.push_back(newStream);
+      uint32_t ancillary_id = resp->extract_U32();
+      m_streams.stream[count].strLanguage[0] = language[0];
+      m_streams.stream[count].strLanguage[1] = language[1];
+      m_streams.stream[count].strLanguage[2] = language[2];
+      m_streams.stream[count].strLanguage[3] = 0;
+      m_streams.stream[count].iSubtitleInfo = (composition_id & 0xffff) | ((ancillary_id & 0xffff) << 16);
     }
     else if (codecId.Codec().codec_type == XBMC_CODEC_TYPE_RDS)
     {
-      const char *language     = resp->extract_String();
+      const char *language = resp->extract_String();
       uint32_t rel_channel_pid = resp->extract_U32();
-      newStream.strLanguage[0]  = language[0];
-      newStream.strLanguage[1]  = language[1];
-      newStream.strLanguage[2]  = language[2];
-      newStream.strLanguage[3]  = 0;
-      newStream.iIdentifier     = -1;
-
-      newStreams.push_back(newStream);
+      m_streams.stream[count].strLanguage[0] = language[0];
+      m_streams.stream[count].strLanguage[1] = language[1];
+      m_streams.stream[count].strLanguage[2] = language[2];
+      m_streams.stream[count].strLanguage[3] = 0;
     }
     else
     {
-      m_streams.Clear();
+      m_streams.iStreamCount = 0;
       return;
     }
+    count++;
   }
-
-  m_streams.UpdateStreams(newStreams);
+  m_streams.iStreamCount = count;
 }
 
 void cVNSIDemux::StreamStatus(cResponsePacket *resp)
@@ -373,42 +369,50 @@ void cVNSIDemux::StreamSignalInfo(cResponsePacket *resp)
 
 bool cVNSIDemux::StreamContentInfo(cResponsePacket *resp)
 {
-  ADDON::XbmcStreamProperties streams = m_streams;
   while (resp->getRemainingLength() >= 4)
   {
     uint32_t pid = resp->extract_U32();
-    PVR_STREAM_PROPERTIES::PVR_STREAM* props = streams.GetStreamById(pid);
+
+    PVR_STREAM_PROPERTIES::PVR_STREAM* props = nullptr;
+    for (int i=0; i<m_streams.iStreamCount; i++)
+    {
+      if (m_streams.stream[i].iPID == pid)
+      {
+        props = &m_streams.stream[i];
+        break;
+      }
+    }
     if (props)
     {
       if (props->iCodecType == XBMC_CODEC_TYPE_AUDIO)
       {
         const char *language = resp->extract_String();
           
-        props->iChannels          = resp->extract_U32();
-        props->iSampleRate        = resp->extract_U32();
-        props->iBlockAlign        = resp->extract_U32();
-        props->iBitRate           = resp->extract_U32();
-        props->iBitsPerSample     = resp->extract_U32();
-        props->strLanguage[0]     = language[0];
-        props->strLanguage[1]     = language[1];
-        props->strLanguage[2]     = language[2];
-        props->strLanguage[3]     = 0;
+        props->iChannels = resp->extract_U32();
+        props->iSampleRate = resp->extract_U32();
+        props->iBlockAlign = resp->extract_U32();
+        props->iBitRate = resp->extract_U32();
+        props->iBitsPerSample = resp->extract_U32();
+        props->strLanguage[0] = language[0];
+        props->strLanguage[1] = language[1];
+        props->strLanguage[2] = language[2];
+        props->strLanguage[3] = 0;
       }
       else if (props->iCodecType == XBMC_CODEC_TYPE_VIDEO)
       {
-        props->iFPSScale         = resp->extract_U32();
-        props->iFPSRate          = resp->extract_U32();
-        props->iHeight           = resp->extract_U32();
-        props->iWidth            = resp->extract_U32();
-        props->fAspect           = (float)resp->extract_Double();
+        props->iFPSScale = resp->extract_U32();
+        props->iFPSRate = resp->extract_U32();
+        props->iHeight = resp->extract_U32();
+        props->iWidth = resp->extract_U32();
+        props->fAspect = (float)resp->extract_Double();
       }
       else if (props->iCodecType == XBMC_CODEC_TYPE_SUBTITLE)
       {
-        const char *language    = resp->extract_String();
+        const char *language = resp->extract_String();
         uint32_t composition_id = resp->extract_U32();
-        uint32_t ancillary_id   = resp->extract_U32();
+        uint32_t ancillary_id = resp->extract_U32();
           
-        props->iIdentifier    = (composition_id & 0xffff) | ((ancillary_id & 0xffff) << 16);
+        props->iSubtitleInfo = (composition_id & 0xffff) | ((ancillary_id & 0xffff) << 16);
         props->strLanguage[0] = language[0];
         props->strLanguage[1] = language[1];
         props->strLanguage[2] = language[2];
@@ -421,6 +425,5 @@ bool cVNSIDemux::StreamContentInfo(cResponsePacket *resp)
       break;
     }
   }
-  m_streams = streams;
   return true;
 }
