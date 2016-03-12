@@ -297,6 +297,8 @@ void cVNSIDemux::StreamChange(cResponsePacket *resp)
     uint32_t    pid = resp->extract_U32();
     const char* type  = resp->extract_String();
 
+    memset(&m_streams.stream[count], 0, sizeof(PVR_STREAM_PROPERTIES::PVR_STREAM));
+
     CodecDescriptor codecId = CodecDescriptor::GetCodecByName(type);
     if (codecId.Codec().codec_type != XBMC_CODEC_TYPE_UNKNOWN)
     {
