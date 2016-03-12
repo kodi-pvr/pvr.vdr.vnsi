@@ -279,3 +279,25 @@ msgstr ""
 msgctxt "#30114"
 msgid "Provider Unknown"
 msgstr ""
+
+#empty strings from id 30114 to 30199
+
+msgctxt "#30200"
+msgid "Single"
+msgstr ""
+
+msgctxt "#30201"
+msgid "Repeating"
+msgstr ""
+
+msgctxt "#30202"
+msgid "EGP"
+msgstr ""
+
+msgctxt "#30203"
+msgid "VPS"
+msgstr ""
+
+msgctxt "#30204"
+msgid "Search EPG"
+msgstr ""

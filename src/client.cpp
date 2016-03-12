@@ -26,6 +26,7 @@
 #include "VNSIData.h"
 #include "VNSIChannelScan.h"
 #include "VNSIAdmin.h"
+#include "vnsicommand.h"
 #include "p8-platform/util/util.h"
 
 #include <sstream>
@@ -218,7 +219,8 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   }
   free(buffer);
 
-  try {
+  try
+  {
     VNSIData = new cVNSIData;
     if (!VNSIData->Open(g_szHostname, g_iPort, NULL, g_szWolMac))
     {
@@ -240,7 +242,9 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
       m_CurStatus = ADDON_STATUS_LOST_CONNECTION;
       return m_CurStatus;
     }
-  } catch (std::exception e) {
+  }
+  catch (std::exception e)
+  {
     XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     ADDON_Destroy();
     m_CurStatus = ADDON_STATUS_LOST_CONNECTION;
@@ -530,7 +534,6 @@ PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio)
   }
 }
 
-
 /*******************************************/
 /** PVR Channelgroups Functions           **/
 
@@ -576,26 +579,39 @@ PVR_ERROR GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &g
   }
 }
 
-
 /*******************************************/
 /** PVR Timer Functions                   **/
 
+
 PVR_ERROR GetTimerTypes(PVR_TIMER_TYPE types[], int *size)
 {
-  /* TODO: Implement this to get support for the timer features introduced with PVR API 1.9.7 */
-  return PVR_ERROR_NOT_IMPLEMENTED;
+  if (!VNSIData)
+    return PVR_ERROR_SERVER_ERROR;
+
+  try
+  {
+    return VNSIData->GetTimerTypes(types, size);
+  }
+  catch (std::exception e)
+  {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
+  }
 }
 
 int GetTimersAmount(void)
 {
   if (!VNSIData)
-    return 0;
+    return PVR_ERROR_SERVER_ERROR;
 
-  try {
+  try
+  {
     return VNSIData->GetTimersCount();
-  } catch (std::exception e) {
+  }
+  catch (std::exception e)
+  {
     XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
-    return 0;
+    return PVR_ERROR_SERVER_ERROR;
   }
 }
 
@@ -604,10 +620,12 @@ PVR_ERROR GetTimers(ADDON_HANDLE handle)
   if (!VNSIData)
     return PVR_ERROR_SERVER_ERROR;
 
-  try {
-    /* TODO: Change implementation to get support for the timer features introduced with PVR API 1.9.7 */
+  try
+  {
     return (VNSIData->GetTimersList(handle) ? PVR_ERROR_NO_ERROR : PVR_ERROR_SERVER_ERROR);
-  } catch (std::exception e) {
+  }
+  catch (std::exception e)
+  {
     XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
   }
@@ -618,9 +636,12 @@ PVR_ERROR AddTimer(const PVR_TIMER &timer)
   if (!VNSIData)
     return PVR_ERROR_SERVER_ERROR;
 
-  try {
+  try
+  {
     return VNSIData->AddTimer(timer);
-  } catch (std::exception e) {
+  }
+  catch (std::exception e)
+  {
     XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
   }
@@ -631,9 +652,12 @@ PVR_ERROR DeleteTimer(const PVR_TIMER &timer, bool bForce)
   if (!VNSIData)
     return PVR_ERROR_SERVER_ERROR;
 
-  try {
+  try
+  {
     return VNSIData->DeleteTimer(timer, bForce);
-  } catch (std::exception e) {
+  }
+  catch (std::exception e)
+  {
     XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
   }
@@ -644,9 +668,12 @@ PVR_ERROR UpdateTimer(const PVR_TIMER &timer)
   if (!VNSIData)
     return PVR_ERROR_SERVER_ERROR;
 
-  try {
+  try
+  {
     return VNSIData->UpdateTimer(timer);
-  } catch (std::exception e) {
+  }
+  catch (std::exception e)
+  {
     XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
   }
@@ -935,14 +962,17 @@ bool OpenRecordedStream(const PVR_RECORDING &recording)
   CloseRecordedStream();
 
   VNSIRecording = new cVNSIRecording;
-  try {
+  try
+  {
     return VNSIRecording->OpenRecording(recording);
-  } catch (std::exception e) {
+  }
+  catch (std::exception e)
+  {
     XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     VNSIRecording->Close();
     delete VNSIRecording;
     VNSIRecording = NULL;
-    return NULL;
+    return false;
   }
 }
 

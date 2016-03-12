@@ -45,6 +45,7 @@ public:
   cVNSIDemux();
   ~cVNSIDemux();
 
+  void Close();
   bool OpenChannel(const PVR_CHANNEL &channelinfo);
   void Abort();
   bool GetStreamProperties(PVR_STREAM_PROPERTIES* props);

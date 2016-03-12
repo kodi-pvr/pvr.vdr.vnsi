@@ -38,6 +38,27 @@ cVNSIDemux::~cVNSIDemux()
 {
 }
 
+void cVNSIDemux::Close()
+{
+  if (GetProtocol() >= 9)
+  {
+    if (IsOpen())
+    {
+      XBMC->Log(LOG_DEBUG, "closing demuxer");
+
+      cRequestPacket vrp;
+      vrp.init(VNSI_CHANNELSTREAM_CLOSE);
+
+      auto resp = ReadResult(&vrp);
+      if (!resp)
+      {
+        XBMC->Log(LOG_ERROR, "%s - failed to close streaming", __FUNCTION__);
+      }
+    }
+  }
+  cVNSISession::Close();
+}
+
 bool cVNSIDemux::OpenChannel(const PVR_CHANNEL &channelinfo)
 {
   m_channelinfo = channelinfo;
@@ -275,6 +296,8 @@ void cVNSIDemux::StreamChange(cResponsePacket *resp)
   {
     uint32_t    pid = resp->extract_U32();
     const char* type  = resp->extract_String();
+
+    memset(&m_streams.stream[count], 0, sizeof(PVR_STREAM_PROPERTIES::PVR_STREAM));
 
     CodecDescriptor codecId = CodecDescriptor::GetCodecByName(type);
     if (codecId.Codec().codec_type != XBMC_CODEC_TYPE_UNKNOWN)
