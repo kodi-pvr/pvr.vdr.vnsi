@@ -2,7 +2,6 @@
 <window>
   <defaultcontrol always="true">10</defaultcontrol>
   <backgroundcolor>background</backgroundcolor>
-  <onload>SetProperty(menu,osd)</onload>
   <allowoverlay>no</allowoverlay>
   <views>36</views>
   <controls>
@@ -35,20 +34,20 @@
             <param name="align" value="center" />
             <param name="width" value="400" />
             <param name="height" value="120" />
-            <param name="list_id" value="9000" />
+            <param name="list_id" value="10" />
           </include>
           <content>
             <item id="1">
               <label>$ADDON[pvr.vdr.vnsi 30100]</label>
-              <onclick>SetProperty(menu,osd)</onclick>
+              <onclick>noop</onclick>
             </item>
             <item id="2">
               <label>$ADDON[pvr.vdr.vnsi 30101]</label>
-              <onclick>SetProperty(menu,setup)</onclick>
+              <onclick>noop</onclick>
             </item>
             <item id="3">
               <label>$ADDON[pvr.vdr.vnsi 30108]</label>
-              <onclick>SetProperty(menu,channels)</onclick>
+              <onclick>noop</onclick>
             </item>
           </content>
         </control>
@@ -62,33 +61,24 @@
           <height>792</height>
           <texture border="22">dialogs/dialog-bg.png</texture>
         </control>
-        <include name="UpDownArrows">
-          <param name="container_id" value="600" />
-          <param name="posx" value="1045" />
-          <param name="up_posy" value="130" />
-          <param name="down_posy" value="910" />
-          <param name="visible" value="!System.HasModalDialog" />
-        </include>
         <control type="group" id="12">
-          <visible>StringCompare(Window.Property(menu),osd)</visible>
-          <control type="button" id="13">
-            <description>osd control label</description>
-            <texturefocus border="5">lists/focus.png</texturefocus>
-            <left>442</left>
-            <top>160</top>
-            <width>1256</width>
-            <height>60</height>
-            <label>$ADDON[pvr.vdr.vnsi 30103]</label>
-            <include>DefaultSettingButton</include>
-            <font>font16caps</font>
-            <textcolor>white</textcolor>
-            <onleft>10</onleft>
+          <visible>Container(10).HasFocus(1)</visible>
+          <control type="button" id ="13">
+            <left>540</left>
+            <top>172</top>
+            <width>1080</width>
+            <height>686</height>
+            <aligny>top</aligny>
+            <align>center</align>
+            <textoffsety>690</textoffsety>
+            <texturenofocus>-</texturenofocus>
+            <texturefocus background="true" border="8" colordiffuse="button_focus">buttons/thumbnail_focused.png</texturefocus>
           </control>
           <control type="renderaddon" id ="9">
-            <left>442</left>
-            <top>250</top>
-            <width>1256</width>
-            <height>600</height>
+            <left>480</left>
+            <top>180</top>
+            <width>1200</width>
+            <height>670</height>
           </control>
         </control>
         <control type="grouplist" id="20">
@@ -96,34 +86,26 @@
           <top>160</top>
           <width>1256</width>
           <height>610</height>
-          <visible>StringCompare(Window.Property(menu),setup)</visible>
+          <visible>Container(10).HasFocus(2)</visible>
+          <onleft>10</onleft>
           <control type="spincontrolex" id="21">
             <label>$ADDON[pvr.vdr.vnsi 30104]</label>
             <width>1256</width>
             <include>DefaultSettingButton</include>
-            <aligny>center</aligny>
-            <onleft>10</onleft>
-            <ondown>22</ondown>
           </control>
           <control type="spincontrolex" id="22">
             <label>$ADDON[pvr.vdr.vnsi 30105]</label>
             <width>1256</width>
             <include>DefaultSettingButton</include>
-            <aligny>center</aligny>
-            <onleft>21</onleft>
-            <ondown>23</ondown>
           </control>
           <control type="spincontrolex" id="23">
             <label>$ADDON[pvr.vdr.vnsi 30106]</label>
             <width>1256</width>
             <include>DefaultSettingButton</include>
-            <aligny>center</aligny>
-            <onleft>10</onleft>
-            <ondown>22</ondown>
           </control>
         </control>
         <control type="group" id="30">
-          <visible>StringCompare(Window.Property(menu),channels)</visible>
+          <visible>Container(10).HasFocus(3)</visible>
           <defaultcontrol always="true">33</defaultcontrol>
           <control type="label" id="31">
             <description>Channels label</description>
@@ -156,60 +138,52 @@
             <texture>overlays/circle.png</texture>
             <visible>!StringCompare(Window.Property(IsDirty),1)</visible>
           </control>
-          <control type="radiobutton" id="32">
-            <description>Is Radio</description>
-            <left>500</left>
-            <top>300</top>
-            <width>400</width>
-            <height>60</height>
-            <include>DefaultSettingButton</include>
-            <label>$ADDON[pvr.vdr.vnsi 30112]</label>
-            <onleft>10</onleft>
-            <ondown>33</ondown>
-            <onright>36</onright>
-          </control>
-          <control type="button" id="33">
-            <description>providers</description>
-            <left>500</left>
-            <top>400</top>
-            <width>400</width>
-            <height>60</height>
-            <texturefocus border="5">lists/focus.png</texturefocus>
-            <label>$ADDON[pvr.vdr.vnsi 30109]</label>
-            <include>DefaultSettingButton</include>
+          <control type="grouplist" id="200">
+            <left>442</left>
+            <top>230</top>
+            <width>1256</width>
+            <height>610</height>
             <onleft>10</onleft>
             <onright>36</onright>
-            <onup>32</onup>
-            <ondown>34</ondown>
-            <onfocus>Select</onfocus>
-          </control>
-          <control type="button" id="34">
-            <description>channels</description>
-            <left>500</left>
-            <top>500</top>
-            <width>400</width>
-            <height>60</height>
-            <texturefocus border="5">lists/focus.png</texturefocus>
-            <label>$ADDON[pvr.vdr.vnsi 30110]</label>
-            <include>DefaultSettingButton</include>
-            <onleft>10</onleft>
-            <onright>36</onright>
-            <onup>33</onup>
-            <ondown>35</ondown>
-            <onfocus>Select</onfocus>
-          </control>
-          <control type="button" id="35">
-            <description>save</description>
-            <left>500</left>
-            <top>600</top>
-            <width>400</width>
-            <height>60</height>
-            <texturefocus border="5">lists/focus.png</texturefocus>
-            <label>$ADDON[pvr.vdr.vnsi 30113]</label>
-            <include>DefaultSettingButton</include>
-            <onleft>10</onleft>
-            <onright>36</onright>
-            <onup>34</onup>
+            <control type="radiobutton" id="32">
+              <description>Is Radio</description>
+              <left>500</left>
+              <top>300</top>
+              <width>400</width>
+              <height>60</height>
+              <include>DefaultSettingButton</include>
+              <label>$ADDON[pvr.vdr.vnsi 30112]</label>
+            </control>
+            <control type="button" id="33">
+              <description>providers</description>
+              <left>500</left>
+              <top>400</top>
+              <width>400</width>
+              <height>60</height>
+              <texturefocus border="5">lists/focus.png</texturefocus>
+              <label>$ADDON[pvr.vdr.vnsi 30109]</label>
+              <include>DefaultSettingButton</include>
+            </control>
+            <control type="button" id="34">
+              <description>channels</description>
+              <left>500</left>
+              <top>500</top>
+              <width>400</width>
+              <height>60</height>
+              <texturefocus border="5">lists/focus.png</texturefocus>
+              <label>$ADDON[pvr.vdr.vnsi 30110]</label>
+              <include>DefaultSettingButton</include>
+            </control>
+            <control type="button" id="35">
+              <description>save</description>
+              <left>500</left>
+              <top>600</top>
+              <width>400</width>
+              <height>60</height>
+              <texturefocus border="5">lists/focus.png</texturefocus>
+              <label>$ADDON[pvr.vdr.vnsi 30113]</label>
+              <include>DefaultSettingButton</include>
+            </control>
           </control>
           <control type="image">
             <left>980</left>
@@ -314,7 +288,7 @@
           <control type="scrollbar" id="37">
             <left>1620</left>
             <top>250</top>
-            <width>25</width>
+            <width>13</width>
             <height>600</height>
             <onleft>36</onleft>
             <showonepage>false</showonepage>
