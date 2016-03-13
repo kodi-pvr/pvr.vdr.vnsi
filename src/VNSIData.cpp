@@ -777,6 +777,8 @@ PVR_ERROR cVNSIData::GetRecordingsList(ADDON_HANDLE handle)
 
     strRecordingId.Format("%i", vresp->extract_U32());
     strncpy(tag.strRecordingId, strRecordingId.c_str(), sizeof(tag.strRecordingId) - 1);
+
+    PVR->TransferRecordingEntry(handle, &tag);
   }
 
   return PVR_ERROR_NO_ERROR;
