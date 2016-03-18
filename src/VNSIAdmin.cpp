@@ -1149,21 +1149,6 @@ bool cVNSIAdmin::OnAction(int actionId)
     return true;
   }
 
-  if (actionId == ACTION_SELECT_ITEM)
-  {
-    if (m_window->GetFocusId() == CONTROL_MENU)
-    {
-      const char *tmp = m_window->GetProperty("menu");
-      //if (strncmp(m_window->GetProperty("menu"), "osd", 3) == 0)
-      if (strncmp(tmp, "osd", 3) == 0)
-      {
-#if defined(KODI_GUILIB_API_VERSION)
-        m_window->MarkDirtyRegion();
-#endif
-      }
-    }
-  }
-
   return false;
 }
 
