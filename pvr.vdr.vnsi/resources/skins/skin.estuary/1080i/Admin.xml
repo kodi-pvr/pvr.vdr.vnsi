@@ -64,9 +64,9 @@
         <control type="group" id="12">
           <visible>Container(10).HasFocus(1)</visible>
           <control type="button" id ="13">
-            <left>540</left>
+            <left>472</left>
             <top>172</top>
-            <width>1080</width>
+            <width>1216</width>
             <height>686</height>
             <aligny>top</aligny>
             <align>center</align>
@@ -163,6 +163,7 @@
               <texturefocus border="5">lists/focus.png</texturefocus>
               <label>$ADDON[pvr.vdr.vnsi 30109]</label>
               <include>DefaultSettingButton</include>
+              <onfocus>Select</onfocus>
             </control>
             <control type="button" id="34">
               <description>channels</description>
@@ -173,6 +174,7 @@
               <texturefocus border="5">lists/focus.png</texturefocus>
               <label>$ADDON[pvr.vdr.vnsi 30110]</label>
               <include>DefaultSettingButton</include>
+              <onfocus>Select</onfocus>
             </control>
             <control type="button" id="35">
               <description>save</description>
