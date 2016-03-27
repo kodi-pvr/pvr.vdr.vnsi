@@ -36,12 +36,10 @@ public:
   cVNSIData();
   virtual ~cVNSIData();
 
-  bool        Open(const std::string& hostname, int port, const char* name = NULL, const std::string& mac = "");
-  bool        Login() override;
-
+  bool Start(const std::string& hostname, int port, const char* name = NULL, const std::string& mac = "");
   bool        SupportChannelScan();
   bool        SupportRecordingsUndelete();
-  bool        EnableStatusInterface(bool onOff);
+  bool        EnableStatusInterface(bool onOff, bool wait = true);
   bool        GetDriveSpace(long long *total, long long *used);
 
   int         GetChannelsCount();

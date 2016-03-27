@@ -89,7 +89,7 @@ void cVNSIDemux::Abort()
 
 DemuxPacket* cVNSIDemux::Read()
 {
-  if(ConnectionLost())
+  if (m_connectionLost)
   {
     return NULL;
   }

@@ -47,6 +47,7 @@ cVNSISession::cVNSISession()
   : m_protocol(0)
   , m_socket(NULL)
   , m_connectionLost(false)
+  , m_abort(false)
 {
 }
 
@@ -57,7 +58,7 @@ cVNSISession::~cVNSISession()
 
 void cVNSISession::Close()
 {
-  if(IsOpen())
+  if (IsOpen())
   {
     m_socket->Close();
   }
@@ -74,14 +75,14 @@ bool cVNSISession::Open(const std::string& hostname, int port, const char *name)
   uint64_t iTarget = iNow + g_iConnectTimeout * 1000;
   if (!m_socket)
     m_socket = new CTcpConnection(hostname.c_str(), port);
-  while (!m_socket->IsOpen() && iNow < iTarget)
+  while (!m_socket->IsOpen() && iNow < iTarget && !m_abort)
   {
     if (!m_socket->Open(iTarget - iNow))
       CEvent::Sleep(100);
     iNow = GetTimeMs();
   }
 
-  if (!m_socket->IsOpen())
+  if (!m_socket->IsOpen() && !m_abort)
   {
     XBMC->Log(LOG_ERROR, "%s - failed to connect to the backend (%s)", __FUNCTION__, m_socket->GetError().c_str());
     return false;
@@ -91,7 +92,7 @@ bool cVNSISession::Open(const std::string& hostname, int port, const char *name)
   m_hostname = hostname;
   m_port = port;
 
-  if(name != NULL)
+  if (name != nullptr)
     m_name = name;
 
   return true;
@@ -334,17 +335,20 @@ bool cVNSISession::ReadSuccess(cRequestPacket* vrp)
   return true;
 }
 
-void cVNSISession::OnReconnect() {
+void cVNSISession::OnReconnect()
+{
 }
 
-void cVNSISession::OnDisconnect() {
+void cVNSISession::OnDisconnect()
+{
 }
 
-bool cVNSISession::TryReconnect() {
-  if(!Open(m_hostname, m_port))
+bool cVNSISession::TryReconnect()
+{
+  if (!Open(m_hostname, m_port))
     return false;
 
-  if(!Login())
+  if (!Login())
     return false;
 
   XBMC->Log(LOG_DEBUG, "%s - reconnected", __FUNCTION__);
