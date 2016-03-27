@@ -222,24 +222,11 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   try
   {
     VNSIData = new cVNSIData;
-    if (!VNSIData->Open(g_szHostname, g_iPort, NULL, g_szWolMac))
+    m_CurStatus = ADDON_STATUS_OK;
+    if (!VNSIData->Start(g_szHostname, g_iPort, nullptr, g_szWolMac))
     {
       ADDON_Destroy();
-      m_CurStatus = ADDON_STATUS_LOST_CONNECTION;
-      return m_CurStatus;
-    }
-
-    if (!VNSIData->Login())
-    {
-      ADDON_Destroy();
-      m_CurStatus = ADDON_STATUS_LOST_CONNECTION;
-      return m_CurStatus;
-    }
-
-    if (!VNSIData->EnableStatusInterface(g_bHandleMessages))
-    {
-      ADDON_Destroy();
-      m_CurStatus = ADDON_STATUS_LOST_CONNECTION;
+      m_CurStatus = ADDON_STATUS_PERMANENT_FAILURE;
       return m_CurStatus;
     }
   }
@@ -257,7 +244,6 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   hook.iLocalizedStringId = 30107;
   PVR->AddMenuHook(&hook);
 
-  m_CurStatus = ADDON_STATUS_OK;
   return m_CurStatus;
 }
 

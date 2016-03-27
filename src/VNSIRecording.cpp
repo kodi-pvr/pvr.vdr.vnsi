@@ -82,7 +82,7 @@ void cVNSIRecording::Close()
 
 int cVNSIRecording::Read(unsigned char* buf, uint32_t buf_size)
 {
-  if (ConnectionLost() && !TryReconnect())
+  if (m_connectionLost && !TryReconnect())
   {
     *buf = 0;
     SleepMs(100);

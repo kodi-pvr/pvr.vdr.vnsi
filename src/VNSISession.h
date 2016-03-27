@@ -22,6 +22,7 @@
 
 #include <stdint.h>
 #include <string>
+#include <atomic>
 #include "p8-platform/threads/threads.h"
 
 #include <memory>
@@ -54,6 +55,8 @@ public:
   const std::string& GetServerName() const { return m_server; }
   const std::string& GetVersion() const { return m_version; }
 
+
+
 protected:
 
   void SleepMs(int ms);
@@ -65,7 +68,6 @@ protected:
   virtual void OnReconnect();
 
   virtual void SignalConnectionLost();
-  bool ConnectionLost() const { return m_connectionLost; }
 
   std::string      m_hostname;
   int              m_port;
@@ -74,6 +76,8 @@ protected:
   int              m_protocol;
   std::string      m_server;
   std::string      m_version;
+  bool m_connectionLost;
+  std::atomic_bool m_abort;
 
 private:
 
@@ -81,5 +85,4 @@ private:
 
   P8PLATFORM::CTcpConnection *m_socket;
   P8PLATFORM::CMutex          m_readMutex;
-  bool                      m_connectionLost;
 };

@@ -61,14 +61,22 @@ cVNSIData::cVNSIData()
 
 cVNSIData::~cVNSIData()
 {
-  StopThread();
+  m_abort = true;
+  StopThread(0);
   Close();
 }
 
-bool cVNSIData::Open(const std::string& hostname, int port, const char* name, const std::string& mac)
+bool cVNSIData::Start(const std::string& hostname, int port, const char* name, const std::string& mac)
 {
-  /* First wake up the VDR server in case a MAC-Address is specified */
-  if (!mac.empty()) {
+  m_hostname = hostname;
+  m_port = port;
+
+  if (name != nullptr)
+    m_name = name;
+
+  // First wake up the VDR server in case a MAC-Address is specified
+  if (!mac.empty())
+  {
     const char* temp_mac;
     temp_mac = mac.c_str();
 
@@ -78,32 +86,24 @@ bool cVNSIData::Open(const std::string& hostname, int port, const char* name, co
     }
   }
 
-  if(!cVNSISession::Open(hostname, port, name))
-    return false;
+  PVR->ConnectionStateChange("VNSI stated", PVR_CONNECTION_STATE_CONNECTING, "VNSI started");
 
-  return true;
-}
-
-bool cVNSIData::Login()
-{
-  if(!cVNSISession::Login())
-    return false;
-
+  m_abort = false;
   CreateThread();
+
   return true;
 }
 
 void cVNSIData::OnDisconnect()
 {
-  XBMC->QueueNotification(QUEUE_ERROR, XBMC->GetLocalizedString(30044));
-  PVR->TriggerTimerUpdate();
+  PVR->ConnectionStateChange("vnsi connection lost", PVR_CONNECTION_STATE_DISCONNECTED, XBMC->GetLocalizedString(30044));
 }
 
 void cVNSIData::OnReconnect()
 {
-  XBMC->QueueNotification(QUEUE_INFO, XBMC->GetLocalizedString(30045));
+  EnableStatusInterface(g_bHandleMessages, false);
 
-  EnableStatusInterface(g_bHandleMessages);
+  PVR->ConnectionStateChange("vnsi connection established", PVR_CONNECTION_STATE_CONNECTED, XBMC->GetLocalizedString(30045));
 
   PVR->TriggerChannelUpdate();
   PVR->TriggerTimerUpdate();
@@ -187,11 +187,17 @@ bool cVNSIData::SupportRecordingsUndelete()
   return false;
 }
 
-bool cVNSIData::EnableStatusInterface(bool onOff)
+bool cVNSIData::EnableStatusInterface(bool onOff, bool wait)
 {
   cRequestPacket vrp;
   vrp.init(VNSI_ENABLESTATUSINTERFACE);
   vrp.add_U8(onOff);
+
+  if (!wait)
+  {
+    cVNSISession::TransmitMessage(&vrp);
+    return true;
+  }
 
   auto vresp = ReadResult(&vrp);
   if (!vresp)
@@ -1004,12 +1010,13 @@ bool cVNSIData::OnResponsePacket(cResponsePacket* pkt)
 
 void *cVNSIData::Process()
 {
+  m_connectionLost = true;
   std::unique_ptr<cResponsePacket> vresp;
 
   while (!IsStopped())
   {
     // try to reconnect
-    if(ConnectionLost() && !TryReconnect())
+    if (m_connectionLost && !TryReconnect())
     {
       Sleep(1000);
       continue;
