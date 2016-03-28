@@ -47,8 +47,8 @@ cVNSISession::cVNSISession()
   : m_protocol(0)
   , m_socket(NULL)
   , m_connectionLost(false)
-  , m_abort(false)
 {
+  m_abort = false;
 }
 
 cVNSISession::~cVNSISession()
