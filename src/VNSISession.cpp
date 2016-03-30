@@ -84,7 +84,7 @@ bool cVNSISession::Open(const std::string& hostname, int port, const char *name)
 
   if (!m_socket->IsOpen() && !m_abort)
   {
-    XBMC->Log(LOG_ERROR, "%s - failed to connect to the backend (%s)", __FUNCTION__, m_socket->GetError().c_str());
+    XBMC->Log(LOG_DEBUG, "%s - failed to connect to the backend (%s)", __FUNCTION__, m_socket->GetError().c_str());
     return false;
   }
 
@@ -343,20 +343,20 @@ void cVNSISession::OnDisconnect()
 {
 }
 
-bool cVNSISession::TryReconnect()
+cVNSISession::eCONNECTIONSTATE cVNSISession::TryReconnect()
 {
   if (!Open(m_hostname, m_port))
-    return false;
+    return CONN_HOST_NOT_REACHABLE;
 
   if (!Login())
-    return false;
+    return CONN_LOGIN_FAILED;
 
   XBMC->Log(LOG_DEBUG, "%s - reconnected", __FUNCTION__);
   m_connectionLost = false;
 
   OnReconnect();
 
-  return true;
+  return CONN_ESABLISHED;
 }
 
 bool cVNSISession::IsOpen()

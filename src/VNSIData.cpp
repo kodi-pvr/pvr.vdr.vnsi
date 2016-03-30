@@ -86,7 +86,7 @@ bool cVNSIData::Start(const std::string& hostname, int port, const char* name, c
     }
   }
 
-  PVR->ConnectionStateChange("VNSI stated", PVR_CONNECTION_STATE_CONNECTING, "VNSI started");
+  PVR->ConnectionStateChange("VNSI started", PVR_CONNECTION_STATE_CONNECTING, "VNSI started");
 
   m_abort = false;
   CreateThread();
@@ -1016,10 +1016,20 @@ void *cVNSIData::Process()
   while (!IsStopped())
   {
     // try to reconnect
-    if (m_connectionLost && !TryReconnect())
+    if (m_connectionLost)
     {
-      Sleep(1000);
-      continue;
+      cVNSISession::eCONNECTIONSTATE state = TryReconnect();
+      if (state != cVNSISession::CONN_ESABLISHED)
+      {
+	if (state == cVNSISession::CONN_HOST_NOT_REACHABLE)
+	{
+	  PVR->ConnectionStateChange("vnsi server not reacheable",
+				     PVR_CONNECTION_STATE_SERVER_UNREACHABLE, nullptr);
+	}
+
+	Sleep(1000);
+	continue;
+      }
     }
 
     // if there's anything in the buffer, read it
