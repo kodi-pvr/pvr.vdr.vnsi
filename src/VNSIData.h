@@ -74,7 +74,7 @@ public:
 
 protected:
 
-  virtual void *Process(void);
+  virtual void *Process(void) override;
   virtual bool OnResponsePacket(cResponsePacket *pkt);
 
   void OnDisconnect() override;

@@ -55,13 +55,19 @@ public:
   const std::string& GetServerName() const { return m_server; }
   const std::string& GetVersion() const { return m_version; }
 
-
+  enum eCONNECTIONSTATE
+  {
+    CONN_ESABLISHED = 0,
+    CONN_HOST_NOT_REACHABLE,
+    CONN_LOGIN_FAILED,
+    CONN_UNKNOWN
+  };
 
 protected:
 
   void SleepMs(int ms);
 
-  bool TryReconnect();
+  eCONNECTIONSTATE TryReconnect();
   bool IsOpen();
 
   virtual void OnDisconnect();
