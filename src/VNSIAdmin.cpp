@@ -840,6 +840,10 @@ bool cVNSIAdmin::Open(const std::string& hostname, int port, const char* name)
     return false;
   }
 
+  m_abort = false;
+  m_connectionLost = false;
+  CreateThread();
+
   if (!ConnectOSD())
     return false;
 
