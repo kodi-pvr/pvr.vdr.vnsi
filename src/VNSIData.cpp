@@ -89,6 +89,7 @@ bool cVNSIData::Start(const std::string& hostname, int port, const char* name, c
   PVR->ConnectionStateChange("VNSI started", PVR_CONNECTION_STATE_CONNECTING, "VNSI started");
 
   m_abort = false;
+  m_connectionLost = true;
   CreateThread();
 
   return true;
@@ -1010,7 +1011,6 @@ bool cVNSIData::OnResponsePacket(cResponsePacket* pkt)
 
 void *cVNSIData::Process()
 {
-  m_connectionLost = true;
   std::unique_ptr<cResponsePacket> vresp;
 
   while (!IsStopped())
