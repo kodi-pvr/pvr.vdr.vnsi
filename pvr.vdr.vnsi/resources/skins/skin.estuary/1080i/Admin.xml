@@ -63,7 +63,7 @@
         </control>
         <control type="group" id="12">
           <visible>Container(10).HasFocus(1)</visible>
-          <control type="button" id ="13">
+          <control type="button" id="13">
             <left>472</left>
             <top>172</top>
             <width>1216</width>
@@ -74,7 +74,7 @@
             <texturenofocus>-</texturenofocus>
             <texturefocus background="true" border="8" colordiffuse="button_focus">buttons/thumbnail_focused.png</texturefocus>
           </control>
-          <control type="renderaddon" id ="9">
+          <control type="renderaddon" id="9">
             <left>480</left>
             <top>180</top>
             <width>1200</width>
