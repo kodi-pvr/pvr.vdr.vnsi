@@ -30,7 +30,7 @@
           <onright>11</onright>
           <onup>10</onup>
           <ondown>10</ondown>
-          <include name="DefaultSimpleListLayout">
+          <include content="DefaultSimpleListLayout">
             <param name="align" value="center" />
             <param name="width" value="400" />
             <param name="height" value="120" />
@@ -299,7 +299,7 @@
         </control>
       </control>
     </control>
-    <include name="TopBar">
+    <include content="TopBar">
       <param name="breadcrumbs_label" value="$LOCALIZE[5] / $LOCALIZE[20077]" />
       <param name="breadcrumbs_icon" value="icons/settings/skin.png" />
     </include>
