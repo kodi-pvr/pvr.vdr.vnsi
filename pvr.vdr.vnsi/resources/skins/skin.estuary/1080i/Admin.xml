@@ -30,7 +30,7 @@
           <onright>11</onright>
           <onup>10</onup>
           <ondown>10</ondown>
-          <include name="DefaultSimpleListLayout">
+          <include content="DefaultSimpleListLayout">
             <param name="align" value="center" />
             <param name="width" value="400" />
             <param name="height" value="120" />
@@ -63,7 +63,7 @@
         </control>
         <control type="group" id="12">
           <visible>Container(10).HasFocus(1)</visible>
-          <control type="button" id ="13">
+          <control type="button" id="13">
             <left>472</left>
             <top>172</top>
             <width>1216</width>
@@ -74,7 +74,7 @@
             <texturenofocus>-</texturenofocus>
             <texturefocus background="true" border="8" colordiffuse="button_focus">buttons/thumbnail_focused.png</texturefocus>
           </control>
-          <control type="renderaddon" id ="9">
+          <control type="renderaddon" id="9">
             <left>480</left>
             <top>180</top>
             <width>1200</width>
@@ -299,7 +299,7 @@
         </control>
       </control>
     </control>
-    <include name="TopBar">
+    <include content="TopBar">
       <param name="breadcrumbs_label" value="$LOCALIZE[5] / $LOCALIZE[20077]" />
       <param name="breadcrumbs_icon" value="icons/settings/skin.png" />
     </include>
