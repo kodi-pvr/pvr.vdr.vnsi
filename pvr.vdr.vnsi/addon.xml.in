@@ -2,7 +2,7 @@
 <addon
   id="pvr.vdr.vnsi"
   version="2.3.6"
-  name="VDR VNSI Client"
+  name="VDR PVR Client Addon"
   provider-name="FernetMenta, Team Kodi">
   <requires>
     <c-pluff version="0.1"/>
@@ -23,10 +23,10 @@
     <summary lang="da_DK">PVR klient som forbinder VDR til Kodi over VNSI grænsefladen</summary>
     <summary lang="de_DE">PVR-Client, der einen VDR über das VNSI-Interface mit Kodi verbindet.</summary>
     <summary lang="el_GR">Πελάτης PVR για σύνδεση του VDR στο Kodi διαμέσου του VNSI</summary>
-    <summary lang="en_AU">PVR client to connect VDR to Kodi over the VNSI interface</summary>
-    <summary lang="en_GB">PVR client to connect VDR to Kodi over the VNSI interface</summary>
-    <summary lang="en_NZ">PVR client to connect VDR to Kodi over the VNSI interface</summary>
-    <summary lang="en_US">PVR client to connect VDR to Kodi over the VNSI interface</summary>
+    <summary lang="en_AU">VDR PVR client addon for Kodi's PVR API and frontend GUI, connecting VDR to Kodi over the VNSI interface.</summary>
+    <summary lang="en_GB">VDR PVR client addon for Kodi's PVR API and frontend GUI, connecting VDR to Kodi over the VNSI interface.</summary>
+    <summary lang="en_NZ">VDR PVR client addon for Kodi's PVR API and frontend GUI, connecting VDR to Kodi over the VNSI interface.</summary>
+    <summary lang="en_US">VDR PVR client addon for Kodi's PVR API and frontend GUI, connecting VDR to Kodi over the VNSI interface.</summary>
     <summary lang="es_AR">Cliente PVR para conectar VDR a Kodi sobre la interfaz VNSI</summary>
     <summary lang="es_ES">Cliente PVR para conectar VDR a Kodi sobre la interfaz VNSI</summary>
     <summary lang="fi_FI">PVR-asiakas, joka kytkee VDR:n Kodi:iin VNSI:n avulla</summary>
