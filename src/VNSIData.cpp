@@ -102,7 +102,7 @@ void cVNSIData::OnDisconnect()
 
 void cVNSIData::OnReconnect()
 {
-  EnableStatusInterface(g_bHandleMessages, false);
+  EnableStatusInterface(true, false);
 
   PVR->ConnectionStateChange("vnsi connection established", PVR_CONNECTION_STATE_CONNECTED, XBMC->GetLocalizedString(30045));
 

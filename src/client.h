@@ -39,7 +39,6 @@ extern int          g_iPort;              ///< TCP port of the vnsi server
 extern int          g_iConnectTimeout;    ///< Network connection / read timeout in seconds
 extern int          g_iPriority;          ///< The Priority this client have in response to other clients
 extern bool         g_bCharsetConv;       ///< Convert VDR's incoming strings to UTF8 character set
-extern bool         g_bHandleMessages;    ///< Send VDR's OSD status messages to XBMC OSD
 extern int          g_iTimeshift;
 extern std::string  g_szIconPath;         ///< path to channel icons
 

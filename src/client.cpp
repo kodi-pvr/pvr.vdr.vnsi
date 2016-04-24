@@ -47,7 +47,6 @@ std::string   g_szHostname              = DEFAULT_HOST;
 std::string   g_szWolMac                = "";
 int           g_iPort                   = DEFAULT_PORT;
 bool          g_bCharsetConv            = DEFAULT_CHARCONV;     ///< Convert VDR's incoming strings to UTF8 character set
-bool          g_bHandleMessages         = DEFAULT_HANDLE_MSG;   ///< Send VDR's OSD status messages to XBMC OSD
 int           g_iConnectTimeout         = DEFAULT_TIMEOUT;      ///< The Socket connection timeout
 int           g_iPriority               = DEFAULT_PRIORITY;     ///< The Priority this client have in response to other clients
 bool          g_bAutoChannelGroups      = DEFAULT_AUTOGROUPS;
@@ -187,14 +186,6 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
     /* If setting is unknown fallback to defaults */
     XBMC->Log(LOG_ERROR, "Couldn't get 'timeout' setting, falling back to %i seconds as default", DEFAULT_TIMEOUT);
     g_iConnectTimeout = DEFAULT_TIMEOUT;
-  }
-
-  /* Read setting "handlemessages" from settings.xml */
-  if (!XBMC->GetSetting("handlemessages", &g_bHandleMessages))
-  {
-    /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'handlemessages' setting, falling back to 'true' as default");
-    g_bHandleMessages = DEFAULT_HANDLE_MSG;
   }
 
   /* Read setting "autochannelgroups" from settings.xml */
@@ -337,12 +328,6 @@ ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
   {
     XBMC->Log(LOG_INFO, "Changed Setting 'timeout' from %u to %u", g_iConnectTimeout, *(int*) settingValue);
     g_iConnectTimeout = *(int*) settingValue;
-  }
-  else if (str == "handlemessages")
-  {
-    XBMC->Log(LOG_INFO, "Changed Setting 'handlemessages' from %u to %u", g_bHandleMessages, *(bool*) settingValue);
-    g_bHandleMessages = *(bool*) settingValue;
-    if (VNSIData) VNSIData->EnableStatusInterface(g_bHandleMessages);
   }
   else if (str == "autochannelgroups")
   {
