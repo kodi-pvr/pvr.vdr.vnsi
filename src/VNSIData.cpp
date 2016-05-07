@@ -380,7 +380,7 @@ PVR_ERROR cVNSIData::GetTimerInfo(unsigned int timernumber, PVR_TIMER &tag)
   else if (iPending || iActive)
     tag.state = PVR_TIMER_STATE_SCHEDULED;
   else
-    tag.state = PVR_TIMER_STATE_CANCELLED;
+    tag.state = PVR_TIMER_STATE_DISABLED;
   tag.iPriority         = vresp->extract_U32();
   tag.iLifetime         = vresp->extract_U32();
                           vresp->extract_U32(); // channel number - unused
@@ -435,7 +435,7 @@ bool cVNSIData::GetTimersList(ADDON_HANDLE handle)
       else if (iPending || iActive)
         tag.state = PVR_TIMER_STATE_SCHEDULED;
       else
-        tag.state = PVR_TIMER_STATE_CANCELLED;
+        tag.state = PVR_TIMER_STATE_DISABLED;
       tag.iPriority         = vresp->extract_U32();
       tag.iLifetime         = vresp->extract_U32();
                               vresp->extract_U32(); // channel number - unused
