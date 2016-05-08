@@ -380,7 +380,7 @@ PVR_ERROR cVNSIData::GetTimerInfo(unsigned int timernumber, PVR_TIMER &tag)
   else if (iPending || iActive)
     tag.state = PVR_TIMER_STATE_SCHEDULED;
   else
-    tag.state = PVR_TIMER_STATE_CANCELLED;
+    tag.state = PVR_TIMER_STATE_DISABLED;
   tag.iPriority         = vresp->extract_U32();
   tag.iLifetime         = vresp->extract_U32();
                           vresp->extract_U32(); // channel number - unused
@@ -435,7 +435,7 @@ bool cVNSIData::GetTimersList(ADDON_HANDLE handle)
       else if (iPending || iActive)
         tag.state = PVR_TIMER_STATE_SCHEDULED;
       else
-        tag.state = PVR_TIMER_STATE_CANCELLED;
+        tag.state = PVR_TIMER_STATE_DISABLED;
       tag.iPriority         = vresp->extract_U32();
       tag.iLifetime         = vresp->extract_U32();
                               vresp->extract_U32(); // channel number - unused
@@ -454,6 +454,11 @@ bool cVNSIData::GetTimersList(ADDON_HANDLE handle)
         char *epgSearch = vresp->extract_String();
         strncpy(tag.strEpgSearchString, epgSearch, sizeof(tag.strEpgSearchString) - 1);
       }
+
+      if (tag.startTime == 0)
+	tag.bStartAnyTime = true;
+      if (tag.endTime == 0)
+	tag.bEndAnyTime = true;
 
       PVR->TransferTimerEntry(handle, &tag);
     }
@@ -536,7 +541,7 @@ PVR_ERROR cVNSIData::AddTimer(const PVR_TIMER &timerinfo)
   vrp.add_U32(timerinfo.iWeekdays != PVR_WEEKDAY_NONE ? timerinfo.firstDay : 0);
   vrp.add_U32(timerinfo.iWeekdays);
   vrp.add_String(path.c_str());
-  vrp.add_String("");
+  vrp.add_String(timerinfo.strTitle);
 
   if (GetProtocol() >= 9)
   {
@@ -619,8 +624,8 @@ PVR_ERROR cVNSIData::UpdateTimer(const PVR_TIMER &timerinfo)
   vrp.add_U32(endtime);
   vrp.add_U32(timerinfo.iWeekdays != PVR_WEEKDAY_NONE ? timerinfo.firstDay : 0);
   vrp.add_U32(timerinfo.iWeekdays);
-  vrp.add_String(timerinfo.strTitle);
   vrp.add_String("");
+  vrp.add_String(timerinfo.strTitle);
 
   if (GetProtocol() >= 9)
   {
@@ -703,7 +708,37 @@ PVR_ERROR cVNSIData::GetTimerTypes(PVR_TIMER_TYPE types[], int *size)
       XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
       return PVR_ERROR_NO_ERROR;
     }
-    uint32_t types = vresp->extract_U32();
+    uint32_t vnsitimers = vresp->extract_U32();
+
+    if (vnsitimers & VNSI_TIMER_TYPE_EPG_SEARCH)
+    {
+      // EPG search timer
+      memset(&types[*size], 0, sizeof(types[*size]));
+      types[*size].iId = VNSI_TIMER_TYPE_EPG_SEARCH;
+      strncpy(types[*size].strDescription, XBMC->GetLocalizedString(30204), 64);
+      types[*size].iAttributes = PVR_TIMER_TYPE_IS_MANUAL |
+                                 PVR_TIMER_TYPE_IS_REPEATING |
+                                 PVR_TIMER_TYPE_SUPPORTS_ENABLE_DISABLE |
+                                 PVR_TIMER_TYPE_SUPPORTS_CHANNELS |
+                                 PVR_TIMER_TYPE_SUPPORTS_TITLE_EPG_MATCH |
+                                 PVR_TIMER_TYPE_SUPPORTS_PRIORITY |
+                                 PVR_TIMER_TYPE_SUPPORTS_LIFETIME;
+      (*size)++;
+    }
+
+    // VPS Timer
+    memset(&types[*size], 0, sizeof(types[*size]));
+    types[*size].iId = VNSI_TIMER_TYPE_VPS;
+    strncpy(types[*size].strDescription, XBMC->GetLocalizedString(30203), 64);
+    types[*size].iAttributes = PVR_TIMER_TYPE_IS_MANUAL |
+                               PVR_TIMER_TYPE_SUPPORTS_ENABLE_DISABLE |
+                               PVR_TIMER_TYPE_SUPPORTS_CHANNELS       |
+                               PVR_TIMER_TYPE_SUPPORTS_START_TIME     |
+                               PVR_TIMER_TYPE_SUPPORTS_END_TIME       |
+                               PVR_TIMER_TYPE_SUPPORTS_PRIORITY       |
+                               PVR_TIMER_TYPE_SUPPORTS_LIFETIME       |
+                               PVR_TIMER_TYPE_SUPPORTS_RECORDING_FOLDERS;
+    (*size)++;
   }
 
   return PVR_ERROR_NO_ERROR;
