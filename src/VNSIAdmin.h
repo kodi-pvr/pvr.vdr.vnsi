@@ -24,9 +24,15 @@
 #include "VNSIChannels.h"
 #include "client.h"
 
+#include <kodi/api2/gui/Window.hpp>
+#include <kodi/api2/gui/ControlSpin.hpp>
+#include <kodi/api2/gui/ControlRadioButton.hpp>
+#include <kodi/api2/gui/ControlRendering.hpp>
+#include <kodi/api2/gui/ListItem.hpp>
+
 class cOSDRender;
 
-class cVNSIAdmin : public cVNSIData
+class cVNSIAdmin : public cVNSIData, public KodiAPI::GUI::CWindow
 {
 public:
 
@@ -56,6 +62,7 @@ public:
   static bool DirtyCB(GUIHANDLE cbhdl);
 
 protected:
+
   bool OnResponsePacket(cResponsePacket* resp) override;
   void OnDisconnect() override {};
   void OnReconnect() override {};
@@ -72,17 +79,14 @@ protected:
 
 private:
 
-  CAddonGUIWindow *m_window;
-#if defined(KODI_GUILIB_API_VERSION)
-  CAddonGUIRenderingControl *m_renderControl;
-#endif
-  CAddonGUISpinControl *m_spinTimeshiftMode;
-  CAddonGUISpinControl *m_spinTimeshiftBufferRam;
-  CAddonGUISpinControl *m_spinTimeshiftBufferFile;
-  CAddonGUIRadioButton *m_ratioIsRadio;
-  std::vector<CAddonListItem*> m_listItems;
-  std::map<GUIHANDLE, int> m_listItemsMap;
-  std::map<GUIHANDLE, int> m_listItemsChannelsMap;
+  KodiAPI::GUI::CControlRendering *m_renderControl;
+  KodiAPI::GUI::CControlSpin *m_spinTimeshiftMode;
+  KodiAPI::GUI::CControlSpin *m_spinTimeshiftBufferRam;
+  KodiAPI::GUI::CControlSpin *m_spinTimeshiftBufferFile;
+  KodiAPI::GUI::CControlRadioButton *m_ratioIsRadio;
+  std::vector<KodiAPI::GUI::CListItem*> m_listItems;
+  std::map<KodiAPI::GUIHANDLE, int> m_listItemsMap;
+  std::map<KodiAPI::GUIHANDLE, int> m_listItemsChannelsMap;
   CVNSIChannels m_channels;
   bool m_bIsOsdControl;
   bool m_bIsOsdDirty;

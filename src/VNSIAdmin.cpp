@@ -25,6 +25,9 @@
 #include <queue>
 #include <stdio.h>
 
+#include <kodi/api2/AddonLib.hpp>
+#include <kodi/api2/addon/General.hpp>
+
 #if defined(HAVE_GL)
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
@@ -107,34 +110,6 @@ CVisGUIShader *vis_shader = NULL;
 #define CONTROL_FILTERSAVE_BUTTON            35
 #define CONTROL_ITEM_LIST                    36
 
-#define ACTION_NONE                    0
-#define ACTION_MOVE_LEFT               1
-#define ACTION_MOVE_RIGHT              2
-#define ACTION_MOVE_UP                 3
-#define ACTION_MOVE_DOWN               4
-#define ACTION_SELECT_ITEM             7
-#define ACTION_PREVIOUS_MENU          10
-#define ACTION_SHOW_INFO              11
-
-#define REMOTE_0                    58  // remote keys 0-9. are used by multiple windows
-#define REMOTE_1                    59  // for example in videoFullScreen.xml window id=2005 you can
-#define REMOTE_2                    60  // enter time (mmss) to jump to particular point in the movie
-#define REMOTE_3                    61
-#define REMOTE_4                    62  // with spincontrols you can enter 3digit number to quickly set
-#define REMOTE_5                    63  // spincontrol to desired value
-#define REMOTE_6                    64
-#define REMOTE_7                    65
-#define REMOTE_8                    66
-#define REMOTE_9                    67
-#define ACTION_NAV_BACK             92
-
-#define ACTION_TELETEXT_RED           215 // Teletext Color buttons to control TopText
-#define ACTION_TELETEXT_GREEN         216 //    "       "      "    "     "       "
-#define ACTION_TELETEXT_YELLOW        217 //    "       "      "    "     "       "
-#define ACTION_TELETEXT_BLUE          218 //    "       "      "    "     "       "
-
-
-using namespace ADDON;
 using namespace P8PLATFORM;
 
 
@@ -211,7 +186,7 @@ void cOSDTexture::SetBlock(int x0, int y0, int x1, int y1, int stride, void *dat
     {
       if (pos >= len)
       {
-        XBMC->Log(LOG_ERROR, "cOSDTexture::SetBlock: reached unexpected end of buffer");
+        KodiAPI::Log(ADDON_LOG_ERROR, "cOSDTexture::SetBlock: reached unexpected end of buffer");
         return;
       }
       color = dataPtr[pos];
@@ -692,7 +667,7 @@ void cOSDRenderDX::Render()
       HRESULT hr = m_device->CreateTexture(width, height, 1, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &m_hwTextures[i], NULL);
 	    if (hr != D3D_OK)
 	    {
-	      XBMC->Log(LOG_ERROR,"%s - failed to create texture", __FUNCTION__);
+	      KodiAPI::Log(ADDON_LOG_ERROR,"%s - failed to create texture", __FUNCTION__);
         continue;
       }
     }
@@ -708,7 +683,7 @@ void cOSDRenderDX::Render()
       HRESULT hr = m_hwTextures[i]->LockRect(0, &lockedRect, &dirtyRect, 0);
       if (hr != D3D_OK)
 	    {
-	      XBMC->Log(LOG_ERROR,"%s - failed to lock texture", __FUNCTION__);
+	      KodiAPI::Log(ADDON_LOG_ERROR,"%s - failed to lock texture", __FUNCTION__);
         continue;
       }
       uint8_t *source = (uint8_t*)m_osdTextures[i]->GetBuffer();
@@ -726,7 +701,7 @@ void cOSDRenderDX::Render()
       m_hwTextures[i]->UnlockRect(0);
       if (hr != D3D_OK)
 	    {
-	      XBMC->Log(LOG_ERROR,"%s - failed to unlock texture", __FUNCTION__);
+	      KodiAPI::Log(ADDON_LOG_ERROR,"%s - failed to unlock texture", __FUNCTION__);
         continue;
       }
     }
@@ -797,7 +772,7 @@ void cOSDRenderDX::Render()
     hr = m_device->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex, sizeof(VERTEX));
     if (hr != D3D_OK)
 	  {
-	    XBMC->Log(LOG_ERROR,"%s - failed to render texture", __FUNCTION__);
+	    KodiAPI::Log(ADDON_LOG_ERROR,"%s - failed to render texture", __FUNCTION__);
     }
     m_device->SetTexture(0, NULL);
   }
@@ -807,6 +782,7 @@ void cOSDRenderDX::Render()
 
 //-----------------------------------------------------------------------------
 cVNSIAdmin::cVNSIAdmin()
+  : KodiAPI::GUI::CWindow("Admin.xml", "skin.confluence", false, true)
 {
 }
 
@@ -848,29 +824,18 @@ bool cVNSIAdmin::Open(const std::string& hostname, int port, const char* name)
     return false;
 
   // Load the Window as Dialog
-  m_window = GUI->Window_create("Admin.xml", "skin.confluence", false, true);
-  m_window->m_cbhdl   = this;
-  m_window->CBOnInit  = OnInitCB;
-  m_window->CBOnFocus = OnFocusCB;
-  m_window->CBOnClick = OnClickCB;
-  m_window->CBOnAction= OnActionCB;
-
-  m_window->DoModal();
+  KodiAPI::GUI::CWindow::DoModal();
 
   ClearListItems();
-  m_window->ClearProperties();
+  KodiAPI::GUI::CWindow::ClearProperties();
 
-#if defined(KODI_GUILIB_API_VERSION)
-  GUI->Control_releaseRendering(m_renderControl);
-#endif
-
-  GUI->Control_releaseSpin(m_spinTimeshiftMode);
-  GUI->Control_releaseSpin(m_spinTimeshiftBufferRam);
-  GUI->Control_releaseSpin(m_spinTimeshiftBufferFile);
-  GUI->Control_releaseRadioButton(m_ratioIsRadio);
-  GUI->Window_destroy(m_window);
+  delete m_renderControl; 
+  delete m_spinTimeshiftMode;
+  delete m_spinTimeshiftBufferRam;
+  delete m_spinTimeshiftBufferFile;
+  delete m_ratioIsRadio;
   StopThread();
-  Close();
+  cVNSIData::Close();
 
   if (m_osdRender)
   {
@@ -885,40 +850,40 @@ bool cVNSIAdmin::OnClick(int controlId)
 {
   if (controlId == CONTROL_SPIN_TIMESHIFT_MODE)
   {
-    int value = m_spinTimeshiftMode->GetValue();
+    int value = m_spinTimeshiftMode->GetIntValue();
     cRequestPacket vrp;
     vrp.init(VNSI_STORESETUP);
     vrp.add_String(CONFNAME_TIMESHIFT);
     vrp.add_U32(value);
     if (!ReadSuccess(&vrp))
     {
-      XBMC->Log(LOG_ERROR, "%s - failed to set timeshift mode", __FUNCTION__);
+      KodiAPI::Log(ADDON_LOG_ERROR, "%s - failed to set timeshift mode", __FUNCTION__);
     }
     return true;
   }
   else if (controlId == CONTROL_SPIN_TIMESHIFT_BUFFER_RAM)
   {
-    int value = m_spinTimeshiftBufferRam->GetValue();
+    int value = m_spinTimeshiftBufferRam->GetIntValue();
     cRequestPacket vrp;
     vrp.init(VNSI_STORESETUP);
     vrp.add_String(CONFNAME_TIMESHIFTBUFFERSIZE);
     vrp.add_U32(value);
     if (!ReadSuccess(&vrp))
     {
-      XBMC->Log(LOG_ERROR, "%s - failed to set timeshift buffer", __FUNCTION__);
+      KodiAPI::Log(ADDON_LOG_ERROR, "%s - failed to set timeshift buffer", __FUNCTION__);
     }
     return true;
   }
   else if (controlId == CONTROL_SPIN_TIMESHIFT_BUFFER_FILE)
   {
-    int value = m_spinTimeshiftBufferFile->GetValue();
+    int value = m_spinTimeshiftBufferFile->GetIntValue();
     cRequestPacket vrp;
     vrp.init(VNSI_STORESETUP);
     vrp.add_String(CONFNAME_TIMESHIFTBUFFERFILESIZE);
     vrp.add_U32(value);
     if (!ReadSuccess(&vrp))
     {
-      XBMC->Log(LOG_ERROR, "%s - failed to set timeshift buffer file", __FUNCTION__);
+      KodiAPI::Log(ADDON_LOG_ERROR, "%s - failed to set timeshift buffer file", __FUNCTION__);
     }
     return true;
   }
@@ -934,7 +899,7 @@ bool cVNSIAdmin::OnClick(int controlId)
       m_channels.LoadChannelBlacklist();
       m_channels.m_loaded = true;
       m_channels.m_radio = m_ratioIsRadio->IsSelected();
-      m_window->SetProperty("IsDirty", "0");
+      KodiAPI::GUI::CWindow::SetProperty("IsDirty", "0");
     }
     LoadListItemsProviders();
     m_channels.m_mode = CVNSIChannels::PROVIDER;
@@ -951,7 +916,7 @@ bool cVNSIAdmin::OnClick(int controlId)
       m_channels.LoadChannelBlacklist();
       m_channels.m_loaded = true;
       m_channels.m_radio = m_ratioIsRadio->IsSelected();
-      m_window->SetProperty("IsDirty", "0");
+      KodiAPI::GUI::CWindow::SetProperty("IsDirty", "0");
     }
     LoadListItemsChannels();
     m_channels.m_mode = CVNSIChannels::CHANNEL;
@@ -962,17 +927,17 @@ bool cVNSIAdmin::OnClick(int controlId)
     {
       SaveChannelWhitelist(m_ratioIsRadio->IsSelected());
       SaveChannelBlacklist(m_ratioIsRadio->IsSelected());
-      m_window->SetProperty("IsDirty", "0");
+      KodiAPI::GUI::CWindow::SetProperty("IsDirty", "0");
     }
   }
   else if (controlId == CONTROL_ITEM_LIST)
   {
     if(m_channels.m_mode == CVNSIChannels::PROVIDER)
     {
-      int pos = m_window->GetCurrentListPosition();
-      GUIHANDLE hdl = m_window->GetListItem(pos);
+      int pos = KodiAPI::GUI::CWindow::GetCurrentListPosition();
+      GUIHANDLE hdl = KodiAPI::GUI::CWindow::GetListItem(pos);
       int idx = m_listItemsMap[hdl];
-      CAddonListItem *item = m_listItems[idx];
+      KodiAPI::GUI::CListItem *item = m_listItems[idx];
       if (m_channels.m_providers[idx].m_whitelist)
       {
         item->SetProperty("IsWhitelist", "false");
@@ -983,14 +948,14 @@ bool cVNSIAdmin::OnClick(int controlId)
         item->SetProperty("IsWhitelist", "true");
         m_channels.m_providers[idx].m_whitelist = true;
       }
-      m_window->SetProperty("IsDirty", "1");
+      KodiAPI::GUI::CWindow::SetProperty("IsDirty", "1");
     }
     else if(m_channels.m_mode == CVNSIChannels::CHANNEL)
     {
-      int pos = m_window->GetCurrentListPosition();
-      GUIHANDLE hdl = m_window->GetListItem(pos);
+      int pos = KodiAPI::GUI::CWindow::GetCurrentListPosition();
+      GUIHANDLE hdl = KodiAPI::GUI::CWindow::GetListItem(pos);
       int idx = m_listItemsMap[hdl];
-      CAddonListItem *item = m_listItems[idx];
+      KodiAPI::GUI::CListItem *item = m_listItems[idx];
       int channelidx = m_listItemsChannelsMap[hdl];
       if (m_channels.m_channels[channelidx].m_blacklist)
       {
@@ -1002,7 +967,7 @@ bool cVNSIAdmin::OnClick(int controlId)
         item->SetProperty("IsBlacklist", "true");
         m_channels.m_channels[channelidx].m_blacklist = true;
       }
-      m_window->SetProperty("IsDirty", "1");
+      KodiAPI::GUI::CWindow::SetProperty("IsDirty", "1");
     }
   }
   return false;
@@ -1010,45 +975,36 @@ bool cVNSIAdmin::OnClick(int controlId)
 
 bool cVNSIAdmin::OnFocus(int controlId)
 {
-#if defined(KODI_GUILIB_API_VERSION)
   if (controlId == CONTROL_OSD_BUTTON)
   {
-    m_window->SetControlLabel(CONTROL_OSD_BUTTON, XBMC->GetLocalizedString(30102));
-    m_window->MarkDirtyRegion();
+    KodiAPI::GUI::CWindow::SetControlLabel(CONTROL_OSD_BUTTON, KodiAPI::AddOn::General::GetLocalizedString(30102));
+    KodiAPI::GUI::CWindow::MarkDirtyRegion();
     m_bIsOsdControl = true;
     return true;
   }
   else if (m_bIsOsdControl)
   {
-    m_window->SetControlLabel(CONTROL_OSD_BUTTON, XBMC->GetLocalizedString(30103));
-    m_window->MarkDirtyRegion();
+    KodiAPI::GUI::CWindow::SetControlLabel(CONTROL_OSD_BUTTON, KodiAPI::AddOn::General::GetLocalizedString(30103));
+    KodiAPI::GUI::CWindow::MarkDirtyRegion();
     m_bIsOsdControl = false;
     return true;
   }
-#endif
+
   return false;
 }
 
 bool cVNSIAdmin::OnInit()
 {
-#if defined(KODI_GUILIB_API_VERSION)
-  m_renderControl = GUI->Control_getRendering(m_window, CONTROL_RENDER_ADDON);
-  m_renderControl->m_cbhdl   = this;
-  m_renderControl->CBCreate = CreateCB;
-  m_renderControl->CBRender = RenderCB;
-  m_renderControl->CBStop = StopCB;
-  m_renderControl->CBDirty = DirtyCB;
-  m_renderControl->Init();
+  m_renderControl = new KodiAPI::GUI::CControlRendering(this, CONTROL_RENDER_ADDON);
+  m_renderControl->SetIndependentCallbacks(this, CreateCB, RenderCB, StopCB, DirtyCB);
 
   cRequestPacket vrp;
   vrp.init(VNSI_OSD_HITKEY);
   vrp.add_U32(0);
   cVNSISession::TransmitMessage(&vrp);
-#endif
 
   // setup parameters
-  m_spinTimeshiftMode = GUI->Control_getSpin(m_window, CONTROL_SPIN_TIMESHIFT_MODE);
-  m_spinTimeshiftMode->Clear();
+  m_spinTimeshiftMode = new KodiAPI::GUI::CControlSpin(this, CONTROL_SPIN_TIMESHIFT_MODE);
   m_spinTimeshiftMode->AddLabel("OFF", 0);
   m_spinTimeshiftMode->AddLabel("RAM", 1);
   m_spinTimeshiftMode->AddLabel("FILE", 2);
@@ -1060,21 +1016,16 @@ bool cVNSIAdmin::OnInit()
     auto resp = ReadResult(&vrp);
     if (!resp)
     {
-      XBMC->Log(LOG_ERROR, "%s - failed to get timeshift mode", __FUNCTION__);
+      KodiAPI::Log(ADDON_LOG_ERROR, "%s - failed to get timeshift mode", __FUNCTION__);
       return false;
     }
     int mode = resp->extract_U32();
-    m_spinTimeshiftMode->SetValue(mode);
+    m_spinTimeshiftMode->SetIntValue(mode);
   }
 
-  m_spinTimeshiftBufferRam = GUI->Control_getSpin(m_window, CONTROL_SPIN_TIMESHIFT_BUFFER_RAM);
-  m_spinTimeshiftBufferRam->Clear();
-  char buffer[8];
-  for (int i = 1; i <= 80; i++)
-  {
-    sprintf(buffer, "%d", i);
-    m_spinTimeshiftBufferRam->AddLabel(buffer, i);
-  }
+  m_spinTimeshiftBufferRam = new KodiAPI::GUI::CControlSpin(this, CONTROL_SPIN_TIMESHIFT_BUFFER_RAM);
+  m_spinTimeshiftBufferRam->SetType(KodiAPI::GUI::ADDON_SPIN_CONTROL_TYPE_INT);
+  m_spinTimeshiftBufferRam->SetIntRange(1, 80);
 
   {
     cRequestPacket vrp;
@@ -1083,19 +1034,15 @@ bool cVNSIAdmin::OnInit()
     auto resp = ReadResult(&vrp);
     if (!resp)
     {
-      XBMC->Log(LOG_ERROR, "%s - failed to get timeshift buffer size", __FUNCTION__);
+      KodiAPI::Log(ADDON_LOG_ERROR, "%s - failed to get timeshift buffer size", __FUNCTION__);
       return false;
     }
     int mode = resp->extract_U32();
-    m_spinTimeshiftBufferRam->SetValue(mode);
+    m_spinTimeshiftBufferRam->SetIntValue(mode);
   }
-  m_spinTimeshiftBufferFile = GUI->Control_getSpin(m_window, CONTROL_SPIN_TIMESHIFT_BUFFER_FILE);
-  m_spinTimeshiftBufferFile->Clear();
-  for (int i = 1; i <= 20; i++)
-  {
-    sprintf(buffer, "%d", i);
-    m_spinTimeshiftBufferFile->AddLabel(buffer, i);
-  }
+  m_spinTimeshiftBufferFile = new KodiAPI::GUI::CControlSpin(this, CONTROL_SPIN_TIMESHIFT_BUFFER_FILE);
+  m_spinTimeshiftBufferFile->SetType(KodiAPI::GUI::ADDON_SPIN_CONTROL_TYPE_INT);
+  m_spinTimeshiftBufferFile->SetIntRange(1, 20);
 
   {
     cRequestPacket vrp;
@@ -1104,34 +1051,32 @@ bool cVNSIAdmin::OnInit()
     auto resp = ReadResult(&vrp);
     if (!resp)
     {
-      XBMC->Log(LOG_ERROR, "%s - failed to get timeshift buffer (file) size", __FUNCTION__);
+      KodiAPI::Log(ADDON_LOG_ERROR, "%s - failed to get timeshift buffer (file) size", __FUNCTION__);
       return false;
     }
     int mode = resp->extract_U32();
-    m_spinTimeshiftBufferFile->SetValue(mode);
+    m_spinTimeshiftBufferFile->SetIntValue(mode);
   }
 
   // channel filters
-  m_ratioIsRadio = GUI->Control_getRadioButton(m_window, CONTROL_RADIO_ISRADIO);
+  m_ratioIsRadio = new KodiAPI::GUI::CControlRadioButton(this, CONTROL_RADIO_ISRADIO);
 
   return true;
 }
 
 bool cVNSIAdmin::OnAction(int actionId)
 {
-  if (m_window->GetFocusId() != CONTROL_OSD_BUTTON && m_bIsOsdControl)
+  if (KodiAPI::GUI::CWindow::GetFocusId() != CONTROL_OSD_BUTTON && m_bIsOsdControl)
   {
     m_bIsOsdControl = false;
-    m_window->SetControlLabel(CONTROL_OSD_BUTTON, XBMC->GetLocalizedString(30103));
-#if defined(KODI_GUILIB_API_VERSION)
-    m_window->MarkDirtyRegion();
-#endif
+    KodiAPI::GUI::CWindow::SetControlLabel(CONTROL_OSD_BUTTON, KodiAPI::AddOn::General::GetLocalizedString(30103));
+    KodiAPI::GUI::CWindow::MarkDirtyRegion();
   }
-  else if (m_window->GetFocusId() == CONTROL_OSD_BUTTON)
+  else if (KodiAPI::GUI::CWindow::GetFocusId() == CONTROL_OSD_BUTTON)
   {
-    if (actionId == ACTION_SHOW_INFO)
+    if (actionId == ADDON_ACTION_SHOW_INFO)
     {
-      m_window->SetFocusId(CONTROL_MENU);
+      KodiAPI::GUI::CWindow::SetFocusId(CONTROL_MENU);
       return true;
     }
     else if(IsVdrAction(actionId))
@@ -1145,11 +1090,10 @@ bool cVNSIAdmin::OnAction(int actionId)
     }
   }
 
-  if (actionId == ADDON_ACTION_CLOSE_DIALOG ||
-      actionId == ADDON_ACTION_PREVIOUS_MENU ||
-      actionId == ACTION_NAV_BACK)
+  if (actionId == ADDON_ACTION_PREVIOUS_MENU ||
+      actionId == ADDON_ACTION_NAV_BACK)
   {
-    m_window->Close();
+    KodiAPI::GUI::CWindow::Close();
     return true;
   }
 
@@ -1158,30 +1102,33 @@ bool cVNSIAdmin::OnAction(int actionId)
 
 bool cVNSIAdmin::IsVdrAction(int action)
 {
-  if (action == ACTION_MOVE_LEFT ||
-      action == ACTION_MOVE_RIGHT ||
-      action == ACTION_MOVE_UP ||
-      action == ACTION_MOVE_DOWN ||
-      action == ACTION_SELECT_ITEM ||
-      action == ACTION_PREVIOUS_MENU ||
-      action == REMOTE_0 ||
-      action == REMOTE_1 ||
-      action == REMOTE_2 ||
-      action == REMOTE_3 ||
-      action == REMOTE_4 ||
-      action == REMOTE_5 ||
-      action == REMOTE_6 ||
-      action == REMOTE_7 ||
-      action == REMOTE_8 ||
-      action == REMOTE_9 ||
-      action == ACTION_NAV_BACK ||
-      action == ACTION_TELETEXT_RED ||
-      action == ACTION_TELETEXT_GREEN ||
-      action == ACTION_TELETEXT_YELLOW ||
-      action == ACTION_TELETEXT_BLUE)
+  switch (action)
+  {
+  case ADDON_ACTION_MOVE_LEFT:
+  case ADDON_ACTION_MOVE_RIGHT:
+  case ADDON_ACTION_MOVE_UP:
+  case ADDON_ACTION_MOVE_DOWN:
+  case ADDON_ACTION_SELECT_ITEM:
+  case ADDON_ACTION_PREVIOUS_MENU:
+  case ADDON_REMOTE_0:
+  case ADDON_REMOTE_1:
+  case ADDON_REMOTE_2:
+  case ADDON_REMOTE_3:
+  case ADDON_REMOTE_4:
+  case ADDON_REMOTE_5:
+  case ADDON_REMOTE_6:
+  case ADDON_REMOTE_7:
+  case ADDON_REMOTE_8:
+  case ADDON_REMOTE_9:
+  case ADDON_ACTION_NAV_BACK:
+  case ADDON_ACTION_TELETEXT_RED:
+  case ADDON_ACTION_TELETEXT_GREEN:
+  case ADDON_ACTION_TELETEXT_YELLOW:
+  case ADDON_ACTION_TELETEXT_BLUE:
     return true;
-  else
+  default:
     return false;
+  }
 }
 
 bool cVNSIAdmin::Create(int x, int y, int w, int h, void* device)
@@ -1220,45 +1167,6 @@ bool cVNSIAdmin::Dirty()
   return m_bIsOsdDirty;
 }
 
-bool cVNSIAdmin::OnInitCB(GUIHANDLE cbhdl)
-{
-  cVNSIAdmin* osd = static_cast<cVNSIAdmin*>(cbhdl);
-  try {
-    return osd->OnInit();
-  } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
-    return false;
-  }
-}
-
-bool cVNSIAdmin::OnClickCB(GUIHANDLE cbhdl, int controlId)
-{
-  cVNSIAdmin* osd = static_cast<cVNSIAdmin*>(cbhdl);
-  try {
-    return osd->OnClick(controlId);
-  } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
-    return false;
-  }
-}
-
-bool cVNSIAdmin::OnFocusCB(GUIHANDLE cbhdl, int controlId)
-{
-  cVNSIAdmin* osd = static_cast<cVNSIAdmin*>(cbhdl);
-  return osd->OnFocus(controlId);
-}
-
-bool cVNSIAdmin::OnActionCB(GUIHANDLE cbhdl, int actionId)
-{
-  cVNSIAdmin* osd = static_cast<cVNSIAdmin*>(cbhdl);
-  try {
-    return osd->OnAction(actionId);
-  } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
-    return false;
-  }
-}
-
 bool cVNSIAdmin::CreateCB(GUIHANDLE cbhdl, int x, int y, int w, int h, void *device)
 {
   cVNSIAdmin* osd = static_cast<cVNSIAdmin*>(cbhdl);
@@ -1292,7 +1200,7 @@ bool cVNSIAdmin::OnResponsePacket(cResponsePacket* resp)
     resp->getOSDData(wnd, color, x0, y0, x1, y1);
     if (wnd >= MAX_TEXTURES)
     {
-      XBMC->Log(LOG_ERROR, "cVNSIAdmin::OnResponsePacket - invalid wndId: %s", wnd);
+      KodiAPI::Log(ADDON_LOG_ERROR, "cVNSIAdmin::OnResponsePacket - invalid wndId: %s", wnd);
       return true;
     }
     if (resp->getOpCodeID() == VNSI_OSD_OPEN)
@@ -1378,7 +1286,7 @@ bool cVNSIAdmin::ReadChannelList(bool radio)
   auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
-    XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return false;
   }
 
@@ -1420,7 +1328,7 @@ bool cVNSIAdmin::ReadChannelWhitelist(bool radio)
   auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
-    XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return false;
   }
 
@@ -1454,7 +1362,7 @@ bool cVNSIAdmin::SaveChannelWhitelist(bool radio)
   auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
-    XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return false;
   }
 
@@ -1470,7 +1378,7 @@ bool cVNSIAdmin::ReadChannelBlacklist(bool radio)
   auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
-    XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return false;
   }
 
@@ -1500,7 +1408,7 @@ bool cVNSIAdmin::SaveChannelBlacklist(bool radio)
   auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
-    XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return false;
   }
 
@@ -1509,10 +1417,10 @@ bool cVNSIAdmin::SaveChannelBlacklist(bool radio)
 
 void cVNSIAdmin::ClearListItems()
 {
-  m_window->ClearList();
+  KodiAPI::GUI::CWindow::ClearList();
   for (auto *i : m_listItems)
   {
-    GUI->ListItem_destroy(i);
+    delete i;
   }
   m_listItems.clear();
   m_listItemsMap.clear();
@@ -1530,7 +1438,7 @@ void cVNSIAdmin::LoadListItemsProviders()
     if(!provider.m_name.empty())
       tmp = provider.m_name;
     else
-      tmp = XBMC->GetLocalizedString(30114);
+      tmp = KodiAPI::AddOn::General::GetLocalizedString(30114);
     if (provider.m_caid == 0)
     {
       tmp += " - FTA";
@@ -1543,9 +1451,9 @@ void cVNSIAdmin::LoadListItemsProviders()
       tmp += buf;
     }
 
-    CAddonListItem *item = GUI->ListItem_create(tmp.c_str(), NULL, NULL, NULL, NULL);
-    m_window->AddItem(item, count);
-    GUIHANDLE hdl = m_window->GetListItem(count);
+    KodiAPI::GUI::CListItem *item = new KodiAPI::GUI::CListItem(tmp, "", "", "", "");
+    KodiAPI::GUI::CWindow::AddItem(item, count);
+    GUIHANDLE hdl = KodiAPI::GUI::CWindow::GetListItem(count);
     m_listItems.push_back(item);
     m_listItemsMap[hdl] = count;
 
@@ -1574,11 +1482,11 @@ void cVNSIAdmin::LoadListItemsChannels()
     if(!m_channels.m_channels[i].m_provider.empty())
       tmp += m_channels.m_channels[i].m_provider;
     else
-      tmp += XBMC->GetLocalizedString(30114);
+      tmp += KodiAPI::AddOn::General::GetLocalizedString(30114);
     tmp += ")";
-    CAddonListItem *item = GUI->ListItem_create(tmp.c_str(), NULL, NULL, NULL, NULL);
-    m_window->AddItem(item, count);
-    GUIHANDLE hdl = m_window->GetListItem(count);
+    KodiAPI::GUI::CListItem *item = new KodiAPI::GUI::CListItem(tmp, "", "", "", "");
+    KodiAPI::GUI::CWindow::AddItem(item, count);
+    GUIHANDLE hdl = KodiAPI::GUI::CWindow::GetListItem(count);
     m_listItems.push_back(item);
     m_listItemsMap[hdl] = count;
     m_listItemsChannelsMap[hdl] = i;

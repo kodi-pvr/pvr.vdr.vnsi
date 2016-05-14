@@ -6,6 +6,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR})
 
 enable_language(CXX)
 
+set(USE_KODI_API_LEVEL 2)
+
 find_package(kodi REQUIRED)
 find_package(kodiplatform REQUIRED)
 find_package(p8-platform REQUIRED)
@@ -53,7 +55,7 @@ list(APPEND VDR_SOURCES src/client.cpp
                         src/VNSIRecording.cpp
                         src/VNSISession.cpp)
 
-list(APPEND DEPLIBS ${p8-platform_LIBRARIES})
+list(APPEND DEPLIBS ${p8-platform_LIBRARIES} ${kodi-addon-sharedlibrary_LIBRARIES})
 if(WIN32)
   list(APPEND DEPLIBS ws2_32)
 endif()

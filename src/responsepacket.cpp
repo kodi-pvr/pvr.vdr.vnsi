@@ -24,6 +24,8 @@
 #include "tools.h"
 #include "p8-platform/sockets/tcp.h"
 
+#include <kodi/api2/inputstream/InputStream.hpp>
+
 #include <stdexcept>
 #include <stdlib.h>
 #include <string.h>
@@ -43,7 +45,7 @@ cResponsePacket::~cResponsePacket()
   if (userData)
   {
     if (channelID == VNSI_CHANNEL_STREAM && opcodeID == VNSI_STREAM_MUXPKT)
-      PVR->FreeDemuxPacket((DemuxPacket*)userData); 
+      KodiAPI::InputStream::FreeDemuxPacket((DemuxPacket*)userData); 
     else
       free(userData);
   }
