@@ -24,6 +24,7 @@
 #include "client.h"
 #include <string>
 #include <map>
+#include <kodi/api2/definitions.hpp>
 #include "kodi/xbmc_pvr_types.h"
 
 class cResponsePacket;

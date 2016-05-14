@@ -25,6 +25,11 @@
 #include <string>
 #include <map>
 
+#include <kodi/api2/gui/Window.hpp>
+#include <kodi/api2/gui/ControlSpin.hpp>
+#include <kodi/api2/gui/ControlRadioButton.hpp>
+#include <kodi/api2/gui/ControlProgress.hpp>
+
 typedef enum scantype
 {
   DVB_TERR    = 0,
@@ -36,24 +41,19 @@ typedef enum scantype
 } scantype_t;
 
 
-class cVNSIChannelScan : public cVNSIData
+class cVNSIChannelScan : public cVNSIData, public KodiAPI::GUI::CWindow
 {
 public:
 
   cVNSIChannelScan();
-  ~cVNSIChannelScan();
+  virtual ~cVNSIChannelScan();
 
   bool Open(const std::string& hostname, int port, const char* name = "XBMC channel scanner") override;
 
-  bool OnClick(int controlId);
-  bool OnFocus(int controlId);
-  bool OnInit();
-  bool OnAction(int actionId);
-
-  static bool OnClickCB(GUIHANDLE cbhdl, int controlId);
-  static bool OnFocusCB(GUIHANDLE cbhdl, int controlId);
-  static bool OnInitCB(GUIHANDLE cbhdl);
-  static bool OnActionCB(GUIHANDLE cbhdl, int actionId);
+  bool OnClick(int controlId) override;
+  bool OnFocus(int controlId) override;
+  bool OnInit() override;
+  bool OnAction(int actionId) override;
 
 protected:
 
@@ -76,20 +76,19 @@ private:
   bool            m_stopped;
   bool            m_Canceled;
 
-  CAddonGUIWindow      *m_window;
-  CAddonGUISpinControl *m_spinSourceType;
-  CAddonGUISpinControl *m_spinCountries;
-  CAddonGUISpinControl *m_spinSatellites;
-  CAddonGUISpinControl *m_spinDVBCInversion;
-  CAddonGUISpinControl *m_spinDVBCSymbolrates;
-  CAddonGUISpinControl *m_spinDVBCqam;
-  CAddonGUISpinControl *m_spinDVBTInversion;
-  CAddonGUISpinControl *m_spinATSCType;
-  CAddonGUIRadioButton *m_radioButtonTV;
-  CAddonGUIRadioButton *m_radioButtonRadio;
-  CAddonGUIRadioButton *m_radioButtonFTA;
-  CAddonGUIRadioButton *m_radioButtonScrambled;
-  CAddonGUIRadioButton *m_radioButtonHD;
-  CAddonGUIProgressControl *m_progressDone;
-  CAddonGUIProgressControl *m_progressSignal;
+  KodiAPI::GUI::CControlSpin *m_spinSourceType;
+  KodiAPI::GUI::CControlSpin *m_spinCountries;
+  KodiAPI::GUI::CControlSpin *m_spinSatellites;
+  KodiAPI::GUI::CControlSpin *m_spinDVBCInversion;
+  KodiAPI::GUI::CControlSpin *m_spinDVBCSymbolrates;
+  KodiAPI::GUI::CControlSpin *m_spinDVBCqam;
+  KodiAPI::GUI::CControlSpin *m_spinDVBTInversion;
+  KodiAPI::GUI::CControlSpin *m_spinATSCType;
+  KodiAPI::GUI::CControlRadioButton *m_radioButtonTV;
+  KodiAPI::GUI::CControlRadioButton *m_radioButtonRadio;
+  KodiAPI::GUI::CControlRadioButton *m_radioButtonFTA;
+  KodiAPI::GUI::CControlRadioButton *m_radioButtonScrambled;
+  KodiAPI::GUI::CControlRadioButton *m_radioButtonHD;
+  KodiAPI::GUI::CControlProgress *m_progressDone;
+  KodiAPI::GUI::CControlProgress *m_progressSignal;
 };

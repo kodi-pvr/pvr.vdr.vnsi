@@ -22,6 +22,7 @@
 
 #include "VNSISession.h"
 #include "client.h"
+#include <kodi/api2/pvr/General.hpp>
 
 class cVNSIRecording : public cVNSISession
 {

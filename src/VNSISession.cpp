@@ -27,6 +27,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <kodi/api2/AddonLib.hpp>
+#include <kodi/api2/inputstream/InputStream.hpp>
+
 #include "responsepacket.h"
 #include "requestpacket.h"
 #include "vnsicommand.h"
@@ -40,7 +43,6 @@
 #define SOL_TCP IPPROTO_TCP
 #endif
 
-using namespace ADDON;
 using namespace P8PLATFORM;
 
 cVNSISession::cVNSISession()
@@ -84,7 +86,7 @@ bool cVNSISession::Open(const std::string& hostname, int port, const char *name)
 
   if (!m_socket->IsOpen() && !m_abort)
   {
-    XBMC->Log(LOG_DEBUG, "%s - failed to connect to the backend (%s)", __FUNCTION__, m_socket->GetError().c_str());
+    KodiAPI::Log(ADDON_LOG_DEBUG, "%s - failed to connect to the backend (%s)", __FUNCTION__, m_socket->GetError().c_str());
     return false;
   }
 
@@ -134,12 +136,12 @@ bool cVNSISession::Login()
       throw "Protocol versions do not match";
 
     if (m_name.empty())
-      XBMC->Log(LOG_NOTICE, "Logged in at '%lu+%i' to '%s' Version: '%s' with protocol version '%d'",
+      KodiAPI::Log(ADDON_LOG_NOTICE, "Logged in at '%lu+%i' to '%s' Version: '%s' with protocol version '%d'",
         vdrTime, vdrTimeOffset, ServerName, ServerVersion, protocol);
   }
   catch (const char * str)
   {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__,str);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__,str);
     if (m_socket)
     {
       m_socket->Close();
@@ -175,7 +177,7 @@ std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /
     if (!readData(vresp->getHeader(), vresp->getStreamHeaderLength(), iDatapacketTimeout))
     {
       delete vresp;
-      XBMC->Log(LOG_ERROR, "%s - lost sync on channel stream packet", __FUNCTION__);
+      KodiAPI::Log(ADDON_LOG_ERROR, "%s - lost sync on channel stream packet", __FUNCTION__);
       SignalConnectionLost();
       return NULL;
     }
@@ -184,16 +186,16 @@ std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /
 
     if(vresp->getOpCodeID() == VNSI_STREAM_MUXPKT)
     {
-      DemuxPacket* p = PVR->AllocateDemuxPacket(userDataLength);
+      DemuxPacket* p = KodiAPI::InputStream::AllocateDemuxPacket(userDataLength);
       userData = (uint8_t*)p;
       if (userDataLength > 0)
       {
         if (!userData) return NULL;
         if (!readData(p->pData, userDataLength, iDatapacketTimeout))
         {
-          PVR->FreeDemuxPacket(p);
+          KodiAPI::InputStream::FreeDemuxPacket(p);
           delete vresp;
-          XBMC->Log(LOG_ERROR, "%s - lost sync on channel stream mux packet", __FUNCTION__);
+          KodiAPI::Log(ADDON_LOG_ERROR, "%s - lost sync on channel stream mux packet", __FUNCTION__);
           SignalConnectionLost();
           return NULL;
         }
@@ -207,7 +209,7 @@ std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /
       {
         free(userData);
         delete vresp;
-        XBMC->Log(LOG_ERROR, "%s - lost sync on channel stream (other) packet", __FUNCTION__);
+        KodiAPI::Log(ADDON_LOG_ERROR, "%s - lost sync on channel stream (other) packet", __FUNCTION__);
         SignalConnectionLost();
         return NULL;
       }
@@ -220,7 +222,7 @@ std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /
 
     if (!readData(vresp->getHeader(), vresp->getOSDHeaderLength(), iDatapacketTimeout))
     {
-      XBMC->Log(LOG_ERROR, "%s - lost sync on osd packet", __FUNCTION__);
+      KodiAPI::Log(ADDON_LOG_ERROR, "%s - lost sync on osd packet", __FUNCTION__);
       SignalConnectionLost();
       return NULL;
     }
@@ -236,7 +238,7 @@ std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /
       {
         free(userData);
         delete vresp;
-        XBMC->Log(LOG_ERROR, "%s - lost sync on additional osd packet", __FUNCTION__);
+        KodiAPI::Log(ADDON_LOG_ERROR, "%s - lost sync on additional osd packet", __FUNCTION__);
         SignalConnectionLost();
         return NULL;
       }
@@ -250,7 +252,7 @@ std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /
     if (!readData(vresp->getHeader(), vresp->getHeaderLength(), iDatapacketTimeout))
     {
       delete vresp;
-      XBMC->Log(LOG_ERROR, "%s - lost sync on response packet", __FUNCTION__);
+      KodiAPI::Log(ADDON_LOG_ERROR, "%s - lost sync on response packet", __FUNCTION__);
       SignalConnectionLost();
       return NULL;
     }
@@ -266,7 +268,7 @@ std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /
       {
         free(userData);
         delete vresp;
-        XBMC->Log(LOG_ERROR, "%s - lost sync on additional response packet", __FUNCTION__);
+        KodiAPI::Log(ADDON_LOG_ERROR, "%s - lost sync on additional response packet", __FUNCTION__);
         SignalConnectionLost();
         return NULL;
       }
@@ -289,7 +291,7 @@ bool cVNSISession::TransmitMessage(cRequestPacket* vrp)
   ssize_t iWriteResult = m_socket->Write(vrp->getPtr(), vrp->getLen());
   if (iWriteResult != (ssize_t)vrp->getLen())
   {
-    XBMC->Log(LOG_ERROR, "%s - Failed to write packet (%s), bytes written: %d of total: %d", __FUNCTION__, m_socket->GetError().c_str(), iWriteResult, vrp->getLen());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Failed to write packet (%s), bytes written: %d of total: %d", __FUNCTION__, m_socket->GetError().c_str(), iWriteResult, vrp->getLen());
     return false;
   }
   return true;
@@ -329,7 +331,7 @@ bool cVNSISession::ReadSuccess(cRequestPacket* vrp)
 
   if(retCode != VNSI_RET_OK)
   {
-    XBMC->Log(LOG_ERROR, "%s - failed with error code '%i'", __FUNCTION__, retCode);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - failed with error code '%i'", __FUNCTION__, retCode);
     return false;
   }
   return true;
@@ -351,7 +353,7 @@ cVNSISession::eCONNECTIONSTATE cVNSISession::TryReconnect()
   if (!Login())
     return CONN_LOGIN_FAILED;
 
-  XBMC->Log(LOG_DEBUG, "%s - reconnected", __FUNCTION__);
+  KodiAPI::Log(ADDON_LOG_DEBUG, "%s - reconnected", __FUNCTION__);
   m_connectionLost = false;
 
   OnReconnect();
@@ -369,7 +371,7 @@ void cVNSISession::SignalConnectionLost()
   if(m_connectionLost)
     return;
 
-  XBMC->Log(LOG_ERROR, "%s - connection lost !!!", __FUNCTION__);
+  KodiAPI::Log(ADDON_LOG_ERROR, "%s - connection lost !!!", __FUNCTION__);
 
   m_connectionLost = true;
   Close();

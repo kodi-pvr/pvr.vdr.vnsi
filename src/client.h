@@ -20,10 +20,7 @@
  *
  */
 
-#include "kodi/libXBMC_addon.h"
-#include "kodi/libXBMC_codec.h"
-#include "kodi/libXBMC_pvr.h"
-#include "kodi/libKODI_guilib.h"
+#include <string>
 
 #define DEFAULT_HOST          "127.0.0.1"
 #define DEFAULT_PORT          34890
@@ -41,8 +38,3 @@ extern int          g_iPriority;          ///< The Priority this client have in 
 extern bool         g_bCharsetConv;       ///< Convert VDR's incoming strings to UTF8 character set
 extern int          g_iTimeshift;
 extern std::string  g_szIconPath;         ///< path to channel icons
-
-extern ADDON::CHelper_libXBMC_addon *XBMC;
-extern CHelper_libXBMC_codec *CODEC;
-extern CHelper_libKODI_guilib *GUI;
-extern CHelper_libXBMC_pvr   *PVR;

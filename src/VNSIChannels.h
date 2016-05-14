@@ -22,6 +22,9 @@
 
 #include "VNSIData.h"
 
+#include <string>
+#include <vector>
+
 class CProvider
 {
 public:

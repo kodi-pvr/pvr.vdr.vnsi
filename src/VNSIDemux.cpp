@@ -28,7 +28,10 @@
 #include "vnsicommand.h"
 #include "tools.h"
 
-using namespace ADDON;
+#include <kodi/api2/AddonLib.hpp>
+#include <kodi/api2/addon/General.hpp>
+#include <kodi/api2/inputstream/InputStream.hpp>
+#include <kodi/api2/pvr/StreamUtils.hpp>
 
 cVNSIDemux::cVNSIDemux()
 {
@@ -44,7 +47,7 @@ void cVNSIDemux::Close()
   {
     if (IsOpen())
     {
-      XBMC->Log(LOG_DEBUG, "closing demuxer");
+      KodiAPI::Log(ADDON_LOG_DEBUG, "closing demuxer");
 
       cRequestPacket vrp;
       vrp.init(VNSI_CHANNELSTREAM_CLOSE);
@@ -52,7 +55,7 @@ void cVNSIDemux::Close()
       auto resp = ReadResult(&vrp);
       if (!resp)
       {
-        XBMC->Log(LOG_ERROR, "%s - failed to close streaming", __FUNCTION__);
+        KodiAPI::Log(ADDON_LOG_ERROR, "%s - failed to close streaming", __FUNCTION__);
       }
     }
   }
@@ -97,7 +100,7 @@ DemuxPacket* cVNSIDemux::Read()
   auto resp = ReadMessage(1000, g_iConnectTimeout * 1000);
 
   if(resp == NULL)
-    return PVR->AllocateDemuxPacket(0);
+    return KodiAPI::InputStream::AllocateDemuxPacket(0);
 
   if (resp->getChannelID() != VNSI_CHANNEL_STREAM)
   {
@@ -107,7 +110,7 @@ DemuxPacket* cVNSIDemux::Read()
   if (resp->getOpCodeID() == VNSI_STREAM_CHANGE)
   {
     StreamChange(resp.get());
-    DemuxPacket* pkt = PVR->AllocateDemuxPacket(0);
+    DemuxPacket* pkt = KodiAPI::InputStream::AllocateDemuxPacket(0);
     pkt->iStreamId  = DMX_SPECIALID_STREAMCHANGE;
     return pkt;
   }
@@ -124,7 +127,7 @@ DemuxPacket* cVNSIDemux::Read()
     // send stream updates only if there are changes
     if(StreamContentInfo(resp.get()))
     {
-      DemuxPacket* pkt = PVR->AllocateDemuxPacket(0);
+      DemuxPacket* pkt = KodiAPI::InputStream::AllocateDemuxPacket(0);
       pkt->iStreamId  = DMX_SPECIALID_STREAMCHANGE;
       return pkt;
     }
@@ -150,10 +153,10 @@ DemuxPacket* cVNSIDemux::Read()
         if (m_streams.stream[i].iPID == pid)
           idx = i;
       }
-      xbmc_codec_type_t type = XBMC_CODEC_TYPE_UNKNOWN;
+      KodiAPI::kodi_codec_type type = KodiAPI::KODI_CODEC_TYPE_UNKNOWN;
       if (idx >= 0)
         type = m_streams.stream[idx].iCodecType;
-      if (type == XBMC_CODEC_TYPE_VIDEO || type == XBMC_CODEC_TYPE_AUDIO)
+      if (type == KodiAPI::KODI_CODEC_TYPE_VIDEO || type == KodiAPI::KODI_CODEC_TYPE_AUDIO)
       {
         if (p->dts != DVD_NOPTS_VALUE)
           m_CurrentDTS = p->dts;
@@ -168,7 +171,7 @@ DemuxPacket* cVNSIDemux::Read()
     }
     else
     {
-      XBMC->Log(LOG_DEBUG, "stream id %i not found", resp->getStreamID());
+      KodiAPI::Log(ADDON_LOG_DEBUG, "stream id %i not found", resp->getStreamID());
     }
   }
   else if (resp->getOpCodeID() == VNSI_STREAM_BUFFERSTATS)
@@ -183,7 +186,7 @@ DemuxPacket* cVNSIDemux::Read()
     m_ReferenceDTS = (double)resp->extract_U64() * DVD_TIME_BASE / 1000000;
   }
 
-  return PVR->AllocateDemuxPacket(0);
+  return KodiAPI::InputStream::AllocateDemuxPacket(0);
 }
 
 bool cVNSIDemux::SeekTime(int time, bool backwards, double *startpts)
@@ -201,7 +204,7 @@ bool cVNSIDemux::SeekTime(int time, bool backwards, double *startpts)
   auto resp = ReadResult(&vrp);
   if (!resp)
   {
-    XBMC->Log(LOG_ERROR, "%s - failed to seek2", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - failed to seek2", __FUNCTION__);
     return false;
   }
   uint32_t retCode = resp->extract_U32();
@@ -218,7 +221,7 @@ bool cVNSIDemux::SeekTime(int time, bool backwards, double *startpts)
 
 bool cVNSIDemux::SwitchChannel(const PVR_CHANNEL &channelinfo)
 {
-  XBMC->Log(LOG_DEBUG, "changing to channel %d", channelinfo.iChannelNumber);
+  KodiAPI::Log(ADDON_LOG_DEBUG, "changing to channel %d", channelinfo.iChannelNumber);
 
   cRequestPacket vrp1;
   vrp1.init(VNSI_GETSETUP);
@@ -227,7 +230,7 @@ bool cVNSIDemux::SwitchChannel(const PVR_CHANNEL &channelinfo)
   auto resp = ReadResult(&vrp1);
   if (!resp)
   {
-    XBMC->Log(LOG_ERROR, "%s - failed to get timeshift mode", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - failed to get timeshift mode", __FUNCTION__);
     return false;
   }
   m_bTimeshift = resp->extract_U32();
@@ -240,7 +243,7 @@ bool cVNSIDemux::SwitchChannel(const PVR_CHANNEL &channelinfo)
 
   if (!ReadSuccess(&vrp2))
   {
-    XBMC->Log(LOG_ERROR, "%s - failed to set channel", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - failed to set channel", __FUNCTION__);
     return false;
   }
 
@@ -299,8 +302,8 @@ void cVNSIDemux::StreamChange(cResponsePacket *resp)
 
     memset(&m_streams.stream[count], 0, sizeof(PVR_STREAM_PROPERTIES::PVR_STREAM));
 
-    CodecDescriptor codecId = CodecDescriptor::GetCodecByName(type);
-    if (codecId.Codec().codec_type != XBMC_CODEC_TYPE_UNKNOWN)
+    KodiAPI::InputStream::CodecDescriptor codecId = KodiAPI::InputStream::CodecDescriptor::GetCodecByName(type);
+    if (codecId.Codec().codec_type != KodiAPI::KODI_CODEC_TYPE_UNKNOWN)
     {
       m_streams.stream[count].iPID = pid;
       m_streams.stream[count].iCodecType = codecId.Codec().codec_type;
@@ -311,7 +314,7 @@ void cVNSIDemux::StreamChange(cResponsePacket *resp)
       return;
     }
 
-    if (codecId.Codec().codec_type == XBMC_CODEC_TYPE_AUDIO)
+    if (codecId.Codec().codec_type == KodiAPI::KODI_CODEC_TYPE_AUDIO)
     {
       const char *language = resp->extract_String();
 
@@ -325,7 +328,7 @@ void cVNSIDemux::StreamChange(cResponsePacket *resp)
       m_streams.stream[count].strLanguage[2] = language[2];
       m_streams.stream[count].strLanguage[3] = 0;
     }
-    else if (codecId.Codec().codec_type == XBMC_CODEC_TYPE_VIDEO)
+    else if (codecId.Codec().codec_type == KodiAPI::KODI_CODEC_TYPE_VIDEO)
     {
       m_streams.stream[count].iFPSScale = resp->extract_U32();
       m_streams.stream[count].iFPSRate = resp->extract_U32();
@@ -337,7 +340,7 @@ void cVNSIDemux::StreamChange(cResponsePacket *resp)
       m_streams.stream[count].strLanguage[2] = 0;
       m_streams.stream[count].strLanguage[3] = 0;
     }
-    else if (codecId.Codec().codec_type == XBMC_CODEC_TYPE_SUBTITLE)
+    else if (codecId.Codec().codec_type == KodiAPI::KODI_CODEC_TYPE_SUBTITLE)
     {
       const char *language = resp->extract_String();
       uint32_t composition_id = resp->extract_U32();
@@ -348,7 +351,7 @@ void cVNSIDemux::StreamChange(cResponsePacket *resp)
       m_streams.stream[count].strLanguage[3] = 0;
       m_streams.stream[count].iSubtitleInfo = (composition_id & 0xffff) | ((ancillary_id & 0xffff) << 16);
     }
-    else if (codecId.Codec().codec_type == XBMC_CODEC_TYPE_RDS)
+    else if (codecId.Codec().codec_type == KodiAPI::KODI_CODEC_TYPE_RDS)
     {
       const char *language = resp->extract_String();
       uint32_t rel_channel_pid = resp->extract_U32();
@@ -372,8 +375,8 @@ void cVNSIDemux::StreamStatus(cResponsePacket *resp)
   const char* status = resp->extract_String();
   if(status != NULL)
   {
-    XBMC->Log(LOG_DEBUG, "%s - %s", __FUNCTION__, status);
-    XBMC->QueueNotification(QUEUE_INFO, status);
+    KodiAPI::Log(ADDON_LOG_DEBUG, "%s - %s", __FUNCTION__, status);
+    KodiAPI::AddOn::General::QueueFormattedNotification(QUEUE_INFO, status);
   }
 }
 
@@ -407,7 +410,7 @@ bool cVNSIDemux::StreamContentInfo(cResponsePacket *resp)
     }
     if (props)
     {
-      if (props->iCodecType == XBMC_CODEC_TYPE_AUDIO)
+      if (props->iCodecType == KodiAPI::KODI_CODEC_TYPE_AUDIO)
       {
         const char *language = resp->extract_String();
           
@@ -421,7 +424,7 @@ bool cVNSIDemux::StreamContentInfo(cResponsePacket *resp)
         props->strLanguage[2] = language[2];
         props->strLanguage[3] = 0;
       }
-      else if (props->iCodecType == XBMC_CODEC_TYPE_VIDEO)
+      else if (props->iCodecType == KodiAPI::KODI_CODEC_TYPE_VIDEO)
       {
         props->iFPSScale = resp->extract_U32();
         props->iFPSRate = resp->extract_U32();
@@ -429,7 +432,7 @@ bool cVNSIDemux::StreamContentInfo(cResponsePacket *resp)
         props->iWidth = resp->extract_U32();
         props->fAspect = (float)resp->extract_Double();
       }
-      else if (props->iCodecType == XBMC_CODEC_TYPE_SUBTITLE)
+      else if (props->iCodecType == KodiAPI::KODI_CODEC_TYPE_SUBTITLE)
       {
         const char *language = resp->extract_String();
         uint32_t composition_id = resp->extract_U32();
@@ -444,7 +447,7 @@ bool cVNSIDemux::StreamContentInfo(cResponsePacket *resp)
     }
     else
     {
-      XBMC->Log(LOG_ERROR, "%s - unknown stream id: %d", __FUNCTION__, pid);
+      KodiAPI::Log(ADDON_LOG_ERROR, "%s - unknown stream id: %d", __FUNCTION__, pid);
       break;
     }
   }

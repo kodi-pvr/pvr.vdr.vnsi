@@ -26,6 +26,8 @@
 #include <string>
 #include <map>
 
+#include <kodi/api2/pvr/General.hpp>
+
 class cResponsePacket;
 class cRequestPacket;
 
