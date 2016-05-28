@@ -32,6 +32,7 @@
 #include <sstream>
 #include <string>
 #include <iostream>
+#include <kodi/api2/AddonLib.hpp>
 
 using namespace std;
 using namespace ADDON;
@@ -79,6 +80,12 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   if (!hdl || !props)
     return ADDON_STATUS_UNKNOWN;
 
+  if (KodiAPI::InitLibAddon(hdl) != API_SUCCESS)
+  {
+    fprintf(stderr, "Binary AddOn: %s\n", KodiAPI_ErrorCodeToString(KODI_API_lasterror));
+    return ADDON_STATUS_PERMANENT_FAILURE;
+  }
+
   XBMC = new CHelper_libXBMC_addon;
   if (!XBMC->RegisterMe(hdl))
   {
@@ -113,7 +120,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
     return ADDON_STATUS_PERMANENT_FAILURE;
   }
 
-  XBMC->Log(LOG_DEBUG, "Creating VDR VNSI PVR-Client");
+  KodiAPI::Log(ADDON_LOG_DEBUG, "Creating VDR VNSI PVR-Client");
 
   m_CurStatus    = ADDON_STATUS_UNKNOWN;
 
@@ -126,7 +133,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   else
   {
     /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'host' setting, falling back to '%s' as default", DEFAULT_HOST);
+    KodiAPI::Log(ADDON_LOG_ERROR, "Couldn't get 'host' setting, falling back to '%s' as default", DEFAULT_HOST);
     g_szHostname = DEFAULT_HOST;
   }
   free(buffer);
@@ -140,7 +147,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   else
   {
     /* If setting is unknown fallback to empty default */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'wol_mac' setting, falling back to default");
+    KodiAPI::Log(ADDON_LOG_ERROR, "Couldn't get 'wol_mac' setting, falling back to default");
     g_szWolMac = "";
   }
   free(buffer);
@@ -149,7 +156,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   if (!XBMC->GetSetting("port", &g_iPort))
   {
     /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'port' setting, falling back to '%i' as default", DEFAULT_PORT);
+    KodiAPI::Log(ADDON_LOG_ERROR, "Couldn't get 'port' setting, falling back to '%i' as default", DEFAULT_PORT);
     g_iPort = DEFAULT_PORT;
   }
 
@@ -158,7 +165,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   if (!XBMC->GetSetting("priority", &prio))
   {
     /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'priority' setting, falling back to %i as default", -1);
+    KodiAPI::Log(ADDON_LOG_ERROR, "Couldn't get 'priority' setting, falling back to %i as default", -1);
     prio = DEFAULT_PRIORITY;
   }
   int prioVals[] = {-99,-1,0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,99,100};
@@ -168,7 +175,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   if (!XBMC->GetSetting("timeshift", &g_iTimeshift))
   {
     /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'timeshift' setting, falling back to %i as default", 1);
+    KodiAPI::Log(ADDON_LOG_ERROR, "Couldn't get 'timeshift' setting, falling back to %i as default", 1);
     g_iTimeshift = 1;
   }
 
@@ -176,7 +183,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   if (!XBMC->GetSetting("convertchar", &g_bCharsetConv))
   {
     /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'convertchar' setting, falling back to 'false' as default");
+    KodiAPI::Log(ADDON_LOG_ERROR, "Couldn't get 'convertchar' setting, falling back to 'false' as default");
     g_bCharsetConv = DEFAULT_CHARCONV;
   }
 
@@ -184,7 +191,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   if (!XBMC->GetSetting("timeout", &g_iConnectTimeout))
   {
     /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'timeout' setting, falling back to %i seconds as default", DEFAULT_TIMEOUT);
+    KodiAPI::Log(ADDON_LOG_ERROR, "Couldn't get 'timeout' setting, falling back to %i seconds as default", DEFAULT_TIMEOUT);
     g_iConnectTimeout = DEFAULT_TIMEOUT;
   }
 
@@ -192,7 +199,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   if (!XBMC->GetSetting("autochannelgroups", &g_bAutoChannelGroups))
   {
     /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'autochannelgroups' setting, falling back to 'false' as default");
+    KodiAPI::Log(ADDON_LOG_ERROR, "Couldn't get 'autochannelgroups' setting, falling back to 'false' as default");
     g_bAutoChannelGroups = DEFAULT_AUTOGROUPS;
   }
 
@@ -205,7 +212,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   else
   {
     /* If setting is unknown fallback to defaults */
-    XBMC->Log(LOG_ERROR, "Couldn't get 'iconpath' setting");
+    KodiAPI::Log(ADDON_LOG_ERROR, "Couldn't get 'iconpath' setting");
     g_szIconPath = "";
   }
   free(buffer);
@@ -223,7 +230,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   }
   catch (std::exception e)
   {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     ADDON_Destroy();
     m_CurStatus = ADDON_STATUS_LOST_CONNECTION;
     return m_CurStatus;
@@ -265,6 +272,8 @@ void ADDON_Destroy()
   if (XBMC)
     SAFE_DELETE(XBMC);
 
+  KodiAPI::Finalize();
+
   m_CurStatus = ADDON_STATUS_UNKNOWN;
 }
 
@@ -284,7 +293,7 @@ ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
   if (str == "host")
   {
     string tmp_sHostname;
-    XBMC->Log(LOG_INFO, "Changed Setting 'host' from %s to %s", g_szHostname.c_str(), (const char*) settingValue);
+    KodiAPI::Log(ADDON_LOG_INFO, "Changed Setting 'host' from %s to %s", g_szHostname.c_str(), (const char*) settingValue);
     tmp_sHostname = g_szHostname;
     g_szHostname = (const char*) settingValue;
     if (tmp_sHostname != g_szHostname)
@@ -292,9 +301,9 @@ ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
   }
   else if (str == "wol_mac")
   {
-    XBMC->Log(LOG_INFO, "Changed Setting 'wol_mac'");
+    KodiAPI::Log(ADDON_LOG_INFO, "Changed Setting 'wol_mac'");
     string tmp_sWol_mac;
-    XBMC->Log(LOG_INFO, "Changed Setting 'wol_mac' from %s to %s", g_szWolMac.c_str(), (const char*) settingValue);
+    KodiAPI::Log(ADDON_LOG_INFO, "Changed Setting 'wol_mac' from %s to %s", g_szWolMac.c_str(), (const char*) settingValue);
     tmp_sWol_mac = g_szWolMac;
     g_szWolMac = (const char*) settingValue;
     if (tmp_sWol_mac != g_szWolMac)
@@ -302,7 +311,7 @@ ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
   }
   else if (str == "port")
   {
-    XBMC->Log(LOG_INFO, "Changed Setting 'port' from %u to %u", g_iPort, *(int*) settingValue);
+    KodiAPI::Log(ADDON_LOG_INFO, "Changed Setting 'port' from %u to %u", g_iPort, *(int*) settingValue);
     if (g_iPort != *(int*) settingValue)
     {
       g_iPort = *(int*) settingValue;
@@ -311,27 +320,27 @@ ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
   }
   else if (str == "priority")
   {
-    XBMC->Log(LOG_INFO, "Changed Setting 'priority' from %u to %u", g_iPriority, *(int*) settingValue);
+    KodiAPI::Log(ADDON_LOG_INFO, "Changed Setting 'priority' from %u to %u", g_iPriority, *(int*) settingValue);
     g_iPriority = *(int*) settingValue;
   }
   else if (str == "timeshift")
   {
-    XBMC->Log(LOG_INFO, "Changed Setting 'timeshift' from %u to %u", g_iTimeshift, *(int*) settingValue);
+    KodiAPI::Log(ADDON_LOG_INFO, "Changed Setting 'timeshift' from %u to %u", g_iTimeshift, *(int*) settingValue);
     g_iTimeshift = *(int*) settingValue;
   }
   else if (str == "convertchar")
   {
-    XBMC->Log(LOG_INFO, "Changed Setting 'convertchar' from %u to %u", g_bCharsetConv, *(bool*) settingValue);
+    KodiAPI::Log(ADDON_LOG_INFO, "Changed Setting 'convertchar' from %u to %u", g_bCharsetConv, *(bool*) settingValue);
     g_bCharsetConv = *(bool*) settingValue;
   }
   else if (str == "timeout")
   {
-    XBMC->Log(LOG_INFO, "Changed Setting 'timeout' from %u to %u", g_iConnectTimeout, *(int*) settingValue);
+    KodiAPI::Log(ADDON_LOG_INFO, "Changed Setting 'timeout' from %u to %u", g_iConnectTimeout, *(int*) settingValue);
     g_iConnectTimeout = *(int*) settingValue;
   }
   else if (str == "autochannelgroups")
   {
-    XBMC->Log(LOG_INFO, "Changed Setting 'autochannelgroups' from %u to %u", g_bAutoChannelGroups, *(bool*) settingValue);
+    KodiAPI::Log(ADDON_LOG_INFO, "Changed Setting 'autochannelgroups' from %u to %u", g_bAutoChannelGroups, *(bool*) settingValue);
     if (g_bAutoChannelGroups != *(bool*) settingValue)
     {
       g_bAutoChannelGroups = *(bool*) settingValue;
@@ -466,7 +475,7 @@ PVR_ERROR OpenDialogChannelScan(void)
     scanner.Open(g_szHostname, g_iPort);
     return PVR_ERROR_NO_ERROR;
   } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
   }
 }
@@ -482,7 +491,7 @@ PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time
   try {
     return (VNSIData->GetEPGForChannel(handle, channel, iStart, iEnd) ? PVR_ERROR_NO_ERROR: PVR_ERROR_SERVER_ERROR);
   } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
   }
 }
@@ -499,7 +508,7 @@ int GetChannelsAmount(void)
   try {
     return VNSIData->GetChannelsCount();
   } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return 0;
   }
 }
@@ -512,7 +521,7 @@ PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio)
   try {
     return (VNSIData->GetChannelsList(handle, bRadio) ? PVR_ERROR_NO_ERROR : PVR_ERROR_SERVER_ERROR);
   } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
   }
 }
@@ -528,7 +537,7 @@ int GetChannelGroupsAmount()
   try {
     return VNSIData->GetChannelGroupCount(g_bAutoChannelGroups);
   } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
   }
 }
@@ -544,7 +553,7 @@ PVR_ERROR GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
 
     return PVR_ERROR_NO_ERROR;
   } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
   }
 }
@@ -557,7 +566,7 @@ PVR_ERROR GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &g
   try {
     return VNSIData->GetChannelGroupMembers(handle, group) ? PVR_ERROR_NO_ERROR : PVR_ERROR_SERVER_ERROR;
   } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
   }
 }
@@ -577,7 +586,7 @@ PVR_ERROR GetTimerTypes(PVR_TIMER_TYPE types[], int *size)
   }
   catch (std::exception e)
   {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
   }
 }
@@ -593,7 +602,7 @@ int GetTimersAmount(void)
   }
   catch (std::exception e)
   {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
   }
 }
@@ -609,7 +618,7 @@ PVR_ERROR GetTimers(ADDON_HANDLE handle)
   }
   catch (std::exception e)
   {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
   }
 }
@@ -625,7 +634,7 @@ PVR_ERROR AddTimer(const PVR_TIMER &timer)
   }
   catch (std::exception e)
   {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
   }
 }
@@ -641,7 +650,7 @@ PVR_ERROR DeleteTimer(const PVR_TIMER &timer, bool bForce)
   }
   catch (std::exception e)
   {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
   }
 }
@@ -657,7 +666,7 @@ PVR_ERROR UpdateTimer(const PVR_TIMER &timer)
   }
   catch (std::exception e)
   {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
   }
 }
@@ -677,7 +686,7 @@ int GetRecordingsAmount(bool deleted)
     else
       return VNSIData->GetDeletedRecordingsCount();
   } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
   }
 }
@@ -693,7 +702,7 @@ PVR_ERROR GetRecordings(ADDON_HANDLE handle, bool deleted)
     else
       return VNSIData->GetDeletedRecordingsList(handle);
   } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
   }
 }
@@ -706,7 +715,7 @@ PVR_ERROR RenameRecording(const PVR_RECORDING &recording)
   try {
     return VNSIData->RenameRecording(recording, recording.strTitle);
   } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
   }
 }
@@ -719,7 +728,7 @@ PVR_ERROR DeleteRecording(const PVR_RECORDING &recording)
   try {
     return VNSIData->DeleteRecording(recording);
   } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
   }
 }
@@ -732,7 +741,7 @@ PVR_ERROR UndeleteRecording(const PVR_RECORDING& recording)
   try {
     return VNSIData->UndeleteRecording(recording);
   } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
   }
 }
@@ -745,7 +754,7 @@ PVR_ERROR DeleteAllRecordingsFromTrash()
   try {
     return VNSIData->DeleteAllRecordingsFromTrash();
   } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
   }
 }
@@ -767,7 +776,7 @@ bool OpenLiveStream(const PVR_CHANNEL &channel)
   }
   catch (std::exception e)
   {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     delete VNSIDemuxer;
     VNSIDemuxer = NULL;
     return false;
@@ -808,7 +817,7 @@ DemuxPacket* DemuxRead(void)
   try {
     pkt = VNSIDemuxer->Read();
   } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return NULL;
   }
 
@@ -826,7 +835,7 @@ bool SwitchChannel(const PVR_CHANNEL &channel)
     if (VNSIDemuxer)
       return VNSIDemuxer->SwitchChannel(channel);
   } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
   }
 
   return false;
@@ -840,7 +849,7 @@ PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
   try {
     return (VNSIDemuxer->GetSignalStatus(signalStatus) ? PVR_ERROR_NO_ERROR : PVR_ERROR_SERVER_ERROR);
   } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
   }
 }
@@ -882,7 +891,7 @@ bool SeekTime(int time, bool backwards, double *startpts)
     if (VNSIDemuxer)
       ret = VNSIDemuxer->SeekTime(time, backwards, startpts);
   } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
   }
   return ret;
 }
@@ -951,7 +960,7 @@ bool OpenRecordedStream(const PVR_RECORDING &recording)
   }
   catch (std::exception e)
   {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     VNSIRecording->Close();
     delete VNSIRecording;
     VNSIRecording = NULL;
@@ -977,7 +986,7 @@ int ReadRecordedStream(unsigned char *pBuffer, unsigned int iBufferSize)
   try {
     return VNSIRecording->Read(pBuffer, iBufferSize);
   } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return -1;
   }
 }
@@ -988,7 +997,7 @@ long long SeekRecordedStream(long long iPosition, int iWhence /* = SEEK_SET */)
     if (VNSIRecording)
       return VNSIRecording->Seek(iPosition, iWhence);
   } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
   }
 
   return -1;
@@ -1018,7 +1027,7 @@ PVR_ERROR GetRecordingEdl(const PVR_RECORDING& recinfo, PVR_EDL_ENTRY edl[], int
   try {
     return VNSIData->GetRecordingEdl(recinfo, edl, size);
   } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
   }
 }
@@ -1037,7 +1046,7 @@ PVR_ERROR CallMenuHook(const PVR_MENUHOOK &menuhook, const PVR_MENUHOOK_DATA &it
     }
     return PVR_ERROR_NO_ERROR;
   } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
   }
 }

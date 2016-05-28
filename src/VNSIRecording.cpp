@@ -25,6 +25,8 @@
 #include "requestpacket.h"
 #include "vnsicommand.h"
 
+#include <kodi/api2/AddonLib.hpp>
+
 #define SEEK_POSSIBLE 0x10 // flag used to check if protocol allows seeks
 
 using namespace ADDON;
@@ -64,7 +66,7 @@ bool cVNSIRecording::OpenRecording(const PVR_RECORDING& recinfo)
     m_currentPlayingRecordPosition  = 0;
   }
   else
-    XBMC->Log(LOG_ERROR, "%s - Can't open recording '%s'", __FUNCTION__, recinfo.strTitle);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't open recording '%s'", __FUNCTION__, recinfo.strTitle);
 
   return (returnCode == VNSI_RET_OK);
 }
@@ -109,7 +111,7 @@ int cVNSIRecording::Read(unsigned char* buf, uint32_t buf_size)
   uint8_t *data   = vresp->getUserData();
   if (length > buf_size)
   {
-    XBMC->Log(LOG_ERROR, "%s: PANIC - Received more bytes as requested", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s: PANIC - Received more bytes as requested", __FUNCTION__);
     return 0;
   }
 

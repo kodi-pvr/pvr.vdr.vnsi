@@ -26,7 +26,7 @@
 #include "vnsicommand.h"
 
 #include <sstream>
-
+#include <kodi/api2/AddonLib.hpp>
 
 #define BUTTON_START                    5
 #define BUTTON_BACK                     6
@@ -170,7 +170,7 @@ void cVNSIChannelScan::StartScan()
   return;
 
 SCANError:
-  XBMC->Log(LOG_ERROR, "%s - Return error after start (%i)", __FUNCTION__, retCode);
+  KodiAPI::Log(ADDON_LOG_ERROR, "%s - Return error after start (%i)", __FUNCTION__, retCode);
   m_window->SetControlLabel(LABEL_STATUS, XBMC->GetLocalizedString(24071));
   m_window->SetControlLabel(BUTTON_START, XBMC->GetLocalizedString(30024));
   m_window->SetControlLabel(HEADER_LABEL, XBMC->GetLocalizedString(30043));
@@ -189,7 +189,7 @@ void cVNSIChannelScan::StopScan()
   uint32_t retCode = vresp->extract_U32();
   if (retCode != VNSI_RET_OK)
   {
-    XBMC->Log(LOG_ERROR, "%s - Return error after stop (%i)", __FUNCTION__, retCode);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Return error after stop (%i)", __FUNCTION__, retCode);
     m_window->SetControlLabel(LABEL_STATUS, XBMC->GetLocalizedString(24071));
     m_window->SetControlLabel(BUTTON_START, XBMC->GetLocalizedString(30024));
     m_window->SetControlLabel(HEADER_LABEL, XBMC->GetLocalizedString(30043));
@@ -304,7 +304,7 @@ bool cVNSIChannelScan::OnClick(int controlId)
       else
         ReturnFromProcessView();
     } catch (std::exception e) {
-      XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+      KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
       return false;
     }
   }
@@ -463,7 +463,7 @@ bool cVNSIChannelScan::ReadCountries()
   }
   else
   {
-    XBMC->Log(LOG_ERROR, "%s - Return error after reading countries (%i)", __FUNCTION__, retCode);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Return error after reading countries (%i)", __FUNCTION__, retCode);
   }
   return retCode == VNSI_RET_OK;
 }
@@ -494,7 +494,7 @@ bool cVNSIChannelScan::ReadSatellites()
   }
   else
   {
-    XBMC->Log(LOG_ERROR, "%s - Return error after reading satellites (%i)", __FUNCTION__, retCode);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Return error after reading satellites (%i)", __FUNCTION__, retCode);
   }
   return retCode == VNSI_RET_OK;
 }

@@ -28,6 +28,8 @@
 #include "vnsicommand.h"
 #include "tools.h"
 
+#include <kodi/api2/AddonLib.hpp>
+
 using namespace ADDON;
 
 cVNSIDemux::cVNSIDemux()
@@ -44,7 +46,7 @@ void cVNSIDemux::Close()
   {
     if (IsOpen())
     {
-      XBMC->Log(LOG_DEBUG, "closing demuxer");
+      KodiAPI::Log(ADDON_LOG_DEBUG, "closing demuxer");
 
       cRequestPacket vrp;
       vrp.init(VNSI_CHANNELSTREAM_CLOSE);
@@ -52,7 +54,7 @@ void cVNSIDemux::Close()
       auto resp = ReadResult(&vrp);
       if (!resp)
       {
-        XBMC->Log(LOG_ERROR, "%s - failed to close streaming", __FUNCTION__);
+        KodiAPI::Log(ADDON_LOG_ERROR, "%s - failed to close streaming", __FUNCTION__);
       }
     }
   }
@@ -168,7 +170,7 @@ DemuxPacket* cVNSIDemux::Read()
     }
     else
     {
-      XBMC->Log(LOG_DEBUG, "stream id %i not found", resp->getStreamID());
+      KodiAPI::Log(ADDON_LOG_DEBUG, "stream id %i not found", resp->getStreamID());
     }
   }
   else if (resp->getOpCodeID() == VNSI_STREAM_BUFFERSTATS)
@@ -201,7 +203,7 @@ bool cVNSIDemux::SeekTime(int time, bool backwards, double *startpts)
   auto resp = ReadResult(&vrp);
   if (!resp)
   {
-    XBMC->Log(LOG_ERROR, "%s - failed to seek2", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - failed to seek2", __FUNCTION__);
     return false;
   }
   uint32_t retCode = resp->extract_U32();
@@ -218,7 +220,7 @@ bool cVNSIDemux::SeekTime(int time, bool backwards, double *startpts)
 
 bool cVNSIDemux::SwitchChannel(const PVR_CHANNEL &channelinfo)
 {
-  XBMC->Log(LOG_DEBUG, "changing to channel %d", channelinfo.iChannelNumber);
+  KodiAPI::Log(ADDON_LOG_DEBUG, "changing to channel %d", channelinfo.iChannelNumber);
 
   cRequestPacket vrp1;
   vrp1.init(VNSI_GETSETUP);
@@ -227,7 +229,7 @@ bool cVNSIDemux::SwitchChannel(const PVR_CHANNEL &channelinfo)
   auto resp = ReadResult(&vrp1);
   if (!resp)
   {
-    XBMC->Log(LOG_ERROR, "%s - failed to get timeshift mode", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - failed to get timeshift mode", __FUNCTION__);
     return false;
   }
   m_bTimeshift = resp->extract_U32();
@@ -240,7 +242,7 @@ bool cVNSIDemux::SwitchChannel(const PVR_CHANNEL &channelinfo)
 
   if (!ReadSuccess(&vrp2))
   {
-    XBMC->Log(LOG_ERROR, "%s - failed to set channel", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - failed to set channel", __FUNCTION__);
     return false;
   }
 
@@ -372,7 +374,7 @@ void cVNSIDemux::StreamStatus(cResponsePacket *resp)
   const char* status = resp->extract_String();
   if(status != NULL)
   {
-    XBMC->Log(LOG_DEBUG, "%s - %s", __FUNCTION__, status);
+    KodiAPI::Log(ADDON_LOG_DEBUG, "%s - %s", __FUNCTION__, status);
     XBMC->QueueNotification(QUEUE_INFO, status);
   }
 }
@@ -444,7 +446,7 @@ bool cVNSIDemux::StreamContentInfo(cResponsePacket *resp)
     }
     else
     {
-      XBMC->Log(LOG_ERROR, "%s - unknown stream id: %d", __FUNCTION__, pid);
+      KodiAPI::Log(ADDON_LOG_ERROR, "%s - unknown stream id: %d", __FUNCTION__, pid);
       break;
     }
   }

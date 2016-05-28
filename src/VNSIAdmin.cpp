@@ -25,6 +25,8 @@
 #include <queue>
 #include <stdio.h>
 
+#include <kodi/api2/AddonLib.hpp>
+
 #if defined(HAVE_GL)
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
@@ -211,7 +213,7 @@ void cOSDTexture::SetBlock(int x0, int y0, int x1, int y1, int stride, void *dat
     {
       if (pos >= len)
       {
-        XBMC->Log(LOG_ERROR, "cOSDTexture::SetBlock: reached unexpected end of buffer");
+        KodiAPI::Log(ADDON_LOG_ERROR, "cOSDTexture::SetBlock: reached unexpected end of buffer");
         return;
       }
       color = dataPtr[pos];
@@ -692,7 +694,7 @@ void cOSDRenderDX::Render()
       HRESULT hr = m_device->CreateTexture(width, height, 1, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &m_hwTextures[i], NULL);
 	    if (hr != D3D_OK)
 	    {
-	      XBMC->Log(LOG_ERROR,"%s - failed to create texture", __FUNCTION__);
+	      KodiAPI::Log(ADDON_LOG_ERROR,"%s - failed to create texture", __FUNCTION__);
         continue;
       }
     }
@@ -708,7 +710,7 @@ void cOSDRenderDX::Render()
       HRESULT hr = m_hwTextures[i]->LockRect(0, &lockedRect, &dirtyRect, 0);
       if (hr != D3D_OK)
 	    {
-	      XBMC->Log(LOG_ERROR,"%s - failed to lock texture", __FUNCTION__);
+	      KodiAPI::Log(ADDON_LOG_ERROR,"%s - failed to lock texture", __FUNCTION__);
         continue;
       }
       uint8_t *source = (uint8_t*)m_osdTextures[i]->GetBuffer();
@@ -726,7 +728,7 @@ void cOSDRenderDX::Render()
       m_hwTextures[i]->UnlockRect(0);
       if (hr != D3D_OK)
 	    {
-	      XBMC->Log(LOG_ERROR,"%s - failed to unlock texture", __FUNCTION__);
+	      KodiAPI::Log(ADDON_LOG_ERROR,"%s - failed to unlock texture", __FUNCTION__);
         continue;
       }
     }
@@ -797,7 +799,7 @@ void cOSDRenderDX::Render()
     hr = m_device->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex, sizeof(VERTEX));
     if (hr != D3D_OK)
 	  {
-	    XBMC->Log(LOG_ERROR,"%s - failed to render texture", __FUNCTION__);
+	    KodiAPI::Log(ADDON_LOG_ERROR,"%s - failed to render texture", __FUNCTION__);
     }
     m_device->SetTexture(0, NULL);
   }
@@ -892,7 +894,7 @@ bool cVNSIAdmin::OnClick(int controlId)
     vrp.add_U32(value);
     if (!ReadSuccess(&vrp))
     {
-      XBMC->Log(LOG_ERROR, "%s - failed to set timeshift mode", __FUNCTION__);
+      KodiAPI::Log(ADDON_LOG_ERROR, "%s - failed to set timeshift mode", __FUNCTION__);
     }
     return true;
   }
@@ -905,7 +907,7 @@ bool cVNSIAdmin::OnClick(int controlId)
     vrp.add_U32(value);
     if (!ReadSuccess(&vrp))
     {
-      XBMC->Log(LOG_ERROR, "%s - failed to set timeshift buffer", __FUNCTION__);
+      KodiAPI::Log(ADDON_LOG_ERROR, "%s - failed to set timeshift buffer", __FUNCTION__);
     }
     return true;
   }
@@ -918,7 +920,7 @@ bool cVNSIAdmin::OnClick(int controlId)
     vrp.add_U32(value);
     if (!ReadSuccess(&vrp))
     {
-      XBMC->Log(LOG_ERROR, "%s - failed to set timeshift buffer file", __FUNCTION__);
+      KodiAPI::Log(ADDON_LOG_ERROR, "%s - failed to set timeshift buffer file", __FUNCTION__);
     }
     return true;
   }
@@ -1060,7 +1062,7 @@ bool cVNSIAdmin::OnInit()
     auto resp = ReadResult(&vrp);
     if (!resp)
     {
-      XBMC->Log(LOG_ERROR, "%s - failed to get timeshift mode", __FUNCTION__);
+      KodiAPI::Log(ADDON_LOG_ERROR, "%s - failed to get timeshift mode", __FUNCTION__);
       return false;
     }
     int mode = resp->extract_U32();
@@ -1083,7 +1085,7 @@ bool cVNSIAdmin::OnInit()
     auto resp = ReadResult(&vrp);
     if (!resp)
     {
-      XBMC->Log(LOG_ERROR, "%s - failed to get timeshift buffer size", __FUNCTION__);
+      KodiAPI::Log(ADDON_LOG_ERROR, "%s - failed to get timeshift buffer size", __FUNCTION__);
       return false;
     }
     int mode = resp->extract_U32();
@@ -1104,7 +1106,7 @@ bool cVNSIAdmin::OnInit()
     auto resp = ReadResult(&vrp);
     if (!resp)
     {
-      XBMC->Log(LOG_ERROR, "%s - failed to get timeshift buffer (file) size", __FUNCTION__);
+      KodiAPI::Log(ADDON_LOG_ERROR, "%s - failed to get timeshift buffer (file) size", __FUNCTION__);
       return false;
     }
     int mode = resp->extract_U32();
@@ -1226,7 +1228,7 @@ bool cVNSIAdmin::OnInitCB(GUIHANDLE cbhdl)
   try {
     return osd->OnInit();
   } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return false;
   }
 }
@@ -1237,7 +1239,7 @@ bool cVNSIAdmin::OnClickCB(GUIHANDLE cbhdl, int controlId)
   try {
     return osd->OnClick(controlId);
   } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return false;
   }
 }
@@ -1254,7 +1256,7 @@ bool cVNSIAdmin::OnActionCB(GUIHANDLE cbhdl, int actionId)
   try {
     return osd->OnAction(actionId);
   } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return false;
   }
 }
@@ -1292,7 +1294,7 @@ bool cVNSIAdmin::OnResponsePacket(cResponsePacket* resp)
     resp->getOSDData(wnd, color, x0, y0, x1, y1);
     if (wnd >= MAX_TEXTURES)
     {
-      XBMC->Log(LOG_ERROR, "cVNSIAdmin::OnResponsePacket - invalid wndId: %s", wnd);
+      KodiAPI::Log(ADDON_LOG_ERROR, "cVNSIAdmin::OnResponsePacket - invalid wndId: %s", wnd);
       return true;
     }
     if (resp->getOpCodeID() == VNSI_OSD_OPEN)
@@ -1378,7 +1380,7 @@ bool cVNSIAdmin::ReadChannelList(bool radio)
   auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
-    XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return false;
   }
 
@@ -1420,7 +1422,7 @@ bool cVNSIAdmin::ReadChannelWhitelist(bool radio)
   auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
-    XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return false;
   }
 
@@ -1454,7 +1456,7 @@ bool cVNSIAdmin::SaveChannelWhitelist(bool radio)
   auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
-    XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return false;
   }
 
@@ -1470,7 +1472,7 @@ bool cVNSIAdmin::ReadChannelBlacklist(bool radio)
   auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
-    XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return false;
   }
 
@@ -1500,7 +1502,7 @@ bool cVNSIAdmin::SaveChannelBlacklist(bool radio)
   auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
-    XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return false;
   }
 

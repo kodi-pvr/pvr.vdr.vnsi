@@ -25,6 +25,8 @@
 #include "vnsicommand.h"
 #include "p8-platform/util/StdString.h"
 
+#include <kodi/api2/AddonLib.hpp>
+
 using namespace ADDON;
 using namespace P8PLATFORM;
 
@@ -81,7 +83,7 @@ bool cVNSIData::Start(const std::string& hostname, int port, const char* name, c
     temp_mac = mac.c_str();
 
     if (!XBMC->WakeOnLan(temp_mac)) {
-      XBMC->Log(LOG_ERROR, "Error waking up VNSI Server at MAC-Address %s", temp_mac);
+      KodiAPI::Log(ADDON_LOG_ERROR, "Error waking up VNSI Server at MAC-Address %s", temp_mac);
       return false;
     }
   }
@@ -118,7 +120,7 @@ std::unique_ptr<cResponsePacket> cVNSIData::ReadResult(cRequestPacket* vrp)
   if (cVNSISession::TransmitMessage(vrp) &&
       !message.event.Wait(g_iConnectTimeout * 1000))
   {
-    XBMC->Log(LOG_ERROR, "%s - request timed out after %d seconds", __FUNCTION__, g_iConnectTimeout);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - request timed out after %d seconds", __FUNCTION__, g_iConnectTimeout);
   }
 
   return m_queue.Dequeue(vrp->getSerial(), message);
@@ -132,7 +134,7 @@ bool cVNSIData::GetDriveSpace(long long *total, long long *used)
   auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
-    XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return false;
   }
 
@@ -158,7 +160,7 @@ bool cVNSIData::SupportChannelScan()
   auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
-    XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return false;
   }
 
@@ -176,7 +178,7 @@ bool cVNSIData::SupportRecordingsUndelete()
     auto vresp = ReadResult(&vrp);
     if (!vresp)
     {
-      XBMC->Log(LOG_INFO, "%s - Can't get response packed", __FUNCTION__);
+      KodiAPI::Log(ADDON_LOG_INFO, "%s - Can't get response packed", __FUNCTION__);
       return false;
     }
 
@@ -184,7 +186,7 @@ bool cVNSIData::SupportRecordingsUndelete()
     return ret == VNSI_RET_OK ? true : false;
   }
 
-  XBMC->Log(LOG_INFO, "%s - Undelete not supported on backend (min. Ver. 1.3.0; Protocol 7)", __FUNCTION__);
+  KodiAPI::Log(ADDON_LOG_INFO, "%s - Undelete not supported on backend (min. Ver. 1.3.0; Protocol 7)", __FUNCTION__);
   return false;
 }
 
@@ -203,7 +205,7 @@ bool cVNSIData::EnableStatusInterface(bool onOff, bool wait)
   auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
-    XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return false;
   }
 
@@ -219,7 +221,7 @@ int cVNSIData::GetChannelsCount()
   auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
-    XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return -1;
   }
 
@@ -237,7 +239,7 @@ bool cVNSIData::GetChannelsList(ADDON_HANDLE handle, bool radio)
   auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
-    XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return false;
   }
 
@@ -285,7 +287,7 @@ bool cVNSIData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel
   auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
-    XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return false;
   }
 
@@ -334,7 +336,7 @@ int cVNSIData::GetTimersCount()
   auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
-    XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return -1;
   }
 
@@ -353,7 +355,7 @@ PVR_ERROR cVNSIData::GetTimerInfo(unsigned int timernumber, PVR_TIMER &tag)
   auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
-    XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return PVR_ERROR_UNKNOWN;
   }
 
@@ -409,7 +411,7 @@ bool cVNSIData::GetTimersList(ADDON_HANDLE handle)
   auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
-    XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return false;
   }
 
@@ -519,7 +521,7 @@ PVR_ERROR cVNSIData::AddTimer(const PVR_TIMER &timerinfo)
 
   if (path.empty())
   {
-    XBMC->Log(LOG_ERROR, "%s - Empty filename !", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Empty filename !", __FUNCTION__);
     return PVR_ERROR_UNKNOWN;
   }
 
@@ -551,7 +553,7 @@ PVR_ERROR cVNSIData::AddTimer(const PVR_TIMER &timerinfo)
   auto vresp = ReadResult(&vrp);
   if (vresp == NULL || vresp->noResponse())
   {
-    XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return PVR_ERROR_UNKNOWN;
   }
   uint32_t returnCode = vresp->extract_U32();
@@ -705,7 +707,7 @@ PVR_ERROR cVNSIData::GetTimerTypes(PVR_TIMER_TYPE types[], int *size)
     auto vresp = ReadResult(&vrp);
     if (!vresp)
     {
-      XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+      KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
       return PVR_ERROR_NO_ERROR;
     }
     uint32_t vnsitimers = vresp->extract_U32();
@@ -752,7 +754,7 @@ int cVNSIData::GetRecordingsCount()
   auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
-    XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return -1;
   }
 
@@ -768,7 +770,7 @@ PVR_ERROR cVNSIData::GetRecordingsList(ADDON_HANDLE handle)
   auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
-    XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return PVR_ERROR_UNKNOWN;
   }
 
@@ -832,7 +834,7 @@ PVR_ERROR cVNSIData::RenameRecording(const PVR_RECORDING& recinfo, const char* n
   vrp.init(VNSI_RECORDINGS_RENAME);
 
   // add uid
-  XBMC->Log(LOG_DEBUG, "%s - uid: %s", __FUNCTION__, recinfo.strRecordingId);
+  KodiAPI::Log(ADDON_LOG_DEBUG, "%s - uid: %s", __FUNCTION__, recinfo.strRecordingId);
   vrp.add_U32(atoi(recinfo.strRecordingId));
 
   // add new title
@@ -917,7 +919,7 @@ int cVNSIData::GetDeletedRecordingsCount()
   auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
-    XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return -1;
   }
 
@@ -933,7 +935,7 @@ PVR_ERROR cVNSIData::GetDeletedRecordingsList(ADDON_HANDLE handle)
   auto vresp = ReadResult(&vrp);
   if (!vresp)
   {
-    XBMC->Log(LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
+    KodiAPI::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __FUNCTION__);
     return PVR_ERROR_UNKNOWN;
   }
 
@@ -1117,23 +1119,23 @@ void *cVNSIData::Process()
       }
       else if (vresp->getRequestID() == VNSI_STATUS_TIMERCHANGE)
       {
-        XBMC->Log(LOG_DEBUG, "Server requested timer update");
+        KodiAPI::Log(ADDON_LOG_DEBUG, "Server requested timer update");
         PVR->TriggerTimerUpdate();
       }
       else if (vresp->getRequestID() == VNSI_STATUS_CHANNELCHANGE)
       {
-        XBMC->Log(LOG_DEBUG, "Server requested channel update");
+        KodiAPI::Log(ADDON_LOG_DEBUG, "Server requested channel update");
         PVR->TriggerChannelUpdate();
       }
       else if (vresp->getRequestID() == VNSI_STATUS_RECORDINGSCHANGE)
       {
-        XBMC->Log(LOG_DEBUG, "Server requested recordings update");
+        KodiAPI::Log(ADDON_LOG_DEBUG, "Server requested recordings update");
         PVR->TriggerRecordingUpdate();
       }
       else if (vresp->getRequestID() == VNSI_STATUS_EPGCHANGE)
       {
         uint32_t channel     = vresp->extract_U32();
-        XBMC->Log(LOG_DEBUG, "Server requested Epg update for channel: %d", channel);
+        KodiAPI::Log(ADDON_LOG_DEBUG, "Server requested Epg update for channel: %d", channel);
         PVR->TriggerEpgUpdate(channel);
       }
     }
@@ -1142,7 +1144,7 @@ void *cVNSIData::Process()
 
     else if (!OnResponsePacket(vresp.get()))
     {
-      XBMC->Log(LOG_ERROR, "%s - Rxd a response packet on channel %lu !!", __FUNCTION__, vresp->getChannelID());
+      KodiAPI::Log(ADDON_LOG_ERROR, "%s - Rxd a response packet on channel %lu !!", __FUNCTION__, vresp->getChannelID());
     }
   }
   return NULL;
