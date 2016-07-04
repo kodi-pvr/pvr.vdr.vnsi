@@ -71,12 +71,13 @@ bool cVNSIRecording::OpenRecording(const PVR_RECORDING& recinfo)
 
 void cVNSIRecording::Close()
 {
-  if(!IsOpen())
-    return;
+  if(IsOpen())
+  {
+    cRequestPacket vrp;
+    vrp.init(VNSI_RECSTREAM_CLOSE);
+    ReadSuccess(&vrp);
+  }
 
-  cRequestPacket vrp;
-  vrp.init(VNSI_RECSTREAM_CLOSE);
-  ReadSuccess(&vrp);
   cVNSISession::Close();
 }
 
