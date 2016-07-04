@@ -40,22 +40,20 @@ cVNSIDemux::~cVNSIDemux()
 
 void cVNSIDemux::Close()
 {
-  if (GetProtocol() >= 9)
+  if (IsOpen() && GetProtocol() >= 9)
   {
-    if (IsOpen())
+    XBMC->Log(LOG_DEBUG, "closing demuxer");
+
+    cRequestPacket vrp;
+    vrp.init(VNSI_CHANNELSTREAM_CLOSE);
+
+    auto resp = ReadResult(&vrp);
+    if (!resp)
     {
-      XBMC->Log(LOG_DEBUG, "closing demuxer");
-
-      cRequestPacket vrp;
-      vrp.init(VNSI_CHANNELSTREAM_CLOSE);
-
-      auto resp = ReadResult(&vrp);
-      if (!resp)
-      {
-        XBMC->Log(LOG_ERROR, "%s - failed to close streaming", __FUNCTION__);
-      }
+      XBMC->Log(LOG_ERROR, "%s - failed to close streaming", __FUNCTION__);
     }
   }
+
   cVNSISession::Close();
 }
 
