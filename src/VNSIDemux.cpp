@@ -47,10 +47,14 @@ void cVNSIDemux::Close()
     cRequestPacket vrp;
     vrp.init(VNSI_CHANNELSTREAM_CLOSE);
 
-    auto resp = ReadResult(&vrp);
-    if (!resp)
-    {
-      XBMC->Log(LOG_ERROR, "%s - failed to close streaming", __FUNCTION__);
+    try {
+      auto resp = ReadResult(&vrp);
+      if (!resp)
+      {
+          XBMC->Log(LOG_ERROR, "%s - failed to close streaming", __FUNCTION__);
+      }
+    } catch (std::exception e) {
+      XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     }
   }
 
