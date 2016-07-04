@@ -71,12 +71,17 @@ bool cVNSIRecording::OpenRecording(const PVR_RECORDING& recinfo)
 
 void cVNSIRecording::Close()
 {
-  if(!IsOpen())
-    return;
+  if(IsOpen())
+  {
+    try {
+      cRequestPacket vrp;
+      vrp.init(VNSI_RECSTREAM_CLOSE);
+      ReadSuccess(&vrp);
+    } catch (std::exception e) {
+      XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    }
+  }
 
-  cRequestPacket vrp;
-  vrp.init(VNSI_RECSTREAM_CLOSE);
-  ReadSuccess(&vrp);
   cVNSISession::Close();
 }
 
