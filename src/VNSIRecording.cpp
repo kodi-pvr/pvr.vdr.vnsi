@@ -73,9 +73,13 @@ void cVNSIRecording::Close()
 {
   if(IsOpen())
   {
-    cRequestPacket vrp;
-    vrp.init(VNSI_RECSTREAM_CLOSE);
-    ReadSuccess(&vrp);
+    try {
+      cRequestPacket vrp;
+      vrp.init(VNSI_RECSTREAM_CLOSE);
+      ReadSuccess(&vrp);
+    } catch (std::exception e) {
+      XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    }
   }
 
   cVNSISession::Close();
