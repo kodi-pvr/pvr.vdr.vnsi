@@ -716,8 +716,7 @@ PVR_ERROR cVNSIData::GetTimerTypes(PVR_TIMER_TYPE types[], int *size)
       memset(&types[*size], 0, sizeof(types[*size]));
       types[*size].iId = VNSI_TIMER_TYPE_EPG_SEARCH;
       strncpy(types[*size].strDescription, XBMC->GetLocalizedString(30204), 64);
-      types[*size].iAttributes = PVR_TIMER_TYPE_IS_MANUAL |
-                                 PVR_TIMER_TYPE_IS_REPEATING |
+      types[*size].iAttributes = PVR_TIMER_TYPE_IS_REPEATING |
                                  PVR_TIMER_TYPE_SUPPORTS_ENABLE_DISABLE |
                                  PVR_TIMER_TYPE_SUPPORTS_CHANNELS |
                                  PVR_TIMER_TYPE_SUPPORTS_TITLE_EPG_MATCH |
