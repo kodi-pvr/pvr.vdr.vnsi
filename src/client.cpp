@@ -37,7 +37,7 @@ using namespace std;
 using namespace ADDON;
 using namespace P8PLATFORM;
 
-ADDON_STATUS m_CurStatus      = ADDON_STATUS_UNKNOWN;
+ADDON_STATUS m_CurStatus = ADDON_STATUS_UNKNOWN;
 
 /* User adjustable settings are saved here.
  * Default values are defined inside client.h
@@ -53,14 +53,16 @@ bool          g_bAutoChannelGroups      = DEFAULT_AUTOGROUPS;
 int           g_iTimeshift              = 1;
 std::string   g_szIconPath              = "";
 
-CHelper_libXBMC_addon *XBMC   = NULL;
-CHelper_libXBMC_codec *CODEC  = NULL;
-CHelper_libKODI_guilib *GUI    = NULL;
-CHelper_libXBMC_pvr   *PVR    = NULL;
+int prioVals[] = {0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,99,100};
 
-cVNSIDemux      *VNSIDemuxer       = NULL;
-cVNSIData       *VNSIData          = NULL;
-cVNSIRecording  *VNSIRecording     = NULL;
+CHelper_libXBMC_addon *XBMC = nullptr;
+CHelper_libXBMC_codec *CODEC = nullptr;
+CHelper_libKODI_guilib *GUI = nullptr;
+CHelper_libXBMC_pvr *PVR = nullptr;
+
+cVNSIDemux *VNSIDemuxer = nullptr;
+cVNSIData *VNSIData = nullptr;
+cVNSIRecording *VNSIRecording = nullptr;
 
 bool IsTimeshift;
 time_t TimeshiftStartTime;
@@ -161,7 +163,6 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
     XBMC->Log(LOG_ERROR, "Couldn't get 'priority' setting, falling back to %i as default", -1);
     prio = DEFAULT_PRIORITY;
   }
-  int prioVals[] = {-99,-1,0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,99,100};
   g_iPriority = prioVals[prio];
 
   /* Read setting "timeshift" from settings.xml */
@@ -302,17 +303,18 @@ ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
   }
   else if (str == "port")
   {
-    XBMC->Log(LOG_INFO, "Changed Setting 'port' from %u to %u", g_iPort, *(int*) settingValue);
-    if (g_iPort != *(int*) settingValue)
+    XBMC->Log(LOG_INFO, "Changed Setting 'port' from %u to %u", g_iPort, *(int*)settingValue);
+    if (g_iPort != *(int*)settingValue)
     {
-      g_iPort = *(int*) settingValue;
+      g_iPort = *(int*)settingValue;
       return ADDON_STATUS_NEED_RESTART;
     }
   }
   else if (str == "priority")
   {
-    XBMC->Log(LOG_INFO, "Changed Setting 'priority' from %u to %u", g_iPriority, *(int*) settingValue);
-    g_iPriority = *(int*) settingValue;
+    int newPrio = prioVals[*(int*)settingValue];
+    XBMC->Log(LOG_INFO, "Changed Setting 'priority' from %u to %u", g_iPriority, newPrio);
+    g_iPriority = newPrio;
   }
   else if (str == "timeshift")
   {
