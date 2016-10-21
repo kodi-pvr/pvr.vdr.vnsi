@@ -363,6 +363,10 @@ void OnSystemSleep()
 
 void OnSystemWake()
 {
+  if (XBMC && !g_szWolMac.empty())
+  {
+    XBMC->WakeOnLan(g_szWolMac.c_str());
+  }
 }
 
 void OnPowerSavingActivated()
