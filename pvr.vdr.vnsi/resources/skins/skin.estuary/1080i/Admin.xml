@@ -21,7 +21,6 @@
         </control>
         <control type="list" id="10">
           <description>button area</description>
-          <defaultcontrol>1</defaultcontrol>
           <left>0</left>
           <top>160</top>
           <width>400</width>
@@ -72,7 +71,7 @@
             <align>center</align>
             <textoffsety>690</textoffsety>
             <texturenofocus>-</texturenofocus>
-            <texturefocus background="true" border="8" colordiffuse="button_focus">buttons/thumbnail_focused.png</texturefocus>
+            <texturefocus border="8" colordiffuse="button_focus">buttons/thumbnail_focused.png</texturefocus>
           </control>
           <control type="renderaddon" id="9">
             <left>480</left>
@@ -109,11 +108,11 @@
           <defaultcontrol always="true">33</defaultcontrol>
           <control type="label" id="31">
             <description>Channels label</description>
-            <left>500</left>
-            <top>160</top>
+            <left>480</left>
+            <top>165</top>
             <width>1000</width>
             <height>60</height>
-            <font>font16caps</font>
+            <font>font30_title</font>
             <label>$ADDON[pvr.vdr.vnsi 30111]</label>
             <align>left</align>
             <aligny>center</aligny>
@@ -121,8 +120,8 @@
             <shadowcolor>black</shadowcolor>
           </control>
           <control type="image">
-            <left>1500</left>
-            <top>160</top>
+            <left>1550</left>
+            <top>180</top>
             <width>40</width>
             <height>40</height>
             <colordiffuse>FFCC0000</colordiffuse>
@@ -130,8 +129,8 @@
             <visible>StringCompare(Window.Property(IsDirty),1)</visible>
           </control>
           <control type="image">
-            <left>1500</left>
-            <top>160</top>
+            <left>1550</left>
+            <top>180</top>
             <width>40</width>
             <height>40</height>
             <colordiffuse>FF00FF00</colordiffuse>
@@ -141,48 +140,33 @@
           <control type="grouplist" id="200">
             <left>442</left>
             <top>230</top>
-            <width>1256</width>
+            <width>520</width>
             <height>610</height>
             <onleft>10</onleft>
             <onright>36</onright>
             <control type="radiobutton" id="32">
               <description>Is Radio</description>
-              <left>500</left>
-              <top>300</top>
-              <width>400</width>
-              <height>60</height>
+              <width>520</width>
               <include>DefaultSettingButton</include>
               <label>$ADDON[pvr.vdr.vnsi 30112]</label>
             </control>
             <control type="button" id="33">
               <description>providers</description>
-              <left>500</left>
-              <top>400</top>
-              <width>400</width>
-              <height>60</height>
-              <texturefocus border="5">lists/focus.png</texturefocus>
+              <width>520</width>
               <label>$ADDON[pvr.vdr.vnsi 30109]</label>
               <include>DefaultSettingButton</include>
               <onfocus>Select</onfocus>
             </control>
             <control type="button" id="34">
               <description>channels</description>
-              <left>500</left>
-              <top>500</top>
-              <width>400</width>
-              <height>60</height>
-              <texturefocus border="5">lists/focus.png</texturefocus>
+              <width>520</width>
               <label>$ADDON[pvr.vdr.vnsi 30110]</label>
               <include>DefaultSettingButton</include>
               <onfocus>Select</onfocus>
             </control>
             <control type="button" id="35">
               <description>save</description>
-              <left>500</left>
-              <top>600</top>
-              <width>400</width>
-              <height>60</height>
-              <texturefocus border="5">lists/focus.png</texturefocus>
+              <width>520</width>
               <label>$ADDON[pvr.vdr.vnsi 30113]</label>
               <include>DefaultSettingButton</include>
             </control>
@@ -300,7 +284,7 @@
       </control>
     </control>
     <include content="TopBar">
-      <param name="breadcrumbs_label" value="$LOCALIZE[5] / $LOCALIZE[20077]" />
+      <param name="breadcrumbs_label" value="$LOCALIZE[5] / VDR VNSI Client" />
       <param name="breadcrumbs_icon" value="icons/settings/skin.png" />
     </include>
     <include>BottomBar</include>
