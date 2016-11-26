@@ -880,7 +880,7 @@ bool IsRealTimeStream()
   return false;
 }
 
-bool SeekTime(int time, bool backwards, double *startpts)
+bool SeekTime(double time, bool backwards, double *startpts)
 {
   bool ret = false;
   try
