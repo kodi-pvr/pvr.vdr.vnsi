@@ -126,7 +126,7 @@
             <height>40</height>
             <colordiffuse>FFCC0000</colordiffuse>
             <texture>overlays/circle.png</texture>
-            <visible>StringCompare(Window.Property(IsDirty),1)</visible>
+            <visible>String.IsEqual(Window.Property(IsDirty),1)</visible>
           </control>
           <control type="image">
             <left>1550</left>
@@ -135,7 +135,7 @@
             <height>40</height>
             <colordiffuse>FF00FF00</colordiffuse>
             <texture>overlays/circle.png</texture>
-            <visible>!StringCompare(Window.Property(IsDirty),1)</visible>
+            <visible>!String.IsEqual(Window.Property(IsDirty),1)</visible>
           </control>
           <control type="grouplist" id="200">
             <left>442</left>
