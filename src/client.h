@@ -21,7 +21,6 @@
  */
 
 #include "libXBMC_addon.h"
-#include "libXBMC_codec.h"
 #include "libXBMC_pvr.h"
 #include "libKODI_guilib.h"
 
@@ -43,6 +42,5 @@ extern int          g_iTimeshift;
 extern std::string  g_szIconPath;         ///< path to channel icons
 
 extern ADDON::CHelper_libXBMC_addon *XBMC;
-extern CHelper_libXBMC_codec *CODEC;
 extern CHelper_libKODI_guilib *GUI;
 extern CHelper_libXBMC_pvr   *PVR;
