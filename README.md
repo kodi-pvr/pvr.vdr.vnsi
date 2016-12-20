@@ -1,6 +1,9 @@
 [![Build Status](https://travis-ci.org/kodi-pvr/pvr.vdr.vnsi.svg?branch=master)](https://travis-ci.org/kodi-pvr/pvr.vdr.vnsi)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/5120/badge.svg)](https://scan.coverity.com/projects/5120)
 
+# New home of addon
+https://github.com/FernetMenta/pvr.vdr.vnsi
+
 # VDR VNSI PVR
 VDR VNSI PVR client addon for [Kodi] (http://kodi.tv)
 
