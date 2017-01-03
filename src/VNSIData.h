@@ -58,6 +58,8 @@ public:
   PVR_ERROR   RenameTimer(const PVR_TIMER &timerinfo, const char *newname);
   PVR_ERROR   UpdateTimer(const PVR_TIMER &timerinfo);
   PVR_ERROR GetTimerTypes(PVR_TIMER_TYPE types[], int *size);
+  bool GenTimerChildren(const PVR_TIMER &timer, ADDON_HANDLE handle);
+  std::string GenTimerFolder(std::string directory, std::string title);
 
   int         GetRecordingsCount();
   PVR_ERROR   GetRecordingsList(ADDON_HANDLE handle);

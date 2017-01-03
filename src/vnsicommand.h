@@ -165,6 +165,7 @@
 #define VNSI_TIMER_TYPE_EPG          3
 #define VNSI_TIMER_TYPE_VPS          4
 #define VNSI_TIMER_TYPE_EPG_SEARCH   5
+#define VNSI_TIMER_TYPE_MAN_REPEAT_CHILD 6
 
 /** Packet return codes */
 #define VNSI_RET_OK              0

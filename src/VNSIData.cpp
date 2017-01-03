@@ -24,6 +24,42 @@
 #include "requestpacket.h"
 #include "vnsicommand.h"
 #include "p8-platform/util/StdString.h"
+#include <algorithm>
+#include <time.h>
+
+// helper functions (taken from VDR)
+
+time_t IncDay(time_t t, int days)
+{
+  struct tm tm = *localtime(&t);
+  tm.tm_mday += days;
+  int h = tm.tm_hour;
+  tm.tm_isdst = -1;
+  t = mktime(&tm);
+  tm.tm_hour = h;
+  return mktime(&tm);
+}
+
+int GetWDay(time_t t)
+{
+  int weekday = localtime(&t)->tm_wday;
+  return weekday == 0 ? 6 : weekday - 1; // we start with Monday==0!
+}
+
+bool DayMatches(time_t t, unsigned int weekdays)
+{
+  return (weekdays & (1 << GetWDay(t))) != 0;
+}
+
+time_t SetTime(time_t t, int secondsFromMidnight)
+{
+  struct tm tm = *localtime(&t);
+  tm.tm_hour = secondsFromMidnight / 3600;
+  tm.tm_min = (secondsFromMidnight % 3600) / 60;
+  tm.tm_sec =  secondsFromMidnight % 60;
+  tm.tm_isdst = -1; // makes sure mktime() will determine the correct DST setting
+  return mktime(&tm);
+}
 
 using namespace ADDON;
 using namespace P8PLATFORM;
@@ -44,8 +80,7 @@ cVNSIData::Queue::Dequeue(uint32_t serial, SMessage &message)
   return vresp;
 }
 
-void
-cVNSIData::Queue::Set(std::unique_ptr<cResponsePacket> &&vresp)
+void cVNSIData::Queue::Set(std::unique_ptr<cResponsePacket> &&vresp)
 {
   CLockObject lock(m_mutex);
   SMessages::iterator it = m_queue.find(vresp->getRequestID());
@@ -396,6 +431,9 @@ PVR_ERROR cVNSIData::GetTimerInfo(unsigned int timernumber, PVR_TIMER &tag)
   {
     char *epgSearch = vresp->extract_String();
     strncpy(tag.strEpgSearchString, epgSearch, sizeof(tag.strEpgSearchString) - 1);
+
+    if (tag.iTimerType == VNSI_TIMER_TYPE_MAN && tag.iWeekdays)
+      tag.iTimerType = VNSI_TIMER_TYPE_MAN_REPEAT;
   }
 
   if (GetProtocol() >= 10)
@@ -458,6 +496,9 @@ bool cVNSIData::GetTimersList(ADDON_HANDLE handle)
       {
         char *epgSearch = vresp->extract_String();
         strncpy(tag.strEpgSearchString, epgSearch, sizeof(tag.strEpgSearchString) - 1);
+
+        if (tag.iTimerType == VNSI_TIMER_TYPE_MAN && tag.iWeekdays)
+          tag.iTimerType = VNSI_TIMER_TYPE_MAN_REPEAT;
       }
 
       if (GetProtocol() >= 10)
@@ -466,26 +507,70 @@ bool cVNSIData::GetTimersList(ADDON_HANDLE handle)
       }
 
       if (tag.startTime == 0)
-	tag.bStartAnyTime = true;
+        tag.bStartAnyTime = true;
       if (tag.endTime == 0)
-	tag.bEndAnyTime = true;
+        tag.bEndAnyTime = true;
 
       PVR->TransferTimerEntry(handle, &tag);
+
+      if (tag.iTimerType == VNSI_TIMER_TYPE_MAN_REPEAT &&
+          tag.state != PVR_TIMER_STATE_DISABLED)
+      {
+        GenTimerChildren(tag, handle);
+      }
     }
   }
   return true;
 }
 
-PVR_ERROR cVNSIData::AddTimer(const PVR_TIMER &timerinfo)
+bool cVNSIData::GenTimerChildren(const PVR_TIMER &timer, ADDON_HANDLE handle)
 {
-  cRequestPacket vrp;
-  vrp.init(VNSI_TIMER_ADD);
+  time_t now = time(nullptr);
+  time_t firstDay = timer.firstDay;
 
+  struct tm *loctime = localtime(&timer.startTime);
+  int startSec = loctime->tm_hour * 3600 + loctime->tm_min * 60;
+  loctime = localtime(&timer.endTime);
+  int stopSec = loctime->tm_hour * 3600 + loctime->tm_min * 60;
+  int length = stopSec - startSec;
+  if (length < 0)
+    length += 3600 * 24;
+
+  for (int n = 0; n < 2; ++n)
+  {
+    for (int i = -1; i <= 7; i++)
+    {
+      time_t t0 = IncDay(firstDay ? std::max(firstDay, now) : now, i);
+      if (DayMatches(t0, timer.iWeekdays))
+      {
+        time_t start = SetTime(t0, startSec);
+        time_t stop = start + length;
+        if ((!firstDay || start >= firstDay) && now < stop)
+        {
+          PVR_TIMER child = timer;
+          child.iClientIndex = timer.iClientIndex + n | 0xF000;
+          child.iParentClientIndex = timer.iClientIndex;
+          child.iTimerType = VNSI_TIMER_TYPE_MAN_REPEAT_CHILD;
+          child.startTime = start;
+          child.endTime = stop;
+          child.iWeekdays = 0;
+          PVR->TransferTimerEntry(handle, &child);
+          firstDay = start + length + 300;
+          break;
+        }
+      }
+    }
+  }
+  return true;
+}
+
+std::string cVNSIData::GenTimerFolder(std::string directory, std::string title)
+{
   // add directory in front of the title
   std::string path;
-  if (strlen(timerinfo.strDirectory) > 0)
+  if (std::strlen(directory.c_str()) > 0)
   {
-    path += timerinfo.strDirectory;
+    path += directory;
     if (path == "/")
     {
       path.clear();
@@ -513,9 +598,9 @@ PVR_ERROR cVNSIData::AddTimer(const PVR_TIMER &timerinfo)
     }
   }
 
-  if (strlen(timerinfo.strTitle) > 0)
+  if (std::strlen(title.c_str()) > 0)
   {
-    path += timerinfo.strTitle;
+    path += title;
   }
 
   // replace colons
@@ -527,6 +612,16 @@ PVR_ERROR cVNSIData::AddTimer(const PVR_TIMER &timerinfo)
     }
   }
 
+  return path;
+}
+
+PVR_ERROR cVNSIData::AddTimer(const PVR_TIMER &timerinfo)
+{
+  cRequestPacket vrp;
+  vrp.init(VNSI_TIMER_ADD);
+
+  // add directory in front of the title
+  std::string path = GenTimerFolder(timerinfo.strDirectory, timerinfo.strTitle);
   if (path.empty())
   {
     XBMC->Log(LOG_ERROR, "%s - Empty filename !", __FUNCTION__);
@@ -624,6 +719,14 @@ PVR_ERROR cVNSIData::UpdateTimer(const PVR_TIMER &timerinfo)
   uint32_t starttime = timerinfo.startTime - timerinfo.iMarginStart*60;
   uint32_t endtime = timerinfo.endTime + timerinfo.iMarginEnd*60;
 
+  // add directory in front of the title
+  std::string path = GenTimerFolder(timerinfo.strDirectory, timerinfo.strTitle);
+  if (path.empty())
+  {
+    XBMC->Log(LOG_ERROR, "%s - Empty filename !", __FUNCTION__);
+    return PVR_ERROR_UNKNOWN;
+  }
+
   cRequestPacket vrp;
   vrp.init(VNSI_TIMER_UPDATE);
 
@@ -640,7 +743,7 @@ PVR_ERROR cVNSIData::UpdateTimer(const PVR_TIMER &timerinfo)
   vrp.add_U32(endtime);
   vrp.add_U32(timerinfo.iWeekdays != PVR_WEEKDAY_NONE ? timerinfo.firstDay : 0);
   vrp.add_U32(timerinfo.iWeekdays);
-  vrp.add_String("");
+  vrp.add_String(path.c_str());
   vrp.add_String(timerinfo.strTitle);
 
   if (GetProtocol() >= 9)
@@ -696,6 +799,20 @@ PVR_ERROR cVNSIData::GetTimerTypes(PVR_TIMER_TYPE types[], int *size)
                              PVR_TIMER_TYPE_SUPPORTS_LIFETIME       |
                              PVR_TIMER_TYPE_SUPPORTS_FIRST_DAY      |
                              PVR_TIMER_TYPE_SUPPORTS_WEEKDAYS       |
+                             PVR_TIMER_TYPE_SUPPORTS_RECORDING_FOLDERS;
+  (*size)++;
+
+  // Repeating manual
+  memset(&types[*size], 0, sizeof(types[*size]));
+  types[*size].iId = VNSI_TIMER_TYPE_MAN_REPEAT_CHILD;
+  strncpy(types[*size].strDescription, XBMC->GetLocalizedString(30205), 64);
+  types[*size].iAttributes = PVR_TIMER_TYPE_IS_MANUAL               |
+                             PVR_TIMER_TYPE_IS_READONLY             |
+                             PVR_TIMER_TYPE_SUPPORTS_CHANNELS       |
+                             PVR_TIMER_TYPE_SUPPORTS_START_TIME     |
+                             PVR_TIMER_TYPE_SUPPORTS_END_TIME       |
+                             PVR_TIMER_TYPE_SUPPORTS_PRIORITY       |
+                             PVR_TIMER_TYPE_SUPPORTS_LIFETIME       |
                              PVR_TIMER_TYPE_SUPPORTS_RECORDING_FOLDERS;
   (*size)++;
 
