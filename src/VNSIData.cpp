@@ -25,6 +25,7 @@
 #include "vnsicommand.h"
 #include "p8-platform/util/StdString.h"
 #include <algorithm>
+#include <string.h>
 #include <time.h>
 
 // helper functions (taken from VDR)
@@ -568,7 +569,7 @@ std::string cVNSIData::GenTimerFolder(std::string directory, std::string title)
 {
   // add directory in front of the title
   std::string path;
-  if (std::strlen(directory.c_str()) > 0)
+  if (strlen(directory.c_str()) > 0)
   {
     path += directory;
     if (path == "/")
@@ -598,7 +599,7 @@ std::string cVNSIData::GenTimerFolder(std::string directory, std::string title)
     }
   }
 
-  if (std::strlen(title.c_str()) > 0)
+  if (strlen(title.c_str()) > 0)
   {
     path += title;
   }
