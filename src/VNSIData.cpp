@@ -941,8 +941,8 @@ PVR_ERROR cVNSIData::GetRecordingsList(ADDON_HANDLE handle)
     char *strTitle = vresp->extract_String();
     strncpy(tag.strTitle, strTitle, sizeof(tag.strTitle) - 1);
 
-    char *strPlotOutline = vresp->extract_String();
-    strncpy(tag.strPlotOutline, strPlotOutline, sizeof(tag.strPlotOutline) - 1);
+    char *strEpisodeName = vresp->extract_String();
+    strncpy(tag.strEpisodeName, strEpisodeName, sizeof(tag.strEpisodeName) - 1);
 
     char *strPlot = vresp->extract_String();
     strncpy(tag.strPlot, strPlot, sizeof(tag.strPlot) - 1);
@@ -1093,8 +1093,8 @@ PVR_ERROR cVNSIData::GetDeletedRecordingsList(ADDON_HANDLE handle)
     char *strTitle = vresp->extract_String();
     strncpy(tag.strTitle, strTitle, sizeof(tag.strTitle) - 1);
 
-    char *strPlotOutline = vresp->extract_String();
-    strncpy(tag.strPlotOutline, strPlotOutline, sizeof(tag.strPlotOutline) - 1);
+    char *strEpisodeName = vresp->extract_String();
+    strncpy(tag.strEpisodeName, strEpisodeName, sizeof(tag.strEpisodeName) - 1);
 
     char *strPlot = vresp->extract_String();
     strncpy(tag.strPlot, strPlot, sizeof(tag.strPlot) - 1);
