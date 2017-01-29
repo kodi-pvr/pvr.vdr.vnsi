@@ -860,10 +860,7 @@ bool cVNSIAdmin::Open(const std::string& hostname, int port, const char* name)
   ClearListItems();
   m_window->ClearProperties();
 
-#if defined(KODI_GUILIB_API_VERSION)
   GUI->Control_releaseRendering(m_renderControl);
-#endif
-
   GUI->Control_releaseSpin(m_spinTimeshiftMode);
   GUI->Control_releaseSpin(m_spinTimeshiftBufferRam);
   GUI->Control_releaseSpin(m_spinTimeshiftBufferFile);
@@ -1010,7 +1007,6 @@ bool cVNSIAdmin::OnClick(int controlId)
 
 bool cVNSIAdmin::OnFocus(int controlId)
 {
-#if defined(KODI_GUILIB_API_VERSION)
   if (controlId == CONTROL_OSD_BUTTON)
   {
     m_window->SetControlLabel(CONTROL_OSD_BUTTON, XBMC->GetLocalizedString(30102));
@@ -1025,13 +1021,11 @@ bool cVNSIAdmin::OnFocus(int controlId)
     m_bIsOsdControl = false;
     return true;
   }
-#endif
   return false;
 }
 
 bool cVNSIAdmin::OnInit()
 {
-#if defined(KODI_GUILIB_API_VERSION)
   m_renderControl = GUI->Control_getRendering(m_window, CONTROL_RENDER_ADDON);
   m_renderControl->m_cbhdl   = this;
   m_renderControl->CBCreate = CreateCB;
@@ -1044,7 +1038,6 @@ bool cVNSIAdmin::OnInit()
   vrp.init(VNSI_OSD_HITKEY);
   vrp.add_U32(0);
   cVNSISession::TransmitMessage(&vrp);
-#endif
 
   // setup parameters
   m_spinTimeshiftMode = GUI->Control_getSpin(m_window, CONTROL_SPIN_TIMESHIFT_MODE);
@@ -1123,9 +1116,7 @@ bool cVNSIAdmin::OnAction(int actionId)
   {
     m_bIsOsdControl = false;
     m_window->SetControlLabel(CONTROL_OSD_BUTTON, XBMC->GetLocalizedString(30103));
-#if defined(KODI_GUILIB_API_VERSION)
     m_window->MarkDirtyRegion();
-#endif
   }
   else if (m_window->GetFocusId() == CONTROL_OSD_BUTTON)
   {
