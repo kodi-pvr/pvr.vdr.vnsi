@@ -848,7 +848,7 @@ bool cVNSIAdmin::Open(const std::string& hostname, int port, const char* name)
     return false;
 
   // Load the Window as Dialog
-  m_window = GUI->Window_create("Admin.xml", "skin.confluence", false, true);
+  m_window = GUI->Window_create("Admin.xml", "skin.estuary", false, true);
   m_window->m_cbhdl   = this;
   m_window->CBOnInit  = OnInitCB;
   m_window->CBOnFocus = OnFocusCB;
