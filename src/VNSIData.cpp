@@ -398,6 +398,11 @@ PVR_ERROR cVNSIData::GetTimerInfo(unsigned int timernumber, PVR_TIMER &tag)
     strncpy(tag.strEpgSearchString, epgSearch, sizeof(tag.strEpgSearchString) - 1);
   }
 
+  if (GetProtocol() >= 10)
+  {
+    tag.iParentClientIndex = vresp->extract_U32();
+  }
+
   return PVR_ERROR_NO_ERROR;
 }
 
@@ -453,6 +458,11 @@ bool cVNSIData::GetTimersList(ADDON_HANDLE handle)
       {
         char *epgSearch = vresp->extract_String();
         strncpy(tag.strEpgSearchString, epgSearch, sizeof(tag.strEpgSearchString) - 1);
+      }
+
+      if (GetProtocol() >= 10)
+      {
+        tag.iParentClientIndex = vresp->extract_U32();
       }
 
       if (tag.startTime == 0)
@@ -546,6 +556,12 @@ PVR_ERROR cVNSIData::AddTimer(const PVR_TIMER &timerinfo)
   if (GetProtocol() >= 9)
   {
     vrp.add_String(timerinfo.strEpgSearchString);
+  }
+
+  if (GetProtocol() >= 10)
+  {
+    vrp.add_U32(timerinfo.iMarginStart*60);
+    vrp.add_U32(timerinfo.iMarginEnd*60);
   }
 
   auto vresp = ReadResult(&vrp);
