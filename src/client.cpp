@@ -56,7 +56,6 @@ std::string   g_szIconPath              = "";
 int prioVals[] = {0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,99,100};
 
 CHelper_libXBMC_addon *XBMC = nullptr;
-CHelper_libXBMC_codec *CODEC = nullptr;
 CHelper_libKODI_guilib *GUI = nullptr;
 CHelper_libXBMC_pvr *PVR = nullptr;
 
@@ -96,20 +95,10 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
     return ADDON_STATUS_PERMANENT_FAILURE;
   }
 
-  CODEC = new CHelper_libXBMC_codec;
-  if (!CODEC->RegisterMe(hdl))
-  {
-    SAFE_DELETE(CODEC);
-    SAFE_DELETE(GUI);
-    SAFE_DELETE(XBMC);
-    return ADDON_STATUS_PERMANENT_FAILURE;
-  }
-
   PVR = new CHelper_libXBMC_pvr;
   if (!PVR->RegisterMe(hdl))
   {
     SAFE_DELETE(PVR);
-    SAFE_DELETE(CODEC);
     SAFE_DELETE(GUI);
     SAFE_DELETE(XBMC);
     return ADDON_STATUS_PERMANENT_FAILURE;
@@ -246,8 +235,6 @@ ADDON_STATUS ADDON_GetStatus()
 
 void ADDON_Destroy()
 {
-  SAFE_DELETE(CODEC);
-
   if (VNSIDemuxer)
     SAFE_DELETE(VNSIDemuxer);
 
@@ -267,16 +254,6 @@ void ADDON_Destroy()
     SAFE_DELETE(XBMC);
 
   m_CurStatus = ADDON_STATUS_UNKNOWN;
-}
-
-bool ADDON_HasSettings()
-{
-  return true;
-}
-
-unsigned int ADDON_GetSettings(ADDON_StructSetting ***sSet)
-{
-  return 0;
 }
 
 ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
@@ -346,11 +323,6 @@ ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
 
 void ADDON_Stop()
 {
-}
-
-void ADDON_FreeSettings()
-{
-
 }
 
 /***********************************************************
