@@ -53,6 +53,19 @@ list(APPEND VDR_SOURCES src/client.cpp
                         src/VNSIRecording.cpp
                         src/VNSISession.cpp)
 
+list(APPEND VDR_HEADERS src/client.h
+                        src/requestpacket.h
+                        src/responsepacket.h
+                        src/tools.h
+                        src/VNSIAdmin.h
+                        src/VNSIChannelScan.h
+                        src/VNSIChannels.h
+                        src/vnsicommand.h
+                        src/VNSIData.h
+                        src/VNSIDemux.h
+                        src/VNSIRecording.h
+                        src/VNSISession.h)
+
 list(APPEND DEPLIBS ${p8-platform_LIBRARIES})
 if(WIN32)
   list(APPEND DEPLIBS ws2_32)
