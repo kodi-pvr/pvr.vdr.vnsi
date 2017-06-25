@@ -137,6 +137,17 @@ bool cVNSISession::Login()
       XBMC->Log(LOG_NOTICE, "Logged in at '%lu+%i' to '%s' Version: '%s' with protocol version '%d'",
         vdrTime, vdrTimeOffset, ServerName, ServerVersion, protocol);
   }
+  catch (const std::out_of_range& e)
+  {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    if (m_socket)
+    {
+      m_socket->Close();
+      delete m_socket;
+      m_socket = NULL;
+    }
+    return false;
+  }
   catch (const char * str)
   {
     XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__,str);
