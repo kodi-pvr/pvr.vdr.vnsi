@@ -2,6 +2,8 @@
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/5120/badge.svg)](https://scan.coverity.com/projects/5120)
 
 # VDR VNSI PVR
+This repo is discontinued. VNSI is maintained in this repo: https://github.com/FernetMenta/pvr.vdr.vnsi
+
 VDR VNSI PVR client addon for [Kodi] (http://kodi.tv)
 
 ## Build instructions
