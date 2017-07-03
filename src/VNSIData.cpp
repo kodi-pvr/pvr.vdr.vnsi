@@ -926,9 +926,9 @@ PVR_ERROR cVNSIData::GetRecordingsList(ADDON_HANDLE handle)
         tag.iChannelUid = uuid;
       uint8_t type = vresp->extract_U8();
       if (type == 1)
-	tag.iChannelUid = PVR_RECORDING_CHANNEL_TYPE_TV;
+	tag.channelType = PVR_RECORDING_CHANNEL_TYPE_RADIO;
       else if (type == 2)
-	tag.iChannelUid = PVR_RECORDING_CHANNEL_TYPE_RADIO;
+	tag.channelType = PVR_RECORDING_CHANNEL_TYPE_TV;
       else
 	tag.channelType = PVR_RECORDING_CHANNEL_TYPE_UNKNOWN;
     }
