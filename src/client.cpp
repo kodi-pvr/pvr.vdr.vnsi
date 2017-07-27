@@ -777,18 +777,6 @@ DemuxPacket* DemuxRead(void)
   return pkt;
 }
 
-bool SwitchChannel(const PVR_CHANNEL &channel)
-{
-  try {
-    if (VNSIDemuxer)
-      return VNSIDemuxer->SwitchChannel(channel);
-  } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
-  }
-
-  return false;
-}
-
 PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
 {
   if (!VNSIDemuxer)
