@@ -64,9 +64,8 @@ cVNSIData *VNSIData = nullptr;
 cVNSIRecording *VNSIRecording = nullptr;
 
 bool IsTimeshift;
-time_t TimeshiftStartTime;
-time_t TimeshiftEndTime;
-time_t TimeshiftPlayTime;
+bool IsRealtime;
+int64_t PTSBufferEnd;
 P8PLATFORM::CMutex TimeshiftMutex;
 
 extern "C" {
@@ -717,9 +716,7 @@ bool OpenLiveStream(const PVR_CHANNEL &channel)
   try
   {
     VNSIDemuxer = new cVNSIDemux;
-    TimeshiftStartTime = 0;
-    TimeshiftEndTime = 0;
-    TimeshiftPlayTime = 0;
+    IsRealtime = true;
     return VNSIDemuxer->OpenChannel(channel);
   }
   catch (std::exception e)
@@ -771,10 +768,23 @@ DemuxPacket* DemuxRead(void)
 
   const CLockObject lock(TimeshiftMutex);
   IsTimeshift = VNSIDemuxer->IsTimeshift();
-  TimeshiftStartTime = VNSIDemuxer->GetBufferTimeStart();
-  TimeshiftEndTime = VNSIDemuxer->GetBufferTimeEnd();
-  TimeshiftPlayTime = VNSIDemuxer->GetPlayingTime();
+  if ((PTSBufferEnd - pkt->dts) / DVD_TIME_BASE > 10)
+    IsRealtime = false;
+  else
+    IsRealtime = true;
   return pkt;
+}
+
+PVR_ERROR GetStreamTimes(PVR_STREAM_TIMES *times)
+{
+  if (!VNSIDemuxer)
+    return PVR_ERROR_SERVER_ERROR;
+
+  if (!VNSIDemuxer->GetStreamTimes(times))
+    return PVR_ERROR_SERVER_ERROR;
+
+  PTSBufferEnd = times->ptsEnd;
+  return PVR_ERROR_NO_ERROR;
 }
 
 PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
@@ -813,7 +823,7 @@ bool IsRealTimeStream()
     const CLockObject lock(TimeshiftMutex);
     if (!IsTimeshift)
       return true;
-    if (TimeshiftEndTime - TimeshiftPlayTime < 10)
+    if (IsRealtime)
       return true;
   }
   return false;
@@ -834,35 +844,17 @@ bool SeekTime(double time, bool backwards, double *startpts)
 
 time_t GetPlayingTime()
 {
-  time_t time = 0;
-  if (VNSIDemuxer)
-  {
-    const CLockObject lock(TimeshiftMutex);
-    time = TimeshiftPlayTime;
-  }
-  return time;
+  return 0;
 }
 
 time_t GetBufferTimeStart()
 {
-  time_t time = 0;
-  if (VNSIDemuxer)
-  {
-    const CLockObject lock(TimeshiftMutex);
-    time = TimeshiftStartTime;
-  }
-  return time;
+  return 0;
 }
 
 time_t GetBufferTimeEnd()
 {
-  time_t time = 0;
-  if (VNSIDemuxer)
-  {
-    const CLockObject lock(TimeshiftMutex);
-    time = TimeshiftEndTime;
-  }
-  return time;
+  return 0;
 }
 
 bool IsTimeshifting()

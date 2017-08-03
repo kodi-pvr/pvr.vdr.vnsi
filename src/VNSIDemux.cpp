@@ -155,13 +155,7 @@ DemuxPacket* cVNSIDemux::Read()
       xbmc_codec_type_t type = XBMC_CODEC_TYPE_UNKNOWN;
       if (idx >= 0)
         type = m_streams.stream[idx].iCodecType;
-      if (type == XBMC_CODEC_TYPE_VIDEO || type == XBMC_CODEC_TYPE_AUDIO)
-      {
-        if (p->dts != DVD_NOPTS_VALUE)
-          m_CurrentDTS = p->dts;
-        else if (p->pts != DVD_NOPTS_VALUE)
-          m_CurrentDTS = p->pts;
-      }
+
       return p;
     }
     else if (pid >= 0 && resp->getMuxSerial() != m_MuxPacketSerial)
@@ -173,19 +167,36 @@ DemuxPacket* cVNSIDemux::Read()
       XBMC->Log(LOG_DEBUG, "stream id %i not found", resp->getStreamID());
     }
   }
+  else if (resp->getOpCodeID() == VNSI_STREAM_TIMES)
+  {
+    m_bTimeshift = resp->extract_U8();
+    m_ReferenceTime = resp->extract_U32();
+    m_ReferenceDTS = (double)resp->extract_U64();
+    m_minPTS = (double)resp->extract_U64();
+    m_maxPTS = (double)resp->extract_U64();
+  }
   else if (resp->getOpCodeID() == VNSI_STREAM_BUFFERSTATS)
   {
     m_bTimeshift = resp->extract_U8();
-    m_BufferTimeStart = resp->extract_U32();
-    m_BufferTimeEnd = resp->extract_U32();
+    m_minPTS = (resp->extract_U32() - m_ReferenceTime) * DVD_TIME_BASE + m_ReferenceDTS;
+    m_maxPTS = (resp->extract_U32() - m_ReferenceTime) * DVD_TIME_BASE + m_ReferenceDTS;
   }
   else if (resp->getOpCodeID() == VNSI_STREAM_REFTIME)
   {
     m_ReferenceTime = resp->extract_U32();
-    m_ReferenceDTS = (double)resp->extract_U64() * DVD_TIME_BASE / 1000000;
+    m_ReferenceDTS = (double)resp->extract_U64();
   }
 
   return PVR->AllocateDemuxPacket(0);
+}
+
+bool cVNSIDemux::GetStreamTimes(PVR_STREAM_TIMES *times)
+{
+  times->startTime = m_ReferenceTime;
+  times->ptsStart = m_ReferenceDTS;
+  times->ptsBegin = m_minPTS;
+  times->ptsEnd = m_maxPTS;
+  return true;
 }
 
 bool cVNSIDemux::SeekTime(int time, bool backwards, double *startpts)
@@ -250,8 +261,8 @@ bool cVNSIDemux::SwitchChannel(const PVR_CHANNEL &channelinfo)
   m_streams.iStreamCount = 0;
   m_MuxPacketSerial = 0;
   m_ReferenceTime = 0;
-  m_BufferTimeStart = 0;
-  m_BufferTimeEnd = 0;
+  m_minPTS = 0;
+  m_maxPTS = 0;
 
   return true;
 }
@@ -269,24 +280,6 @@ bool cVNSIDemux::GetSignalStatus(PVR_SIGNAL_STATUS &qualityinfo)
   qualityinfo.iUNC = (uint32_t)m_Quality.fe_unc;
 
   return true;
-}
-
-time_t cVNSIDemux::GetPlayingTime()
-{
-  time_t ret = 0;
-  if (m_ReferenceTime)
-    ret = m_ReferenceTime + (m_CurrentDTS - m_ReferenceDTS) / DVD_TIME_BASE;
-  return ret;
-}
-
-time_t cVNSIDemux::GetBufferTimeStart()
-{
-  return m_BufferTimeStart;
-}
-
-time_t cVNSIDemux::GetBufferTimeEnd()
-{
-  return m_BufferTimeEnd;
 }
 
 void cVNSIDemux::StreamChange(cResponsePacket *resp)
