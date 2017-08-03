@@ -528,10 +528,12 @@ bool cVNSIData::GenTimerChildren(const PVR_TIMER &timer, ADDON_HANDLE handle)
 {
   time_t now = time(nullptr);
   time_t firstDay = timer.firstDay;
+  time_t startTime = timer.startTime;
+  time_t endTime = timer.endTime;
 
-  struct tm *loctime = localtime(&timer.startTime);
+  struct tm *loctime = localtime(&startTime);
   int startSec = loctime->tm_hour * 3600 + loctime->tm_min * 60;
-  loctime = localtime(&timer.endTime);
+  loctime = localtime(&endTime);
   int stopSec = loctime->tm_hour * 3600 + loctime->tm_min * 60;
   int length = stopSec - startSec;
   if (length < 0)
