@@ -330,7 +330,7 @@ bool cVNSIData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel
     EPG_TAG tag;
     memset(&tag, 0 , sizeof(tag));
 
-    tag.iChannelNumber      = channel.iChannelNumber;
+    tag.iUniqueChannelId    = channel.iUniqueId;
     tag.iUniqueBroadcastId  = vresp->extract_U32();
     tag.startTime           = vresp->extract_U32();
     tag.endTime             = tag.startTime + vresp->extract_U32();
