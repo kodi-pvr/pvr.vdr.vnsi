@@ -37,6 +37,7 @@ public:
   long long Seek(long long pos, uint32_t whence);
   long long Position(void);
   long long Length(void);
+  bool GetStreamTimes(PVR_STREAM_TIMES *times);
 
 protected:
 
@@ -45,8 +46,9 @@ protected:
 
 private:
 
-  PVR_RECORDING   m_recinfo;
-  uint64_t        m_currentPlayingRecordBytes;
-  uint32_t        m_currentPlayingRecordFrames;
-  uint64_t        m_currentPlayingRecordPosition;
+  PVR_RECORDING m_recinfo;
+  uint64_t m_currentPlayingRecordBytes;
+  uint64_t m_currentPlayingRecordLengthMSec;
+  uint32_t m_currentPlayingRecordFrames;
+  uint64_t m_currentPlayingRecordPosition;
 };

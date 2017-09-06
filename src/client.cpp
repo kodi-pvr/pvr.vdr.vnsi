@@ -777,14 +777,18 @@ DemuxPacket* DemuxRead(void)
 
 PVR_ERROR GetStreamTimes(PVR_STREAM_TIMES *times)
 {
-  if (!VNSIDemuxer)
+  if (VNSIDemuxer && VNSIDemuxer->GetStreamTimes(times))
+  {
+    PTSBufferEnd = times->ptsEnd;
+    return PVR_ERROR_NO_ERROR;
+  }
+  else if (VNSIRecording && VNSIRecording->GetStreamTimes(times))
+  {
+    PTSBufferEnd = times->ptsEnd;
+    return PVR_ERROR_NO_ERROR;
+  }
+  else
     return PVR_ERROR_SERVER_ERROR;
-
-  if (!VNSIDemuxer->GetStreamTimes(times))
-    return PVR_ERROR_SERVER_ERROR;
-
-  PTSBufferEnd = times->ptsEnd;
-  return PVR_ERROR_NO_ERROR;
 }
 
 PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
