@@ -21,14 +21,17 @@ if(NOT WIN32)
   if(OPENGL_FOUND)
     set(INCLUDES ${OPENGL_INCLUDE_DIR})
     set(DEPLIBS ${OPENGL_LIBRARIES})
+    set(VDR_SOURCES src/shaders/GUIShader.cpp
+                    src/shaders/Matrix.cpp
+                    src/shaders/Shader.cpp)
     add_definitions(-DHAVE_GL)
     message(STATUS "VDR OSD support enabled via OpenGL")
   else()
     find_package(OpenGLES2)
     if(OPENGLES2_FOUND)
-      set(VDR_SOURCES src/EGLHelpers/VisGUIShader.cpp
-                      src/EGLHelpers/VisMatrixGLES.cpp
-                      src/EGLHelpers/VisShader.cpp)
+      set(VDR_SOURCES src/shaders/GUIShader.cpp
+                      src/shaders/Matrix.cpp
+                      src/shaders/Shader.cpp)
       add_definitions(-DHAVE_GLES2)
       set(INCLUDES ${OPENGLES2_INCLUDE_DIRS})
       set(DEPLIBS ${OPENGLES2_LIBRARIES})
