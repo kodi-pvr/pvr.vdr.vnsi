@@ -524,10 +524,9 @@ void cOSDRenderGL::Render()
     GLfloat ver[4][4];
     GLfloat tex[4][2];
 
-    glBegin();
-
-    GLint   posLoc = vis_shader->GetPosLoc();
-    GLint   texLoc = vis_shader->GetCordLoc();
+    m_shader->Enable();
+    GLint   posLoc = m_shader->GetPosLoc();
+    GLint   texLoc = m_shader->GetCordLoc();
 
     glVertexAttribPointer(posLoc, 4, GL_FLOAT, 0, 0, ver);
     glVertexAttribPointer(texLoc, 2, GL_FLOAT, 0, 0, tex);
@@ -557,7 +556,7 @@ void cOSDRenderGL::Render()
     glDisableVertexAttribArray(posLoc);
     glDisableVertexAttribArray(texLoc);
 
-    glEnd();
+    m_shader->Disable();
 #endif
 
     glBindTexture(GL_TEXTURE_2D, 0);
