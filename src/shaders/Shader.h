@@ -22,10 +22,8 @@
 #if defined(HAVE_GL)
 #if defined(__APPLE__)
 #include <OpenGL/gl3.h>
-#include <OpenGL/gl3ext.h>
 #else
-#include <G2/gl.h>
-#include <GL/glext.h>
+#include <GL/gl.h>
 #endif//__APPLE__
 #else
 #if defined(__APPLE__)                                                                                                                                                                                           
