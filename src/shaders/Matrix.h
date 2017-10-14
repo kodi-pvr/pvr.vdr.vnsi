@@ -23,7 +23,9 @@
 #if defined(__APPLE__)
 #include <OpenGL/gl3.h>
 #else
+#define GL_GLEXT_PROTOTYPES
 #include <GL/gl.h>
+#include <GL/glext.h>
 #endif//__APPLE__
 #else
 #if defined(__APPLE__)                                                                                                                                                                                           
