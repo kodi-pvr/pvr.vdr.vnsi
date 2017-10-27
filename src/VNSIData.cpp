@@ -1193,14 +1193,14 @@ void *cVNSIData::Process()
       cVNSISession::eCONNECTIONSTATE state = TryReconnect();
       if (state != cVNSISession::CONN_ESABLISHED)
       {
-	if (state == cVNSISession::CONN_HOST_NOT_REACHABLE)
-	{
-	  PVR->ConnectionStateChange("vnsi server not reacheable",
-				     PVR_CONNECTION_STATE_SERVER_UNREACHABLE, nullptr);
-	}
+        if (state == cVNSISession::CONN_HOST_NOT_REACHABLE)
+        {
+          PVR->ConnectionStateChange("vnsi server not reacheable",
+                                     PVR_CONNECTION_STATE_SERVER_UNREACHABLE, nullptr);
+        }
 
-	Sleep(1000);
-	continue;
+        Sleep(1000);
+        continue;
       }
     }
 
@@ -1244,12 +1244,12 @@ void *cVNSIData::Process()
       }
       else if (vresp->getRequestID() == VNSI_STATUS_RECORDING)
       {
-                          vresp->extract_U32(); // device currently unused
-                          vresp->extract_U32(); // on (not used)
+        vresp->extract_U32(); // device currently unused
+        vresp->extract_U32(); // on (not used)
         char* str1      = vresp->extract_String();
         char* str2      = vresp->extract_String();
 
-//        PVR->Recording(str1, str2, on!=0?true:false);
+        //        PVR->Recording(str1, str2, on!=0?true:false);
         PVR->TriggerTimerUpdate();
       }
       else if (vresp->getRequestID() == VNSI_STATUS_TIMERCHANGE)

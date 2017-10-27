@@ -58,6 +58,7 @@ cVNSISession::~cVNSISession()
 
 void cVNSISession::Close()
 {
+  CLockObject lock(m_mutex);
   if (IsOpen())
   {
     m_socket->Close();
@@ -170,8 +171,6 @@ std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /
   uint8_t* userData = NULL;
 
   cResponsePacket* vresp = NULL;
-
-  CLockObject lock(m_readMutex);
 
   if(!readData((uint8_t*)&channelID, sizeof(uint32_t), iInitialTimeout))
     return NULL;
@@ -294,6 +293,8 @@ std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /
 
 bool cVNSISession::TransmitMessage(cRequestPacket* vrp)
 {
+  CLockObject lock(m_mutex);
+
   if (!IsOpen())
     return false;
 
@@ -372,6 +373,7 @@ cVNSISession::eCONNECTIONSTATE cVNSISession::TryReconnect()
 
 bool cVNSISession::IsOpen()
 {
+  CLockObject lock(m_mutex);
   return m_socket && m_socket->IsOpen();
 }
 
