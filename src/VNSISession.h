@@ -75,13 +75,13 @@ protected:
 
   virtual void SignalConnectionLost();
 
-  std::string      m_hostname;
-  int              m_port;
-  std::string      m_name;
+  std::string m_hostname;
+  int m_port;
+  std::string m_name;
   P8PLATFORM::CMutex m_mutex;
-  int              m_protocol;
-  std::string      m_server;
-  std::string      m_version;
+  int m_protocol;
+  std::string m_server;
+  std::string m_version;
   bool m_connectionLost;
   std::atomic_bool m_abort;
 
@@ -90,5 +90,4 @@ private:
   bool readData(uint8_t* buffer, int totalBytes, int timeout);
 
   P8PLATFORM::CTcpConnection *m_socket;
-  P8PLATFORM::CMutex          m_readMutex;
 };
