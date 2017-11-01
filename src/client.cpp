@@ -766,12 +766,15 @@ DemuxPacket* DemuxRead(void)
     return NULL;
   }
 
-  const CLockObject lock(TimeshiftMutex);
-  IsTimeshift = VNSIDemuxer->IsTimeshift();
-  if ((PTSBufferEnd - pkt->dts) / DVD_TIME_BASE > 10)
-    IsRealtime = false;
-  else
-    IsRealtime = true;
+  if (pkt)
+  {
+    const CLockObject lock(TimeshiftMutex);
+    IsTimeshift = VNSIDemuxer->IsTimeshift();
+    if ((PTSBufferEnd - pkt->dts) / DVD_TIME_BASE > 10)
+      IsRealtime = false;
+    else
+      IsRealtime = true;
+  }
   return pkt;
 }
 
