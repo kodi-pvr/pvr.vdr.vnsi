@@ -121,43 +121,35 @@ bool cVNSISession::Login()
     if (!vresp)
       throw "failed to read greeting from server";
 
-    uint32_t    protocol      = vresp->extract_U32();
-    uint32_t    vdrTime       = vresp->extract_U32();
-    int32_t     vdrTimeOffset = vresp->extract_S32();
-    const char *ServerName    = vresp->extract_String();
+    uint32_t protocol = vresp->extract_U32();
+    uint32_t vdrTime = vresp->extract_U32();
+    int32_t vdrTimeOffset = vresp->extract_S32();
+    const char *ServerName = vresp->extract_String();
     const char *ServerVersion = vresp->extract_String();
 
-    m_server    = ServerName;
-    m_version   = ServerVersion;
-    m_protocol  = (int)protocol;
+    m_server = ServerName;
+    m_version = ServerVersion;
+    m_protocol = (int)protocol;
 
     if (m_protocol < VNSI_MIN_PROTOCOLVERSION)
       throw "Protocol versions do not match";
 
     if (m_name.empty())
+    {
       XBMC->Log(LOG_NOTICE, "Logged in at '%lu+%i' to '%s' Version: '%s' with protocol version '%d'",
-        vdrTime, vdrTimeOffset, ServerName, ServerVersion, protocol);
+                vdrTime, vdrTimeOffset, ServerName, ServerVersion, protocol);
+    }
   }
   catch (const std::out_of_range& e)
   {
     XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
-    if (m_socket)
-    {
-      m_socket->Close();
-      delete m_socket;
-      m_socket = NULL;
-    }
+    Close();
     return false;
   }
   catch (const char * str)
   {
     XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__,str);
-    if (m_socket)
-    {
-      m_socket->Close();
-      delete m_socket;
-      m_socket = NULL;
-    }
+    Close();
     return false;
   }
 
