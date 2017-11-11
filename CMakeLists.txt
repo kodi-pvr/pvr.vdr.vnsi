@@ -72,6 +72,7 @@ list(APPEND VDR_HEADERS src/client.h
 list(APPEND DEPLIBS ${p8-platform_LIBRARIES})
 if(WIN32)
   list(APPEND DEPLIBS ws2_32)
+  add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE)
 endif()
 
 include_directories(${INCLUDES}

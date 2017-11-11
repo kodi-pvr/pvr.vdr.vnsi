@@ -23,7 +23,7 @@
 #include "responsepacket.h"
 #include "requestpacket.h"
 #include "vnsicommand.h"
-#include "p8-platform/util/StdString.h"
+#include <p8-platform/util/StringUtils.h>
 #include <algorithm>
 #include <string.h>
 #include <time.h>
@@ -907,7 +907,7 @@ PVR_ERROR cVNSIData::GetRecordingsList(ADDON_HANDLE handle)
     return PVR_ERROR_UNKNOWN;
   }
 
-  CStdString strRecordingId;
+  std::string strRecordingId;
   while (vresp->getRemainingLength() >= 5 * 4 + 5)
   {
     PVR_RECORDING tag;
@@ -953,7 +953,7 @@ PVR_ERROR cVNSIData::GetRecordingsList(ADDON_HANDLE handle)
     char *strDirectory = vresp->extract_String();
     strncpy(tag.strDirectory, strDirectory, sizeof(tag.strDirectory) - 1);
 
-    strRecordingId.Format("%i", vresp->extract_U32());
+    strRecordingId = StringUtils::Format("%i", vresp->extract_U32());
     strncpy(tag.strRecordingId, strRecordingId.c_str(), sizeof(tag.strRecordingId) - 1);
 
     PVR->TransferRecordingEntry(handle, &tag);
@@ -1073,7 +1073,7 @@ PVR_ERROR cVNSIData::GetDeletedRecordingsList(ADDON_HANDLE handle)
     return PVR_ERROR_UNKNOWN;
   }
 
-  CStdString strRecordingId;
+  std::string strRecordingId;
   while (vresp->getRemainingLength() >= 5 * 4 + 5)
   {
     PVR_RECORDING tag;
@@ -1106,7 +1106,7 @@ PVR_ERROR cVNSIData::GetDeletedRecordingsList(ADDON_HANDLE handle)
     char *strDirectory = vresp->extract_String();
     strncpy(tag.strDirectory, strDirectory, sizeof(tag.strDirectory) - 1);
 
-    strRecordingId.Format("%i", vresp->extract_U32());
+    strRecordingId = StringUtils::Format("%i", vresp->extract_U32());
     strncpy(tag.strRecordingId, strRecordingId.c_str(), sizeof(tag.strRecordingId) - 1);
 
     PVR->TransferRecordingEntry(handle, &tag);
