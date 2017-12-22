@@ -35,7 +35,6 @@ public:
 
   int Read(unsigned char* buf, uint32_t buf_size);
   long long Seek(long long pos, uint32_t whence);
-  long long Position(void);
   long long Length(void);
   bool GetStreamTimes(PVR_STREAM_TIMES *times);
 
