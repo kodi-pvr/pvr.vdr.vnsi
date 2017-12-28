@@ -849,21 +849,6 @@ bool SeekTime(double time, bool backwards, double *startpts)
   return ret;
 }
 
-time_t GetPlayingTime()
-{
-  return 0;
-}
-
-time_t GetBufferTimeStart()
-{
-  return 0;
-}
-
-time_t GetBufferTimeEnd()
-{
-  return 0;
-}
-
 bool IsTimeshifting()
 {
   bool ret = false;
@@ -938,14 +923,6 @@ long long SeekRecordedStream(long long iPosition, int iWhence /* = SEEK_SET */)
   return -1;
 }
 
-long long PositionRecordedStream(void)
-{
-  if (VNSIRecording)
-    return VNSIRecording->Position();
-
-  return 0;
-}
-
 long long LengthRecordedStream(void)
 {
   if (VNSIRecording)
@@ -989,14 +966,12 @@ PVR_ERROR CallMenuHook(const PVR_MENUHOOK &menuhook, const PVR_MENUHOOK_DATA &it
 /** UNUSED API FUNCTIONS */
 PVR_ERROR DeleteChannel(const PVR_CHANNEL &channel) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR RenameChannel(const PVR_CHANNEL &channel) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR MoveChannel(const PVR_CHANNEL &channel) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR OpenDialogChannelSettings(const PVR_CHANNEL &channel) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR OpenDialogChannelAdd(const PVR_CHANNEL &channel) { return PVR_ERROR_NOT_IMPLEMENTED; }
 void DemuxReset(void) {}
 void DemuxFlush(void) {}
 int ReadLiveStream(unsigned char *pBuffer, unsigned int iBufferSize) { return 0; }
 long long SeekLiveStream(long long iPosition, int iWhence /* = SEEK_SET */) { return -1; }
-long long PositionLiveStream(void) { return -1; }
 long long LengthLiveStream(void) { return -1; }
 PVR_ERROR SetRecordingPlayCount(const PVR_RECORDING &recording, int count) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR SetRecordingLastPlayedPosition(const PVR_RECORDING &recording, int lastplayedposition) { return PVR_ERROR_NOT_IMPLEMENTED; }

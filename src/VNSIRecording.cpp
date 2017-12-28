@@ -177,11 +177,6 @@ long long cVNSIRecording::Seek(long long pos, uint32_t whence)
   return m_currentPlayingRecordPosition;
 }
 
-long long cVNSIRecording::Position(void)
-{
-  return m_currentPlayingRecordPosition;
-}
-
 long long cVNSIRecording::Length(void)
 {
   return m_currentPlayingRecordBytes;
