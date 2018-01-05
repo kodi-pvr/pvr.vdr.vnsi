@@ -19,7 +19,7 @@
  *
  */
 
-#if defined(HAVE_GL)
+#if defined(HAS_GL)
 #if defined(__APPLE__)
 #include <OpenGL/gl3.h>
 #else
@@ -37,13 +37,14 @@
 #endif//__APPLE__
 #endif
 
+#include "kodi/AddonBase.h"
 #include <vector>
 #include <string>
 
 //////////////////////////////////////////////////////////////////////
 // CShader - base class
 //////////////////////////////////////////////////////////////////////
-class CShader
+class ATTRIBUTE_HIDDEN CShader
 {
 public:
   CShader() = default;
@@ -66,7 +67,7 @@ protected:
 //////////////////////////////////////////////////////////////////////
 // CVertexShader
 //////////////////////////////////////////////////////////////////////
-class CVertexShader : public CShader
+class ATTRIBUTE_HIDDEN CVertexShader : public CShader
 {
 public:
   CVertexShader() = default;
@@ -82,7 +83,7 @@ protected:
 //////////////////////////////////////////////////////////////////////
 // CPixelShader
 //////////////////////////////////////////////////////////////////////
-class CPixelShader : public CShader
+class ATTRIBUTE_HIDDEN CPixelShader : public CShader
 {
 public:
   CPixelShader() = default;
@@ -98,7 +99,7 @@ protected:
 //////////////////////////////////////////////////////////////////////
 // CShaderProgram
 //////////////////////////////////////////////////////////////////////
-class CShaderProgram
+class ATTRIBUTE_HIDDEN CShaderProgram
 {
 public:
   CShaderProgram(std::string &vert, std::string &frag);

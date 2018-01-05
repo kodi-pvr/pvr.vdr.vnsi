@@ -19,7 +19,7 @@
 *
 */
 
-#if defined(HAVE_GL)
+#if defined(HAS_GL)
 #if defined(__APPLE__)
 #include <OpenGL/gl3.h>
 #else
@@ -36,6 +36,8 @@
 #include <GLES2/gl2ext.h>
 #endif//__APPLE__
 #endif
+
+#include "kodi/AddonBase.h"
 #include <string.h>
 #include <vector>
 
@@ -47,7 +49,7 @@ enum EMATRIXMODE
   MM_MATRIXSIZE  // Must be last! used for size of matrices
 };
 
-class CMatrix
+class ATTRIBUTE_HIDDEN CMatrix
 {
 public:
   CMatrix();

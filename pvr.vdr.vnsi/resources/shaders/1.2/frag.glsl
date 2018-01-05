@@ -1,5 +1,5 @@
 uniform sampler2D m_samp;
-varying vec4 m_cord;
+varying lowp vec4 m_cord;
 
 void main ()
 {

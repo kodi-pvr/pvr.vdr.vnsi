@@ -129,7 +129,7 @@ CShaderProgram::CShaderProgram(std::string &vert, std::string &frag)
   char path[1024];
   XBMC->GetSetting("__addonpath__", path);
 
-#if defined(HAVE_GL)
+#if defined(HAS_GL)
   int major = 0;
   int minor = 0;
   const char* ver = (const char*)glGetString(GL_VERSION);

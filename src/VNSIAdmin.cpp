@@ -28,13 +28,19 @@
 #if defined(HAS_DX)
 #include "D3D9.h"
 #include "D3DX9.h"
-#elif defined(HAVE_GL) || defined(HAVE_GLES2)
+#elif defined(HAS_GL) || defined(HAS_GLES2)
 #include "shaders/GUIShader.h"
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
-#endif  // defined(HAVE_GLES2)
+#endif  // defined(HAS_GLES2)
 
 #if !defined(GL_UNPACK_ROW_LENGTH)
-#undef HAVE_GLES2
+  #if defined(GL_UNPACK_ROW_LENGTH_EXT)
+    #define GL_UNPACK_ROW_LENGTH GL_UNPACK_ROW_LENGTH_EXT
+    #define GL_UNPACK_SKIP_ROWS GL_UNPACK_SKIP_ROWS_EXT
+    #define GL_UNPACK_SKIP_PIXELS GL_UNPACK_SKIP_PIXELS_EXT
+  #else
+    #undef HAS_GLES2
+  #endif
 #endif
 
 #define CONTROL_RENDER_ADDON                  9
@@ -298,8 +304,8 @@ void cOSDRender::SetBlock(int wndId, int x0, int y0, int x1, int y1, int stride,
     m_osdTextures[wndId]->SetBlock(x0, y0, x1, y1, stride, data, len);
 }
 
-#if defined(HAVE_GL) || defined(HAVE_GLES2)
-class cOSDRenderGL : public cOSDRender
+#if defined(HAS_GL) || defined(HAS_GLES2)
+class ATTRIBUTE_HIDDEN cOSDRenderGL : public cOSDRender
 {
 public:
   cOSDRenderGL();
@@ -404,7 +410,6 @@ void cOSDRenderGL::Render()
       glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
       glPixelStorei(GL_UNPACK_ROW_LENGTH, width);
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_osdTextures[i]->GetBuffer());
-
       glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     }
     // update texture
@@ -419,9 +424,7 @@ void cOSDRenderGL::Render()
       glPixelStorei(GL_UNPACK_ROW_LENGTH, width);
       glPixelStorei(GL_UNPACK_SKIP_PIXELS, x0);
       glPixelStorei(GL_UNPACK_SKIP_ROWS, y0);
-
       glTexSubImage2D(GL_TEXTURE_2D, 0, x0, y0, x1-x0+1, y1-y0+1, GL_RGBA, GL_UNSIGNED_BYTE, m_osdTextures[i]->GetBuffer());
-
       glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     }
 
@@ -452,7 +455,7 @@ void cOSDRenderGL::Render()
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_hwTextures[i]);
 
-#if defined(HAVE_GL)
+#if defined(HAS_GL)
 
     GLubyte idx[4] = {0, 1, 3, 2};
     GLuint vertexVBO;
@@ -518,7 +521,7 @@ void cOSDRenderGL::Render()
 
     m_shader->Disable();
 
-#elif defined(HAVE_GLES2)
+#elif defined(HAS_GLES2)
 
     GLubyte idx[4] = {0, 1, 3, 2};        //determines order of triangle strip
     GLfloat ver[4][4];
@@ -780,7 +783,6 @@ cVNSIAdmin::~cVNSIAdmin()
 
 bool cVNSIAdmin::Open(const std::string& hostname, int port, const char* name)
 {
-
   if(!cVNSIData::Open(hostname, port, name))
     return false;
 
@@ -788,7 +790,7 @@ bool cVNSIAdmin::Open(const std::string& hostname, int port, const char* name)
     return false;
 
   m_bIsOsdControl = false;
-#if defined(HAVE_GL) || defined(HAVE_GLES2)
+#if defined(HAS_GL) || defined(HAS_GLES2)
   m_osdRender = new cOSDRenderGL();
 #elif defined(HAS_DX)
   m_osdRender = new cOSDRenderDX();
