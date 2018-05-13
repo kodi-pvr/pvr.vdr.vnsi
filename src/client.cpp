@@ -717,7 +717,13 @@ bool OpenLiveStream(const PVR_CHANNEL &channel)
   {
     VNSIDemuxer = new cVNSIDemux;
     IsRealtime = true;
-    return VNSIDemuxer->OpenChannel(channel);
+    if (!VNSIDemuxer->OpenChannel(channel)) {
+      delete VNSIDemuxer;
+      VNSIDemuxer = nullptr;
+      return false;
+    }
+
+    return true;
   }
   catch (std::exception e)
   {
@@ -876,7 +882,14 @@ bool OpenRecordedStream(const PVR_RECORDING &recording)
   VNSIRecording = new cVNSIRecording;
   try
   {
-    return VNSIRecording->OpenRecording(recording);
+    if (!VNSIRecording->OpenRecording(recording)) {
+      VNSIRecording->Close();
+      delete VNSIRecording;
+      VNSIRecording = nullptr;
+      return false;
+    }
+
+    return true;
   }
   catch (std::exception e)
   {
