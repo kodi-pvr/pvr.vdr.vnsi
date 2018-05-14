@@ -36,6 +36,7 @@ cVNSIDemux::cVNSIDemux()
 
 cVNSIDemux::~cVNSIDemux()
 {
+  Close();
 }
 
 void cVNSIDemux::Close()
