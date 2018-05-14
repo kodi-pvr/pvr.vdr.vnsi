@@ -883,7 +883,6 @@ bool OpenRecordedStream(const PVR_RECORDING &recording)
   try
   {
     if (!VNSIRecording->OpenRecording(recording)) {
-      VNSIRecording->Close();
       delete VNSIRecording;
       VNSIRecording = nullptr;
       return false;
@@ -894,7 +893,6 @@ bool OpenRecordedStream(const PVR_RECORDING &recording)
   catch (std::exception e)
   {
     XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
-    VNSIRecording->Close();
     delete VNSIRecording;
     VNSIRecording = NULL;
     return false;
@@ -905,7 +903,6 @@ void CloseRecordedStream(void)
 {
   if (VNSIRecording)
   {
-    VNSIRecording->Close();
     delete VNSIRecording;
     VNSIRecording = NULL;
   }
