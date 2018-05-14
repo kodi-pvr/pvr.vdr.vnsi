@@ -126,11 +126,7 @@ cOSDTexture::cOSDTexture(int bpp, int x0, int y0, int x1, int y1)
 
 cOSDTexture::~cOSDTexture()
 {
-  if (m_buffer)
-  {
-    delete [] m_buffer;
-    m_buffer = 0;
-  }
+  delete [] m_buffer;
 }
 
 void cOSDTexture::Clear()
