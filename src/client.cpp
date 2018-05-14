@@ -739,7 +739,6 @@ void CloseLiveStream(void)
 {
   if (VNSIDemuxer)
   {
-    VNSIDemuxer->Close();
     delete VNSIDemuxer;
     VNSIDemuxer = NULL;
   }
