@@ -737,11 +737,8 @@ bool OpenLiveStream(const PVR_CHANNEL &channel)
 
 void CloseLiveStream(void)
 {
-  if (VNSIDemuxer)
-  {
-    delete VNSIDemuxer;
-    VNSIDemuxer = NULL;
-  }
+  delete VNSIDemuxer;
+  VNSIDemuxer = NULL;
 }
 
 PVR_ERROR GetStreamProperties(PVR_STREAM_PROPERTIES* pProperties)
@@ -900,11 +897,8 @@ bool OpenRecordedStream(const PVR_RECORDING &recording)
 
 void CloseRecordedStream(void)
 {
-  if (VNSIRecording)
-  {
-    delete VNSIRecording;
-    VNSIRecording = NULL;
-  }
+  delete VNSIRecording;
+  VNSIRecording = NULL;
 }
 
 int ReadRecordedStream(unsigned char *pBuffer, unsigned int iBufferSize)
