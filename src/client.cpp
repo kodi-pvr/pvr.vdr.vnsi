@@ -52,6 +52,7 @@ int           g_iPriority               = DEFAULT_PRIORITY;     ///< The Priorit
 bool          g_bAutoChannelGroups      = DEFAULT_AUTOGROUPS;
 int           g_iTimeshift              = 1;
 std::string   g_szIconPath              = "";
+int           g_iChunkSize              = DEFAULT_CHUNKSIZE;
 
 int prioVals[] = {0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,99,100};
 
@@ -107,47 +108,47 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
 
   m_CurStatus    = ADDON_STATUS_UNKNOWN;
 
-  /* Read setting "host" from settings.xml */
+  // Read setting "host" from settings.xml
   char * buffer = (char*) malloc(128);
-  buffer[0] = 0; /* Set the end of string */
+  buffer[0] = 0;
 
   if (XBMC->GetSetting("host", buffer))
     g_szHostname = buffer;
   else
   {
-    /* If setting is unknown fallback to defaults */
+    // If setting is unknown fallback to defaults
     XBMC->Log(LOG_ERROR, "Couldn't get 'host' setting, falling back to '%s' as default", DEFAULT_HOST);
     g_szHostname = DEFAULT_HOST;
   }
   free(buffer);
 
   buffer = (char*) malloc(64);
-  buffer[0] = 0; /* Set the end of string */
+  buffer[0] = 0;
 
-  /* Read setting "wol_mac" from settings.xml */
+  // Read setting "wol_mac" from settings.xml
   if (XBMC->GetSetting("wol_mac", buffer))
     g_szWolMac = buffer;
   else
   {
-    /* If setting is unknown fallback to empty default */
+    // If setting is unknown fallback to empty default
     XBMC->Log(LOG_ERROR, "Couldn't get 'wol_mac' setting, falling back to default");
     g_szWolMac = "";
   }
   free(buffer);
 
-  /* Read setting "port" from settings.xml */
+  // Read setting "port" from settings.xml
   if (!XBMC->GetSetting("port", &g_iPort))
   {
-    /* If setting is unknown fallback to defaults */
+    // If setting is unknown fallback to defaults
     XBMC->Log(LOG_ERROR, "Couldn't get 'port' setting, falling back to '%i' as default", DEFAULT_PORT);
     g_iPort = DEFAULT_PORT;
   }
 
-  /* Read setting "priority" from settings.xml */
+  // Read setting "priority" from settings.xml
   int prio = DEFAULT_PRIORITY;
   if (!XBMC->GetSetting("priority", &prio))
   {
-    /* If setting is unknown fallback to defaults */
+    // If setting is unknown fallback to defaults
     XBMC->Log(LOG_ERROR, "Couldn't get 'priority' setting, falling back to %i as default", -1);
     prio = DEFAULT_PRIORITY;
   }
@@ -156,12 +157,12 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   /* Read setting "timeshift" from settings.xml */
   if (!XBMC->GetSetting("timeshift", &g_iTimeshift))
   {
-    /* If setting is unknown fallback to defaults */
+    // If setting is unknown fallback to defaults
     XBMC->Log(LOG_ERROR, "Couldn't get 'timeshift' setting, falling back to %i as default", 1);
     g_iTimeshift = 1;
   }
 
-  /* Read setting "convertchar" from settings.xml */
+  // Read setting "convertchar" from settings.xml
   if (!XBMC->GetSetting("convertchar", &g_bCharsetConv))
   {
     /* If setting is unknown fallback to defaults */
@@ -169,7 +170,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
     g_bCharsetConv = DEFAULT_CHARCONV;
   }
 
-  /* Read setting "timeout" from settings.xml */
+  // Read setting "timeout" from settings.xml
   if (!XBMC->GetSetting("timeout", &g_iConnectTimeout))
   {
     /* If setting is unknown fallback to defaults */
@@ -177,15 +178,15 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
     g_iConnectTimeout = DEFAULT_TIMEOUT;
   }
 
-  /* Read setting "autochannelgroups" from settings.xml */
+  // Read setting "autochannelgroups" from settings.xml
   if (!XBMC->GetSetting("autochannelgroups", &g_bAutoChannelGroups))
   {
-    /* If setting is unknown fallback to defaults */
+    // If setting is unknown fallback to defaults
     XBMC->Log(LOG_ERROR, "Couldn't get 'autochannelgroups' setting, falling back to 'false' as default");
     g_bAutoChannelGroups = DEFAULT_AUTOGROUPS;
   }
 
-  /* Read setting "iconpath" from settings.xml */
+  // Read setting "iconpath" from settings.xml
   buffer = (char*) malloc(512);
   buffer[0] = 0; /* Set the end of string */
 
@@ -193,11 +194,19 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
     g_szIconPath = buffer;
   else
   {
-    /* If setting is unknown fallback to defaults */
+    // If setting is unknown fallback to defaults
     XBMC->Log(LOG_ERROR, "Couldn't get 'iconpath' setting");
     g_szIconPath = "";
   }
   free(buffer);
+
+  // Read setting "chunksize" from settings.xml
+  if (!XBMC->GetSetting("chunksize", &g_iChunkSize))
+  {
+    /* If setting is unknown fallback to defaults */
+    XBMC->Log(LOG_ERROR, "Couldn't get 'chunksize' setting, falling back to %i as default", DEFAULT_CHUNKSIZE);
+    g_iChunkSize = DEFAULT_CHUNKSIZE;
+  }
 
   try
   {
@@ -315,6 +324,11 @@ ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
       g_bAutoChannelGroups = *(bool*) settingValue;
       return ADDON_STATUS_NEED_RESTART;
     }
+  }
+  else if (str == "chunksize")
+  {
+    XBMC->Log(LOG_INFO, "Changed Setting 'chunksize' from %u to %u", g_iChunkSize, *(int*) settingValue);
+    g_iChunkSize = *(int*) settingValue;
   }
 
   return ADDON_STATUS_OK;
@@ -947,6 +961,11 @@ PVR_ERROR GetRecordingEdl(const PVR_RECORDING& recinfo, PVR_EDL_ENTRY edl[], int
   }
 }
 
+PVR_ERROR GetStreamReadChunkSize(int* chunksize)
+{
+  *chunksize = g_iChunkSize;
+  return PVR_ERROR_NO_ERROR;
+}
 
 /*******************************************/
 /** PVR Menu Hook Functions               **/

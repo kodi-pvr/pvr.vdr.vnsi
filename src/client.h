@@ -31,6 +31,7 @@
 #define DEFAULT_PRIORITY      0
 #define DEFAULT_TIMEOUT       3
 #define DEFAULT_AUTOGROUPS    false
+#define DEFAULT_CHUNKSIZE     65536
 
 extern bool         m_bCreated;
 extern std::string  g_szHostname;         ///< hostname or ip-address of the server
