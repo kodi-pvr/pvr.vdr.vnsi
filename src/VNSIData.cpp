@@ -1026,13 +1026,18 @@ PVR_ERROR cVNSIData::GetRecordingEdl(const PVR_RECORDING& recinfo, PVR_EDL_ENTRY
   vrp.init(VNSI_RECORDINGS_GETEDL);
   vrp.add_U32(atoi(recinfo.strRecordingId));
 
+  *size = 0;
   auto vresp = ReadResult(&vrp);
-  if (vresp == NULL || vresp->noResponse())
+
+  if (vresp == NULL)
   {
     return PVR_ERROR_UNKNOWN;
   }
+  else if (vresp->noResponse())
+  {
+    return PVR_ERROR_NO_ERROR;
+  }
 
-  *size = 0;
   while (vresp->getRemainingLength() >= 2 * 8 + 4 &&
          *size < PVR_ADDON_EDL_LENGTH)
   {
