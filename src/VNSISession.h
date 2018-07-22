@@ -41,17 +41,10 @@ public:
   cVNSISession();
   virtual ~cVNSISession();
 
-  virtual bool      Open(const std::string& hostname, int port, const char *name = NULL);
-  virtual bool      Login();
-  virtual void      Close();
+  virtual bool Open(const std::string& hostname, int port, const char *name = nullptr);
+  virtual void Close();
 
-  std::unique_ptr<cResponsePacket> ReadMessage(int iInitialTimeout = 10000, int iDatapacketTimeout = 10000);
-  bool              TransmitMessage(cRequestPacket* vrp);
-
-  std::unique_ptr<cResponsePacket> ReadResult(cRequestPacket* vrp);
-  bool              ReadSuccess(cRequestPacket* m);
-
-  int                GetProtocol() const { return m_protocol; }
+  int GetProtocol() const { return m_protocol; }
   const std::string& GetServerName() const { return m_server; }
   const std::string& GetVersion() const { return m_version; }
 
@@ -65,14 +58,18 @@ public:
 
 protected:
 
+  virtual bool Login();
+
+  std::unique_ptr<cResponsePacket> ReadMessage(int iInitialTimeout, int iDatapacketTimeout);
+  bool TransmitMessage(cRequestPacket* vrp);
+  std::unique_ptr<cResponsePacket> ReadResult(cRequestPacket* vrp);
+  bool ReadSuccess(cRequestPacket* m);
   void SleepMs(int ms);
 
   eCONNECTIONSTATE TryReconnect();
   bool IsOpen();
-
   virtual void OnDisconnect();
   virtual void OnReconnect();
-
   virtual void SignalConnectionLost();
 
   std::string m_hostname;
@@ -87,7 +84,7 @@ protected:
 
 private:
 
-  bool readData(uint8_t* buffer, int totalBytes, int timeout);
+  bool ReadData(uint8_t* buffer, int totalBytes, int timeout);
 
   P8PLATFORM::CTcpConnection *m_socket;
 };

@@ -1210,7 +1210,7 @@ void *cVNSIData::Process()
     }
 
     // if there's anything in the buffer, read it
-    if ((vresp = cVNSISession::ReadMessage(5)) == NULL)
+    if ((vresp = cVNSISession::ReadMessage(5, 10000)) == NULL)
     {
       Sleep(5);
       continue;

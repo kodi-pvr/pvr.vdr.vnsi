@@ -22,6 +22,7 @@
 #include <stdint.h>
 #include <limits.h>
 #include <string.h>
+#include <time.h>
 #include "VNSIDemux.h"
 #include "responsepacket.h"
 #include "requestpacket.h"
@@ -94,17 +95,19 @@ DemuxPacket* cVNSIDemux::Read()
 {
   if (m_connectionLost)
   {
-    return NULL;
+    return nullptr;
   }
+
+  ReadStatus();
 
   auto resp = ReadMessage(1000, g_iConnectTimeout * 1000);
 
-  if(resp == NULL)
+  if(resp == nullptr)
     return PVR->AllocateDemuxPacket(0);
 
   if (resp->getChannelID() != VNSI_CHANNEL_STREAM)
   {
-    return NULL;
+    return nullptr;
   }
 
   if (resp->getOpCodeID() == VNSI_STREAM_CHANGE)
@@ -191,8 +194,56 @@ DemuxPacket* cVNSIDemux::Read()
   return PVR->AllocateDemuxPacket(0);
 }
 
+void cVNSIDemux::ReadStatus()
+{
+
+  if (m_connectionLost || !m_statusCon.IsConnected())
+  {
+    return;
+  }
+
+  while (true)
+  {
+    auto resp = m_statusCon.ReadStatus();
+    if (!resp)
+    {
+      if ((time(nullptr) - m_lastStatus) > 2)
+      {
+        cRequestPacket vrp;
+        vrp.init(VNSI_CHANNELSTREAM_STATUS_REQUEST);
+        if (!TransmitMessage(&vrp))
+        {
+          SignalConnectionLost();
+        }
+      }
+      break;
+    }
+
+    if (resp->getOpCodeID() == VNSI_STREAM_TIMES)
+    {
+      m_bTimeshift = resp->extract_U8();
+      m_ReferenceTime = resp->extract_U32();
+      m_ReferenceDTS = (double)resp->extract_U64();
+      m_minPTS = (double)resp->extract_U64();
+      m_maxPTS = (double)resp->extract_U64();
+    }
+    else if (resp->getOpCodeID() == VNSI_STREAM_SIGNALINFO)
+    {
+      StreamSignalInfo(resp.get());
+    }
+    else if (resp->getOpCodeID() == VNSI_STREAM_STATUS)
+    {
+      StreamStatus(resp.get());
+    }
+
+    m_lastStatus = time(nullptr);
+  }
+}
+
 bool cVNSIDemux::GetStreamTimes(PVR_STREAM_TIMES *times)
 {
+  ReadStatus();
+
   times->startTime = m_ReferenceTime;
   times->ptsStart = m_ReferenceDTS;
   times->ptsBegin = m_minPTS;
@@ -256,6 +307,22 @@ bool cVNSIDemux::SwitchChannel(const PVR_CHANNEL &channelinfo)
   {
     XBMC->Log(LOG_ERROR, "%s - failed to set channel", __FUNCTION__);
     return false;
+  }
+
+  if (GetProtocol() >= 13)
+  {
+    int fd = m_statusCon.GetSocket();
+    if (fd >= 0)
+    {
+      cRequestPacket vrp;
+      vrp.init(VNSI_CHANNELSTREAM_STATUS_SOCKET);
+      vrp.add_S32(fd);
+      if (ReadSuccess(&vrp))
+      {
+        m_statusCon.ReleaseServerClient();
+        XBMC->Log(LOG_DEBUG, "%s - established status connection", __FUNCTION__);
+      }
+    }
   }
 
   m_channelinfo = channelinfo;
@@ -445,4 +512,57 @@ bool cVNSIDemux::StreamContentInfo(cResponsePacket *resp)
     }
   }
   return true;
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+
+int CVNSIDemuxStatus::GetSocket()
+{
+  Close();
+
+  if (!Open(g_szHostname, g_iPort))
+  {
+    return -1;
+  }
+
+  if (!Login())
+  {
+    return -1;
+  }
+
+  cRequestPacket vrp;
+  vrp.init(VNSI_GETSOCKET);
+  auto resp = ReadResult(&vrp);
+  if (!resp)
+  {
+    XBMC->Log(LOG_ERROR, "%s - failed to get socket", __FUNCTION__);
+    return -1;
+  }
+  int fd = resp->extract_S32();
+  return fd;
+}
+
+void CVNSIDemuxStatus::ReleaseServerClient()
+{
+  cRequestPacket vrp;
+  vrp.init(VNSI_INVALIDATESOCKET);
+  if (!ReadSuccess(&vrp))
+  {
+    XBMC->Log(LOG_ERROR, "%s - failed to release server client", __FUNCTION__);
+  }
+}
+
+std::unique_ptr<cResponsePacket> CVNSIDemuxStatus::ReadStatus()
+{
+  if (!IsOpen())
+    return nullptr;
+
+  return ReadMessage(1, 10000);
+}
+
+bool CVNSIDemuxStatus::IsConnected()
+{
+  return IsOpen();
 }
