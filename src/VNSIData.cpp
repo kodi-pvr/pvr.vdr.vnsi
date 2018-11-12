@@ -106,21 +106,10 @@ bool cVNSIData::Start(const std::string& hostname, int port, const char* name, c
 {
   m_hostname = hostname;
   m_port = port;
+  m_wolMac = mac;
 
   if (name != nullptr)
     m_name = name;
-
-  // First wake up the VDR server in case a MAC-Address is specified
-  if (!mac.empty())
-  {
-    const char* temp_mac;
-    temp_mac = mac.c_str();
-
-    if (!XBMC->WakeOnLan(temp_mac)) {
-      XBMC->Log(LOG_ERROR, "Error waking up VNSI Server at MAC-Address %s", temp_mac);
-      return false;
-    }
-  }
 
   PVR->ConnectionStateChange("VNSI started", PVR_CONNECTION_STATE_CONNECTING, "VNSI started");
 
@@ -1195,6 +1184,15 @@ void *cVNSIData::Process()
     // try to reconnect
     if (m_connectionLost)
     {
+      // First wake up the VDR server in case a MAC-Address is specified
+      if (!m_wolMac.empty())
+      {
+        if (!XBMC->WakeOnLan(m_wolMac.c_str()))
+        {
+          XBMC->Log(LOG_ERROR, "Error waking up VNSI Server at MAC-Address %s", m_wolMac.c_str());
+        }
+      }
+
       cVNSISession::eCONNECTIONSTATE state = TryReconnect();
       if (state != cVNSISession::CONN_ESABLISHED)
       {
