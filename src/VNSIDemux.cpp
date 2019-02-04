@@ -22,6 +22,7 @@
 #include <stdint.h>
 #include <limits.h>
 #include <string.h>
+#include <time.h>
 #include "VNSIDemux.h"
 #include "responsepacket.h"
 #include "requestpacket.h"
@@ -36,6 +37,7 @@ cVNSIDemux::cVNSIDemux()
 
 cVNSIDemux::~cVNSIDemux()
 {
+  Close();
 }
 
 void cVNSIDemux::Close()
@@ -93,17 +95,19 @@ DemuxPacket* cVNSIDemux::Read()
 {
   if (m_connectionLost)
   {
-    return NULL;
+    return nullptr;
   }
+
+  ReadStatus();
 
   auto resp = ReadMessage(1000, g_iConnectTimeout * 1000);
 
-  if(resp == NULL)
+  if(resp == nullptr)
     return PVR->AllocateDemuxPacket(0);
 
   if (resp->getChannelID() != VNSI_CHANNEL_STREAM)
   {
-    return NULL;
+    return nullptr;
   }
 
   if (resp->getOpCodeID() == VNSI_STREAM_CHANGE)
@@ -155,13 +159,7 @@ DemuxPacket* cVNSIDemux::Read()
       xbmc_codec_type_t type = XBMC_CODEC_TYPE_UNKNOWN;
       if (idx >= 0)
         type = m_streams.stream[idx].iCodecType;
-      if (type == XBMC_CODEC_TYPE_VIDEO || type == XBMC_CODEC_TYPE_AUDIO)
-      {
-        if (p->dts != DVD_NOPTS_VALUE)
-          m_CurrentDTS = p->dts;
-        else if (p->pts != DVD_NOPTS_VALUE)
-          m_CurrentDTS = p->pts;
-      }
+
       return p;
     }
     else if (pid >= 0 && resp->getMuxSerial() != m_MuxPacketSerial)
@@ -173,19 +171,84 @@ DemuxPacket* cVNSIDemux::Read()
       XBMC->Log(LOG_DEBUG, "stream id %i not found", resp->getStreamID());
     }
   }
+  else if (resp->getOpCodeID() == VNSI_STREAM_TIMES)
+  {
+    m_bTimeshift = resp->extract_U8();
+    m_ReferenceTime = resp->extract_U32();
+    m_ReferenceDTS = (double)resp->extract_U64();
+    m_minPTS = (double)resp->extract_U64();
+    m_maxPTS = (double)resp->extract_U64();
+  }
   else if (resp->getOpCodeID() == VNSI_STREAM_BUFFERSTATS)
   {
     m_bTimeshift = resp->extract_U8();
-    m_BufferTimeStart = resp->extract_U32();
-    m_BufferTimeEnd = resp->extract_U32();
+    m_minPTS = (resp->extract_U32() - m_ReferenceTime) * DVD_TIME_BASE + m_ReferenceDTS;
+    m_maxPTS = (resp->extract_U32() - m_ReferenceTime) * DVD_TIME_BASE + m_ReferenceDTS;
   }
   else if (resp->getOpCodeID() == VNSI_STREAM_REFTIME)
   {
     m_ReferenceTime = resp->extract_U32();
-    m_ReferenceDTS = (double)resp->extract_U64() * DVD_TIME_BASE / 1000000;
+    m_ReferenceDTS = (double)resp->extract_U64();
   }
 
   return PVR->AllocateDemuxPacket(0);
+}
+
+void cVNSIDemux::ReadStatus()
+{
+
+  if (m_connectionLost || !m_statusCon.IsConnected())
+  {
+    return;
+  }
+
+  while (true)
+  {
+    auto resp = m_statusCon.ReadStatus();
+    if (!resp)
+    {
+      if ((time(nullptr) - m_lastStatus) > 2)
+      {
+        cRequestPacket vrp;
+        vrp.init(VNSI_CHANNELSTREAM_STATUS_REQUEST);
+        if (!TransmitMessage(&vrp))
+        {
+          SignalConnectionLost();
+        }
+      }
+      break;
+    }
+
+    if (resp->getOpCodeID() == VNSI_STREAM_TIMES)
+    {
+      m_bTimeshift = resp->extract_U8();
+      m_ReferenceTime = resp->extract_U32();
+      m_ReferenceDTS = (double)resp->extract_U64();
+      m_minPTS = (double)resp->extract_U64();
+      m_maxPTS = (double)resp->extract_U64();
+    }
+    else if (resp->getOpCodeID() == VNSI_STREAM_SIGNALINFO)
+    {
+      StreamSignalInfo(resp.get());
+    }
+    else if (resp->getOpCodeID() == VNSI_STREAM_STATUS)
+    {
+      StreamStatus(resp.get());
+    }
+
+    m_lastStatus = time(nullptr);
+  }
+}
+
+bool cVNSIDemux::GetStreamTimes(PVR_STREAM_TIMES *times)
+{
+  ReadStatus();
+
+  times->startTime = m_ReferenceTime;
+  times->ptsStart = m_ReferenceDTS;
+  times->ptsBegin = m_minPTS;
+  times->ptsEnd = m_maxPTS;
+  return true;
 }
 
 bool cVNSIDemux::SeekTime(int time, bool backwards, double *startpts)
@@ -246,12 +309,28 @@ bool cVNSIDemux::SwitchChannel(const PVR_CHANNEL &channelinfo)
     return false;
   }
 
+  if (GetProtocol() >= 13)
+  {
+    int fd = m_statusCon.GetSocket();
+    if (fd >= 0)
+    {
+      cRequestPacket vrp;
+      vrp.init(VNSI_CHANNELSTREAM_STATUS_SOCKET);
+      vrp.add_S32(fd);
+      if (ReadSuccess(&vrp))
+      {
+        m_statusCon.ReleaseServerClient();
+        XBMC->Log(LOG_DEBUG, "%s - established status connection", __FUNCTION__);
+      }
+    }
+  }
+
   m_channelinfo = channelinfo;
   m_streams.iStreamCount = 0;
   m_MuxPacketSerial = 0;
   m_ReferenceTime = 0;
-  m_BufferTimeStart = 0;
-  m_BufferTimeEnd = 0;
+  m_minPTS = 0;
+  m_maxPTS = 0;
 
   return true;
 }
@@ -269,24 +348,6 @@ bool cVNSIDemux::GetSignalStatus(PVR_SIGNAL_STATUS &qualityinfo)
   qualityinfo.iUNC = (uint32_t)m_Quality.fe_unc;
 
   return true;
-}
-
-time_t cVNSIDemux::GetPlayingTime()
-{
-  time_t ret = 0;
-  if (m_ReferenceTime)
-    ret = m_ReferenceTime + (m_CurrentDTS - m_ReferenceDTS) / DVD_TIME_BASE;
-  return ret;
-}
-
-time_t cVNSIDemux::GetBufferTimeStart()
-{
-  return m_BufferTimeStart;
-}
-
-time_t cVNSIDemux::GetBufferTimeEnd()
-{
-  return m_BufferTimeEnd;
 }
 
 void cVNSIDemux::StreamChange(cResponsePacket *resp)
@@ -451,4 +512,57 @@ bool cVNSIDemux::StreamContentInfo(cResponsePacket *resp)
     }
   }
   return true;
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+
+int CVNSIDemuxStatus::GetSocket()
+{
+  Close();
+
+  if (!Open(g_szHostname, g_iPort))
+  {
+    return -1;
+  }
+
+  if (!Login())
+  {
+    return -1;
+  }
+
+  cRequestPacket vrp;
+  vrp.init(VNSI_GETSOCKET);
+  auto resp = ReadResult(&vrp);
+  if (!resp)
+  {
+    XBMC->Log(LOG_ERROR, "%s - failed to get socket", __FUNCTION__);
+    return -1;
+  }
+  int fd = resp->extract_S32();
+  return fd;
+}
+
+void CVNSIDemuxStatus::ReleaseServerClient()
+{
+  cRequestPacket vrp;
+  vrp.init(VNSI_INVALIDATESOCKET);
+  if (!ReadSuccess(&vrp))
+  {
+    XBMC->Log(LOG_ERROR, "%s - failed to release server client", __FUNCTION__);
+  }
+}
+
+std::unique_ptr<cResponsePacket> CVNSIDemuxStatus::ReadStatus()
+{
+  if (!IsOpen())
+    return nullptr;
+
+  return ReadMessage(1, 10000);
+}
+
+bool CVNSIDemuxStatus::IsConnected()
+{
+  return IsOpen();
 }

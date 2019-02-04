@@ -110,7 +110,7 @@
           <texture>GlassTitleBar.png</texture>
         </control>
         <control type="group" id="12">
-          <visible>StringCompare(Window.Property(menu),osd)</visible>
+          <visible>String.IsEqual(Window.Property(menu),osd)</visible>
           <control type="button" id="13">
             <description>osd control label</description>
             <posx>25</posx>
@@ -134,7 +134,7 @@
           </control>
         </control>
         <control type="group" id="20">
-          <visible>StringCompare(Window.Property(menu),setup)</visible>
+          <visible>String.IsEqual(Window.Property(menu),setup)</visible>
           <defaultcontrol always="true">21</defaultcontrol>
           <control type="spincontrolex" id="21">
             <description>Source Type</description>
@@ -190,7 +190,7 @@
           </control>
         </control>
         <control type="group" id="30">
-          <visible>StringCompare(Window.Property(menu),channels)</visible>
+          <visible>String.IsEqual(Window.Property(menu),channels)</visible>
           <defaultcontrol always="true">33</defaultcontrol>
           <control type="label" id="31">
             <description>Channels label</description>
@@ -213,7 +213,7 @@
             <aspectratio>stretch</aspectratio>
             <colordiffuse>FFCC0000</colordiffuse>
             <texture>views/scrollbarnub-focus.png</texture>
-            <visible>StringCompare(Window.Property(IsDirty),1)</visible>
+            <visible>String.IsEqual(Window.Property(IsDirty),1)</visible>
           </control>
           <control type="image">
             <posx>1090</posx>
@@ -223,7 +223,7 @@
             <aspectratio>stretch</aspectratio>
             <colordiffuse>FF00FF00</colordiffuse>
             <texture>views/scrollbarnub-focus.png</texture>
-            <visible>!StringCompare(Window.Property(IsDirty),1)</visible>
+            <visible>!String.IsEqual(Window.Property(IsDirty),1)</visible>
           </control>
           <control type="radiobutton" id="32">
             <description>Is Radio</description>

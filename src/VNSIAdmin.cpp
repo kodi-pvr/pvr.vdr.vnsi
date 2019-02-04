@@ -25,73 +25,22 @@
 #include <queue>
 #include <stdio.h>
 
-#if defined(HAVE_GL)
-#if defined(__APPLE__)
-#include <OpenGL/gl.h>
-#else  // !defined(__APPLE__)
-#include <GL/gl.h>
-#endif  // !defined(__APPLE__)
-#undef HAVE_GLES2
-#elif defined(HAS_DX)
+#if defined(HAS_DX)
 #include "D3D9.h"
 #include "D3DX9.h"
-#elif defined(HAVE_GLES2)
-#include "EGLHelpers/VisGUIShader.h"
-
-#ifndef M_PI
-#define M_PI       3.141592654f
-#endif
-#define DEG2RAD(d) ( (d) * M_PI/180.0f )
-
-//OpenGL wrapper - allows us to use same code of functions draw_bars and render
-#define GL_PROJECTION             MM_PROJECTION
-#define GL_MODELVIEW              MM_MODELVIEW
-
-#define glPushMatrix()            vis_shader->PushMatrix()
-#define glPopMatrix()             vis_shader->PopMatrix()
-#define glTranslatef(x,y,z)       vis_shader->Translatef(x,y,z)
-#define glRotatef(a,x,y,z)        vis_shader->Rotatef(DEG2RAD(a),x,y,z)
-#define glPolygonMode(a,b)        ;
-#define glBegin(a)                vis_shader->Enable()
-#define glEnd()                   vis_shader->Disable()
-#define glMatrixMode(a)           vis_shader->MatrixMode(a)
-#define glLoadIdentity()          vis_shader->LoadIdentity()
-#define glFrustum(a,b,c,d,e,f)    vis_shader->Frustum(a,b,c,d,e,f)
-
-GLenum  g_mode = GL_TRIANGLES;
-float g_fWaveform[2][512];
-const char *frag = "precision mediump float; \n"
-                   "uniform   sampler2D m_samp0; \n"
-                   "varying   vec4      m_cord0; \n"
-                   "varying lowp vec4 m_colour; \n"
-                   "void main () \n"
-                   "{ \n"
-                   "  gl_FragColor.rgba = vec4(texture2D(m_samp0, m_cord0.xy).rgba * m_colour); \n"
-                   "}\n";
-
-const char *vert = "attribute vec4 m_attrpos;\n"
-                   "attribute vec4 m_attrcol;\n"
-                   "attribute vec4 m_attrcord0;\n"
-                   "attribute vec4 m_attrcord1;\n"
-                   "varying vec4   m_cord0;\n"
-                   "varying vec4   m_cord1;\n"
-                   "varying lowp   vec4 m_colour;\n"
-                   "uniform mat4   m_proj;\n"
-                   "uniform mat4   m_model;\n"
-                   "void main ()\n"
-                   "{\n"
-                   "  mat4 mvp    = m_proj * m_model;\n"
-                   "  gl_Position = mvp * m_attrpos;\n"
-                   "  m_colour    = m_attrcol;\n"
-                   "  m_cord0     = m_attrcord0;\n"
-                   "  m_cord1     = m_attrcord1;\n"
-                   "}\n";
-
-CVisGUIShader *vis_shader = NULL;
-#endif  // defined(HAVE_GLES2)
+#elif defined(HAS_GL) || defined(HAS_GLES2)
+#include "shaders/GUIShader.h"
+#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+#endif  // defined(HAS_GLES2)
 
 #if !defined(GL_UNPACK_ROW_LENGTH)
-#undef HAVE_GLES2
+  #if defined(GL_UNPACK_ROW_LENGTH_EXT)
+    #define GL_UNPACK_ROW_LENGTH GL_UNPACK_ROW_LENGTH_EXT
+    #define GL_UNPACK_SKIP_ROWS GL_UNPACK_SKIP_ROWS_EXT
+    #define GL_UNPACK_SKIP_PIXELS GL_UNPACK_SKIP_PIXELS_EXT
+  #else
+    #undef HAS_GLES2
+  #endif
 #endif
 
 #define CONTROL_RENDER_ADDON                  9
@@ -177,11 +126,7 @@ cOSDTexture::cOSDTexture(int bpp, int x0, int y0, int x1, int y1)
 
 cOSDTexture::~cOSDTexture()
 {
-  if (m_buffer)
-  {
-    delete [] m_buffer;
-    m_buffer = 0;
-  }
+  delete [] m_buffer;
 }
 
 void cOSDTexture::Clear()
@@ -355,8 +300,8 @@ void cOSDRender::SetBlock(int wndId, int x0, int y0, int x1, int y1, int stride,
     m_osdTextures[wndId]->SetBlock(x0, y0, x1, y1, stride, data, len);
 }
 
-#if defined(HAVE_GL) || defined(HAVE_GLES2)
-class cOSDRenderGL : public cOSDRender
+#if defined(HAS_GL) || defined(HAS_GLES2)
+class ATTRIBUTE_HIDDEN cOSDRenderGL : public cOSDRender
 {
 public:
   cOSDRenderGL();
@@ -368,6 +313,7 @@ public:
 protected:
   GLuint m_hwTextures[MAX_TEXTURES];
   std::queue<GLuint> m_disposedHwTextures;
+  CGUIShader *m_shader = nullptr;
 };
 
 cOSDRenderGL::cOSDRenderGL()
@@ -383,27 +329,20 @@ cOSDRenderGL::~cOSDRenderGL()
     DisposeTexture(i);
   }
   FreeResources();
-#if defined(HAVE_GLES2)
-  if (vis_shader)
-  {
-    delete vis_shader;
-    vis_shader = NULL;
-  }
-#endif
+  delete m_shader;
+  m_shader = nullptr;
 }
 
 bool cOSDRenderGL::Init()
 {
-#if defined(HAVE_GLES2)
-  vis_shader = new CVisGUIShader(vert, frag);
+  m_shader = new CGUIShader("vert.glsl", "frag.glsl");
 
-  if(!vis_shader->CompileAndLink())
+  if(!m_shader->CompileAndLink())
   {
-    delete vis_shader;
-    vis_shader = NULL;
+    delete m_shader;
+    m_shader = nullptr;
     return false;
   }
-#endif
   return true;
 }
 
@@ -433,17 +372,14 @@ void cOSDRenderGL::FreeResources()
 
 void cOSDRenderGL::Render()
 {
-  glMatrixMode (GL_MODELVIEW);
-  glPushMatrix ();
-  glLoadIdentity ();
-  glMatrixMode (GL_PROJECTION);
-  glPushMatrix ();
-  glLoadIdentity ();
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-#if defined(HAVE_GL)
-  glColor4f(1.0f, 1.0f, 1.0f, 0.75f);
-#endif
+  m_shader->MatrixMode(MM_MODELVIEW);
+  m_shader->LoadIdentity();
+  m_shader->MatrixMode(MM_PROJECTION);
+  m_shader->LoadIdentity();
+
+  glDisable(GL_BLEND);
+
+  //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   for (int i = 0; i < MAX_TEXTURES; i++)
   {
@@ -461,10 +397,6 @@ void cOSDRenderGL::Render()
     // create gl texture
     if (dirty && !glIsTexture(m_hwTextures[i]))
     {
-#if defined(HAVE_GL)
-      glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
-#endif
-      glEnable(GL_TEXTURE_2D);
       glGenTextures(1, &m_hwTextures[i]);
       glBindTexture(GL_TEXTURE_2D, m_hwTextures[i]);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -474,17 +406,11 @@ void cOSDRenderGL::Render()
       glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
       glPixelStorei(GL_UNPACK_ROW_LENGTH, width);
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_osdTextures[i]->GetBuffer());
-#if defined(HAVE_GL)
-      glPopClientAttrib();
-#endif
+      glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     }
     // update texture
     else if (dirty)
     {
-#if defined(HAVE_GL)
-      glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
-#endif
-      glEnable(GL_TEXTURE_2D);
       glBindTexture(GL_TEXTURE_2D, m_hwTextures[i]);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -495,9 +421,7 @@ void cOSDRenderGL::Render()
       glPixelStorei(GL_UNPACK_SKIP_PIXELS, x0);
       glPixelStorei(GL_UNPACK_SKIP_ROWS, y0);
       glTexSubImage2D(GL_TEXTURE_2D, 0, x0, y0, x1-x0+1, y1-y0+1, GL_RGBA, GL_UNSIGNED_BYTE, m_osdTextures[i]->GetBuffer());
-#if defined(HAVE_GL)
-      glPopClientAttrib();
-#endif
+      glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     }
 
     // render texture
@@ -524,49 +448,90 @@ void cOSDRenderGL::Render()
     destY0 *= -1;
     destY1 *= -1;
 
-    glEnable(GL_TEXTURE_2D);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_hwTextures[i]);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-#if defined(HAVE_GL)
+#if defined(HAS_GL)
 
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0, 0.0);  glVertex2f(destX0, destY0);
-    glTexCoord2f(1.0, 0.0);  glVertex2f(destX1, destY0);
-    glTexCoord2f(1.0, 1.0);  glVertex2f(destX1, destY1);
-    glTexCoord2f(0.0, 1.0);  glVertex2f(destX0, destY1);
-    glEnd();
+    GLubyte idx[4] = {0, 1, 3, 2};
+    GLuint vertexVBO;
+    GLuint indexVBO;
+    struct PackedVertex
+    {
+      float x, y, z;
+      float u1, v1;
+    }vertex[4];
 
-#elif defined(HAVE_GLES2)
+    m_shader->Enable();
+
+    GLint posLoc = m_shader->GetPosLoc();
+    GLint texLoc = m_shader->GetCordLoc();
+
+    vertex[0].x = destX0;
+    vertex[0].y = destY0;
+    vertex[0].z = 0.0f;
+    vertex[0].u1 = 0.0f;
+    vertex[0].v1 = 0.0f;
+
+    vertex[1].x = destX1;
+    vertex[1].y = destY0;
+    vertex[1].z = 0.0f;
+    vertex[1].u1 = 1.0f;
+    vertex[1].v1 = 0.0f;
+
+    vertex[2].x = destX1;
+    vertex[2].y = destY1;
+    vertex[2].z = 0.0f;
+    vertex[2].u1 = 1.0f;
+    vertex[2].v1 = 1.0f;
+
+    vertex[3].x = destX0;
+    vertex[3].y = destY1;
+    vertex[3].z = 0.0f;
+    vertex[3].u1 = 0.0f;
+    vertex[3].v1 = 1.0f;
+
+    glGenBuffers(1, &vertexVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(PackedVertex)*4, &vertex[0], GL_STATIC_DRAW);
+
+    glVertexAttribPointer(posLoc,  3, GL_FLOAT, 0, sizeof(PackedVertex), BUFFER_OFFSET(offsetof(PackedVertex, x)));
+    glEnableVertexAttribArray(posLoc);
+
+    glVertexAttribPointer(texLoc, 2, GL_FLOAT, 0, sizeof(PackedVertex), BUFFER_OFFSET(offsetof(PackedVertex, u1)));
+    glEnableVertexAttribArray(texLoc);
+
+    glGenBuffers(1, &indexVBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte)*4, idx, GL_STATIC_DRAW);
+
+    glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_BYTE, 0);
+
+    glDisableVertexAttribArray(posLoc);
+    glDisableVertexAttribArray(texLoc);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glDeleteBuffers(1, &vertexVBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glDeleteBuffers(1, &indexVBO);
+
+    m_shader->Disable();
+
+#elif defined(HAS_GLES2)
 
     GLubyte idx[4] = {0, 1, 3, 2};        //determines order of triangle strip
     GLfloat ver[4][4];
     GLfloat tex[4][2];
-    float col[4][3];
 
-    for (int index = 0;index < 4;++index)
-    {
-      col[index][0] = col[index][1] = col[index][2] = 1.0;
-    }
-
-    glBegin();
-
-    GLint   posLoc = vis_shader->GetPosLoc();
-    GLint   texLoc = vis_shader->GetCord0Loc();
-    GLint   colLoc = vis_shader->GetColLoc();
+    m_shader->Enable();
+    GLint   posLoc = m_shader->GetPosLoc();
+    GLint   texLoc = m_shader->GetCordLoc();
 
     glVertexAttribPointer(posLoc, 4, GL_FLOAT, 0, 0, ver);
     glVertexAttribPointer(texLoc, 2, GL_FLOAT, 0, 0, tex);
-    glVertexAttribPointer(colLoc, 3, GL_FLOAT, 0, 0, col);
 
     glEnableVertexAttribArray(posLoc);
     glEnableVertexAttribArray(texLoc);
-    glEnableVertexAttribArray(colLoc);
 
     // Set vertex coordinates
     for(int i = 0; i < 4; i++)
@@ -589,17 +554,14 @@ void cOSDRenderGL::Render()
 
     glDisableVertexAttribArray(posLoc);
     glDisableVertexAttribArray(texLoc);
-    glDisableVertexAttribArray(colLoc);
 
-    glEnd();
+    m_shader->Disable();
 #endif
 
-    glBindTexture (GL_TEXTURE_2D, 0);
-    glDisable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
   }
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
+
+  glBindTexture(GL_TEXTURE_2D, 0);
 }
 #endif
 
@@ -817,7 +779,6 @@ cVNSIAdmin::~cVNSIAdmin()
 
 bool cVNSIAdmin::Open(const std::string& hostname, int port, const char* name)
 {
-
   if(!cVNSIData::Open(hostname, port, name))
     return false;
 
@@ -825,7 +786,7 @@ bool cVNSIAdmin::Open(const std::string& hostname, int port, const char* name)
     return false;
 
   m_bIsOsdControl = false;
-#if defined(HAVE_GL) || defined(HAVE_GLES2)
+#if defined(HAS_GL) || defined(HAS_GLES2)
   m_osdRender = new cOSDRenderGL();
 #elif defined(HAS_DX)
   m_osdRender = new cOSDRenderDX();
@@ -848,7 +809,7 @@ bool cVNSIAdmin::Open(const std::string& hostname, int port, const char* name)
     return false;
 
   // Load the Window as Dialog
-  m_window = GUI->Window_create("Admin.xml", "skin.confluence", false, true);
+  m_window = GUI->Window_create("Admin.xml", "skin.estuary", false, true);
   m_window->m_cbhdl   = this;
   m_window->CBOnInit  = OnInitCB;
   m_window->CBOnFocus = OnFocusCB;
@@ -860,10 +821,7 @@ bool cVNSIAdmin::Open(const std::string& hostname, int port, const char* name)
   ClearListItems();
   m_window->ClearProperties();
 
-#if defined(KODI_GUILIB_API_VERSION)
   GUI->Control_releaseRendering(m_renderControl);
-#endif
-
   GUI->Control_releaseSpin(m_spinTimeshiftMode);
   GUI->Control_releaseSpin(m_spinTimeshiftBufferRam);
   GUI->Control_releaseSpin(m_spinTimeshiftBufferFile);
@@ -1010,7 +968,6 @@ bool cVNSIAdmin::OnClick(int controlId)
 
 bool cVNSIAdmin::OnFocus(int controlId)
 {
-#if defined(KODI_GUILIB_API_VERSION)
   if (controlId == CONTROL_OSD_BUTTON)
   {
     m_window->SetControlLabel(CONTROL_OSD_BUTTON, XBMC->GetLocalizedString(30102));
@@ -1025,13 +982,11 @@ bool cVNSIAdmin::OnFocus(int controlId)
     m_bIsOsdControl = false;
     return true;
   }
-#endif
   return false;
 }
 
 bool cVNSIAdmin::OnInit()
 {
-#if defined(KODI_GUILIB_API_VERSION)
   m_renderControl = GUI->Control_getRendering(m_window, CONTROL_RENDER_ADDON);
   m_renderControl->m_cbhdl   = this;
   m_renderControl->CBCreate = CreateCB;
@@ -1044,7 +999,6 @@ bool cVNSIAdmin::OnInit()
   vrp.init(VNSI_OSD_HITKEY);
   vrp.add_U32(0);
   cVNSISession::TransmitMessage(&vrp);
-#endif
 
   // setup parameters
   m_spinTimeshiftMode = GUI->Control_getSpin(m_window, CONTROL_SPIN_TIMESHIFT_MODE);
@@ -1123,9 +1077,7 @@ bool cVNSIAdmin::OnAction(int actionId)
   {
     m_bIsOsdControl = false;
     m_window->SetControlLabel(CONTROL_OSD_BUTTON, XBMC->GetLocalizedString(30103));
-#if defined(KODI_GUILIB_API_VERSION)
     m_window->MarkDirtyRegion();
-#endif
   }
   else if (m_window->GetFocusId() == CONTROL_OSD_BUTTON)
   {

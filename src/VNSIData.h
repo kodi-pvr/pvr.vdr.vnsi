@@ -104,5 +104,6 @@ private:
 
   Queue m_queue;
 
-  std::string      m_videodir;
+  std::string m_videodir;
+  std::string m_wolMac;
 };

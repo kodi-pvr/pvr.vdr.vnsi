@@ -1,8 +1,8 @@
 Source: kodi-pvr-vdr-vnsi
 Priority: extra
 Maintainer: fernetmenta <fernetmenta@kodi.tv>
-Build-Depends: debhelper (>= 9.0.0), cmake, libtinyxml-dev, kodi-pvr-dev,
-               libkodiplatform-dev (>= 16.0.0), kodi-addon-dev,
+Build-Depends: debhelper (>= 9.0.0), cmake, libtinyxml-dev,
+               libkodiplatform-dev (>= 17.1.0), kodi-addon-dev,
                libgles2-mesa-dev [arm], libgl1-mesa-dev [i386 amd64], pkg-config
 Standards-Version: 3.9.4
 Section: libs

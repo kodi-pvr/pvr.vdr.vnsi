@@ -19,14 +19,25 @@
 *
 */
 
-#if defined(__APPLE__)                                                                                                                                                                                           
-  #include <OpenGLES/ES2/gl.h>                                                                                                                                                                                     
-  #include <OpenGLES/ES2/glext.h>                                                                                                                                                                                  
-#else                                                                                                                                                                                                            
-  #include <GLES2/gl2.h>
-  #include <GLES2/gl2ext.h>
+#if defined(HAS_GL)
+#if defined(__APPLE__)
+#include <OpenGL/gl3.h>
+#else
+#define GL_GLEXT_PROTOTYPES
+#include <GL/gl.h>
+#include <GL/glext.h>
 #endif//__APPLE__
+#else
+#if defined(__APPLE__)                                                                                                                                                                                           
+#include <OpenGLES/ES2/gl.h>
+#include <OpenGLES/ES2/glext.h>
+#else                                                                                                                                                                                                            
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+#endif//__APPLE__
+#endif
 
+#include "kodi/AddonBase.h"
 #include <string.h>
 #include <vector>
 
@@ -38,11 +49,11 @@ enum EMATRIXMODE
   MM_MATRIXSIZE  // Must be last! used for size of matrices
 };
 
-class CVisMatrixGLES
+class ATTRIBUTE_HIDDEN CMatrix
 {
 public:
-  CVisMatrixGLES();
-  ~CVisMatrixGLES();
+  CMatrix();
+  virtual ~CMatrix();
   
   GLfloat* GetMatrix(EMATRIXMODE mode);
 

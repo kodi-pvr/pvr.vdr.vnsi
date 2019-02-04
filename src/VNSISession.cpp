@@ -58,6 +58,7 @@ cVNSISession::~cVNSISession()
 
 void cVNSISession::Close()
 {
+  CLockObject lock(m_mutex);
   if (IsOpen())
   {
     m_socket->Close();
@@ -120,32 +121,35 @@ bool cVNSISession::Login()
     if (!vresp)
       throw "failed to read greeting from server";
 
-    uint32_t    protocol      = vresp->extract_U32();
-    uint32_t    vdrTime       = vresp->extract_U32();
-    int32_t     vdrTimeOffset = vresp->extract_S32();
-    const char *ServerName    = vresp->extract_String();
+    uint32_t protocol = vresp->extract_U32();
+    uint32_t vdrTime = vresp->extract_U32();
+    int32_t vdrTimeOffset = vresp->extract_S32();
+    const char *ServerName = vresp->extract_String();
     const char *ServerVersion = vresp->extract_String();
 
-    m_server    = ServerName;
-    m_version   = ServerVersion;
-    m_protocol  = (int)protocol;
+    m_server = ServerName;
+    m_version = ServerVersion;
+    m_protocol = (int)protocol;
 
     if (m_protocol < VNSI_MIN_PROTOCOLVERSION)
       throw "Protocol versions do not match";
 
     if (m_name.empty())
+    {
       XBMC->Log(LOG_NOTICE, "Logged in at '%lu+%i' to '%s' Version: '%s' with protocol version '%d'",
-        vdrTime, vdrTimeOffset, ServerName, ServerVersion, protocol);
+                vdrTime, vdrTimeOffset, ServerName, ServerVersion, protocol);
+    }
+  }
+  catch (const std::out_of_range& e)
+  {
+    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+    Close();
+    return false;
   }
   catch (const char * str)
   {
     XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__,str);
-    if (m_socket)
-    {
-      m_socket->Close();
-      delete m_socket;
-      m_socket = NULL;
-    }
+    Close();
     return false;
   }
 
@@ -156,14 +160,12 @@ std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /
 {
   uint32_t channelID = 0;
   uint32_t userDataLength = 0;
-  uint8_t* userData = NULL;
+  uint8_t* userData = nullptr;
 
-  cResponsePacket* vresp = NULL;
+  cResponsePacket* vresp = nullptr;
 
-  CLockObject lock(m_readMutex);
-
-  if(!readData((uint8_t*)&channelID, sizeof(uint32_t), iInitialTimeout))
-    return NULL;
+  if(!ReadData((uint8_t*)&channelID, sizeof(uint32_t), iInitialTimeout))
+    return nullptr;
 
   // Data was read
 
@@ -172,12 +174,12 @@ std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /
   {
     vresp = new cResponsePacket();
 
-    if (!readData(vresp->getHeader(), vresp->getStreamHeaderLength(), iDatapacketTimeout))
+    if (!ReadData(vresp->getHeader(), vresp->getStreamHeaderLength(), iDatapacketTimeout))
     {
       delete vresp;
       XBMC->Log(LOG_ERROR, "%s - lost sync on channel stream packet", __FUNCTION__);
       SignalConnectionLost();
-      return NULL;
+      return nullptr;
     }
     vresp->extractStreamHeader();
     userDataLength = vresp->getUserDataLength();
@@ -188,8 +190,9 @@ std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /
       userData = (uint8_t*)p;
       if (userDataLength > 0)
       {
-        if (!userData) return NULL;
-        if (!readData(p->pData, userDataLength, iDatapacketTimeout))
+        if (!userData)
+          return nullptr;
+        if (!ReadData(p->pData, userDataLength, iDatapacketTimeout))
         {
           PVR->FreeDemuxPacket(p);
           delete vresp;
@@ -202,8 +205,9 @@ std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /
     else if (userDataLength > 0)
     {
       userData = (uint8_t*)malloc(userDataLength);
-      if (!userData) return NULL;
-      if (!readData(userData, userDataLength, iDatapacketTimeout))
+      if (!userData)
+        return nullptr;
+      if (!ReadData(userData, userDataLength, iDatapacketTimeout))
       {
         free(userData);
         delete vresp;
@@ -218,7 +222,7 @@ std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /
   {
     vresp = new cResponsePacket();
 
-    if (!readData(vresp->getHeader(), vresp->getOSDHeaderLength(), iDatapacketTimeout))
+    if (!ReadData(vresp->getHeader(), vresp->getOSDHeaderLength(), iDatapacketTimeout))
     {
       XBMC->Log(LOG_ERROR, "%s - lost sync on osd packet", __FUNCTION__);
       SignalConnectionLost();
@@ -231,8 +235,9 @@ std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /
     if (userDataLength > 0)
     {
       userData = (uint8_t*)malloc(userDataLength);
-      if (!userData) return NULL;
-      if (!readData(userData, userDataLength, iDatapacketTimeout))
+      if (!userData)
+        return nullptr;
+      if (!ReadData(userData, userDataLength, iDatapacketTimeout))
       {
         free(userData);
         delete vresp;
@@ -247,7 +252,7 @@ std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /
   {
     vresp = new cResponsePacket();
 
-    if (!readData(vresp->getHeader(), vresp->getHeaderLength(), iDatapacketTimeout))
+    if (!ReadData(vresp->getHeader(), vresp->getHeaderLength(), iDatapacketTimeout))
     {
       delete vresp;
       XBMC->Log(LOG_ERROR, "%s - lost sync on response packet", __FUNCTION__);
@@ -261,8 +266,9 @@ std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /
     if (userDataLength > 0)
     {
       userData = (uint8_t*)malloc(userDataLength);
-      if (!userData) return NULL;
-      if (!readData(userData, userDataLength, iDatapacketTimeout))
+      if (!userData)
+        return nullptr;
+      if (!ReadData(userData, userDataLength, iDatapacketTimeout))
       {
         free(userData);
         delete vresp;
@@ -283,6 +289,8 @@ std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /
 
 bool cVNSISession::TransmitMessage(cRequestPacket* vrp)
 {
+  CLockObject lock(m_mutex);
+
   if (!IsOpen())
     return false;
 
@@ -297,17 +305,17 @@ bool cVNSISession::TransmitMessage(cRequestPacket* vrp)
 
 std::unique_ptr<cResponsePacket> cVNSISession::ReadResult(cRequestPacket* vrp)
 {
-  if(!TransmitMessage(vrp))
+  if (!TransmitMessage(vrp))
   {
     SignalConnectionLost();
-    return NULL;
+    return nullptr;
   }
 
   std::unique_ptr<cResponsePacket> pkt;
 
-  while((pkt = ReadMessage()))
+  while ((pkt = ReadMessage(10000, 10000)))
   {
-    /* Discard everything other as response packets until it is received */
+    // Discard everything other as response packets until it is received
     if (pkt->getChannelID() == VNSI_CHANNEL_REQUEST_RESPONSE && pkt->getRequestID() == vrp->getSerial())
     {
       return pkt;
@@ -321,13 +329,13 @@ std::unique_ptr<cResponsePacket> cVNSISession::ReadResult(cRequestPacket* vrp)
 bool cVNSISession::ReadSuccess(cRequestPacket* vrp)
 {
   std::unique_ptr<cResponsePacket> pkt;
-  if((pkt = ReadResult(vrp)) == NULL)
+  if ((pkt = ReadResult(vrp)) == nullptr)
   {
     return false;
   }
   uint32_t retCode = pkt->extract_U32();
 
-  if(retCode != VNSI_RET_OK)
+  if (retCode != VNSI_RET_OK)
   {
     XBMC->Log(LOG_ERROR, "%s - failed with error code '%i'", __FUNCTION__, retCode);
     return false;
@@ -361,6 +369,7 @@ cVNSISession::eCONNECTIONSTATE cVNSISession::TryReconnect()
 
 bool cVNSISession::IsOpen()
 {
+  CLockObject lock(m_mutex);
   return m_socket && m_socket->IsOpen();
 }
 
@@ -377,7 +386,7 @@ void cVNSISession::SignalConnectionLost()
   OnDisconnect();
 }
 
-bool cVNSISession::readData(uint8_t* buffer, int totalBytes, int timeout)
+bool cVNSISession::ReadData(uint8_t* buffer, int totalBytes, int timeout)
 {
   int bytesRead = m_socket->Read(buffer, totalBytes, timeout);
   if (bytesRead == totalBytes)

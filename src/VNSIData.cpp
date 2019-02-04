@@ -23,7 +23,7 @@
 #include "responsepacket.h"
 #include "requestpacket.h"
 #include "vnsicommand.h"
-#include "p8-platform/util/StdString.h"
+#include <p8-platform/util/StringUtils.h>
 #include <algorithm>
 #include <string.h>
 #include <time.h>
@@ -106,21 +106,10 @@ bool cVNSIData::Start(const std::string& hostname, int port, const char* name, c
 {
   m_hostname = hostname;
   m_port = port;
+  m_wolMac = mac;
 
   if (name != nullptr)
     m_name = name;
-
-  // First wake up the VDR server in case a MAC-Address is specified
-  if (!mac.empty())
-  {
-    const char* temp_mac;
-    temp_mac = mac.c_str();
-
-    if (!XBMC->WakeOnLan(temp_mac)) {
-      XBMC->Log(LOG_ERROR, "Error waking up VNSI Server at MAC-Address %s", temp_mac);
-      return false;
-    }
-  }
 
   PVR->ConnectionStateChange("VNSI started", PVR_CONNECTION_STATE_CONNECTING, "VNSI started");
 
@@ -330,7 +319,7 @@ bool cVNSIData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel
     EPG_TAG tag;
     memset(&tag, 0 , sizeof(tag));
 
-    tag.iChannelNumber      = channel.iChannelNumber;
+    tag.iUniqueChannelId    = channel.iUniqueId;
     tag.iUniqueBroadcastId  = vresp->extract_U32();
     tag.startTime           = vresp->extract_U32();
     tag.endTime             = tag.startTime + vresp->extract_U32();
@@ -528,10 +517,12 @@ bool cVNSIData::GenTimerChildren(const PVR_TIMER &timer, ADDON_HANDLE handle)
 {
   time_t now = time(nullptr);
   time_t firstDay = timer.firstDay;
+  time_t startTime = timer.startTime;
+  time_t endTime = timer.endTime;
 
-  struct tm *loctime = localtime(&timer.startTime);
+  struct tm *loctime = localtime(&startTime);
   int startSec = loctime->tm_hour * 3600 + loctime->tm_min * 60;
-  loctime = localtime(&timer.endTime);
+  loctime = localtime(&endTime);
   int stopSec = loctime->tm_hour * 3600 + loctime->tm_min * 60;
   int length = stopSec - startSec;
   if (length < 0)
@@ -905,7 +896,7 @@ PVR_ERROR cVNSIData::GetRecordingsList(ADDON_HANDLE handle)
     return PVR_ERROR_UNKNOWN;
   }
 
-  CStdString strRecordingId;
+  std::string strRecordingId;
   while (vresp->getRemainingLength() >= 5 * 4 + 5)
   {
     PVR_RECORDING tag;
@@ -943,6 +934,7 @@ PVR_ERROR cVNSIData::GetRecordingsList(ADDON_HANDLE handle)
 
     char *strEpisodeName = vresp->extract_String();
     strncpy(tag.strEpisodeName, strEpisodeName, sizeof(tag.strEpisodeName) - 1);
+    strncpy(tag.strPlotOutline, strEpisodeName, sizeof(tag.strEpisodeName) - 1);
 
     char *strPlot = vresp->extract_String();
     strncpy(tag.strPlot, strPlot, sizeof(tag.strPlot) - 1);
@@ -950,7 +942,7 @@ PVR_ERROR cVNSIData::GetRecordingsList(ADDON_HANDLE handle)
     char *strDirectory = vresp->extract_String();
     strncpy(tag.strDirectory, strDirectory, sizeof(tag.strDirectory) - 1);
 
-    strRecordingId.Format("%i", vresp->extract_U32());
+    strRecordingId = StringUtils::Format("%i", vresp->extract_U32());
     strncpy(tag.strRecordingId, strRecordingId.c_str(), sizeof(tag.strRecordingId) - 1);
 
     PVR->TransferRecordingEntry(handle, &tag);
@@ -1023,13 +1015,18 @@ PVR_ERROR cVNSIData::GetRecordingEdl(const PVR_RECORDING& recinfo, PVR_EDL_ENTRY
   vrp.init(VNSI_RECORDINGS_GETEDL);
   vrp.add_U32(atoi(recinfo.strRecordingId));
 
+  *size = 0;
   auto vresp = ReadResult(&vrp);
-  if (vresp == NULL || vresp->noResponse())
+
+  if (vresp == NULL)
   {
     return PVR_ERROR_UNKNOWN;
   }
+  else if (vresp->noResponse())
+  {
+    return PVR_ERROR_NO_ERROR;
+  }
 
-  *size = 0;
   while (vresp->getRemainingLength() >= 2 * 8 + 4 &&
          *size < PVR_ADDON_EDL_LENGTH)
   {
@@ -1070,7 +1067,7 @@ PVR_ERROR cVNSIData::GetDeletedRecordingsList(ADDON_HANDLE handle)
     return PVR_ERROR_UNKNOWN;
   }
 
-  CStdString strRecordingId;
+  std::string strRecordingId;
   while (vresp->getRemainingLength() >= 5 * 4 + 5)
   {
     PVR_RECORDING tag;
@@ -1095,6 +1092,7 @@ PVR_ERROR cVNSIData::GetDeletedRecordingsList(ADDON_HANDLE handle)
 
     char *strEpisodeName = vresp->extract_String();
     strncpy(tag.strEpisodeName, strEpisodeName, sizeof(tag.strEpisodeName) - 1);
+    strncpy(tag.strPlotOutline, strEpisodeName, sizeof(tag.strEpisodeName) - 1);
 
     char *strPlot = vresp->extract_String();
     strncpy(tag.strPlot, strPlot, sizeof(tag.strPlot) - 1);
@@ -1102,7 +1100,7 @@ PVR_ERROR cVNSIData::GetDeletedRecordingsList(ADDON_HANDLE handle)
     char *strDirectory = vresp->extract_String();
     strncpy(tag.strDirectory, strDirectory, sizeof(tag.strDirectory) - 1);
 
-    strRecordingId.Format("%i", vresp->extract_U32());
+    strRecordingId = StringUtils::Format("%i", vresp->extract_U32());
     strncpy(tag.strRecordingId, strRecordingId.c_str(), sizeof(tag.strRecordingId) - 1);
 
     PVR->TransferRecordingEntry(handle, &tag);
@@ -1186,22 +1184,31 @@ void *cVNSIData::Process()
     // try to reconnect
     if (m_connectionLost)
     {
+      // First wake up the VDR server in case a MAC-Address is specified
+      if (!m_wolMac.empty())
+      {
+        if (!XBMC->WakeOnLan(m_wolMac.c_str()))
+        {
+          XBMC->Log(LOG_ERROR, "Error waking up VNSI Server at MAC-Address %s", m_wolMac.c_str());
+        }
+      }
+
       cVNSISession::eCONNECTIONSTATE state = TryReconnect();
       if (state != cVNSISession::CONN_ESABLISHED)
       {
-	if (state == cVNSISession::CONN_HOST_NOT_REACHABLE)
-	{
-	  PVR->ConnectionStateChange("vnsi server not reacheable",
-				     PVR_CONNECTION_STATE_SERVER_UNREACHABLE, nullptr);
-	}
+        if (state == cVNSISession::CONN_HOST_NOT_REACHABLE)
+        {
+          PVR->ConnectionStateChange("vnsi server not reacheable",
+                                     PVR_CONNECTION_STATE_SERVER_UNREACHABLE, nullptr);
+        }
 
-	Sleep(1000);
-	continue;
+        Sleep(1000);
+        continue;
       }
     }
 
     // if there's anything in the buffer, read it
-    if ((vresp = cVNSISession::ReadMessage(5)) == NULL)
+    if ((vresp = cVNSISession::ReadMessage(5, 10000)) == NULL)
     {
       Sleep(5);
       continue;
@@ -1240,12 +1247,12 @@ void *cVNSIData::Process()
       }
       else if (vresp->getRequestID() == VNSI_STATUS_RECORDING)
       {
-                          vresp->extract_U32(); // device currently unused
-                          vresp->extract_U32(); // on (not used)
+        vresp->extract_U32(); // device currently unused
+        vresp->extract_U32(); // on (not used)
         char* str1      = vresp->extract_String();
         char* str2      = vresp->extract_String();
 
-//        PVR->Recording(str1, str2, on!=0?true:false);
+        //        PVR->Recording(str1, str2, on!=0?true:false);
         PVR->TriggerTimerUpdate();
       }
       else if (vresp->getRequestID() == VNSI_STATUS_TIMERCHANGE)

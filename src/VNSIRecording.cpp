@@ -31,6 +31,7 @@ using namespace ADDON;
 
 cVNSIRecording::cVNSIRecording()
 {
+  m_currentPlayingRecordLengthMSec = 0;
 }
 
 cVNSIRecording::~cVNSIRecording()
@@ -59,9 +60,9 @@ bool cVNSIRecording::OpenRecording(const PVR_RECORDING& recinfo)
   uint32_t returnCode = vresp->extract_U32();
   if (returnCode == VNSI_RET_OK)
   {
-    m_currentPlayingRecordFrames    = vresp->extract_U32();
-    m_currentPlayingRecordBytes     = vresp->extract_U64();
-    m_currentPlayingRecordPosition  = 0;
+    m_currentPlayingRecordFrames = vresp->extract_U32();
+    m_currentPlayingRecordBytes = vresp->extract_U64();
+    m_currentPlayingRecordPosition = 0;
   }
   else
     XBMC->Log(LOG_ERROR, "%s - Can't open recording '%s'", __FUNCTION__, recinfo.strTitle);
@@ -123,6 +124,20 @@ int cVNSIRecording::Read(unsigned char* buf, uint32_t buf_size)
   return length;
 }
 
+bool cVNSIRecording::GetStreamTimes(PVR_STREAM_TIMES *times)
+{
+  GetLength();
+  if (m_currentPlayingRecordLengthMSec == 0)
+    return false;
+
+  times->startTime = 0;
+  times->ptsStart = 0;
+  times->ptsBegin = 0;
+  times->ptsEnd = m_currentPlayingRecordLengthMSec * 1000;
+
+  return true;
+}
+
 long long cVNSIRecording::Seek(long long pos, uint32_t whence)
 {
   uint64_t nextPos = m_currentPlayingRecordPosition;
@@ -162,11 +177,6 @@ long long cVNSIRecording::Seek(long long pos, uint32_t whence)
   return m_currentPlayingRecordPosition;
 }
 
-long long cVNSIRecording::Position(void)
-{
-  return m_currentPlayingRecordPosition;
-}
-
 long long cVNSIRecording::Length(void)
 {
   return m_currentPlayingRecordBytes;
@@ -187,4 +197,7 @@ void cVNSIRecording::GetLength()
     return;
 
   m_currentPlayingRecordBytes = vresp->extract_U64();
+
+  if (GetProtocol() >= 12)
+    m_currentPlayingRecordLengthMSec = vresp->extract_U64();
 }

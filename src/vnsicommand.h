@@ -19,11 +19,10 @@
  *
  */
 
-#ifndef VNSI_COMMAND_H
-#define VNSI_COMMAND_H
+#pragma once
 
 /** Current VNSI Protocol Version number */
-#define VNSI_PROTOCOLVERSION 10
+#define VNSI_PROTOCOLVERSION 13
 
 /** Start of RDS support protocol Version */
 #define VNSI_RDS_PROTOCOLVERSION 8
@@ -57,11 +56,15 @@
 #define VNSI_PING                  7
 #define VNSI_GETSETUP              8
 #define VNSI_STORESETUP            9
+#define VNSI_GETSOCKET            10
+#define VNSI_INVALIDATESOCKET     11
 
 /* OPCODE 20 - 39: VNSI network functions for live streaming */
 #define VNSI_CHANNELSTREAM_OPEN     20
 #define VNSI_CHANNELSTREAM_CLOSE    21
 #define VNSI_CHANNELSTREAM_SEEK     22
+#define VNSI_CHANNELSTREAM_STATUS_SOCKET  23
+#define VNSI_CHANNELSTREAM_STATUS_REQUEST 24
 
 /* OPCODE 40 - 59: VNSI network functions for recording streaming */
 #define VNSI_RECSTREAM_OPEN        40
@@ -133,6 +136,7 @@
 #define VNSI_STREAM_CONTENTINFO  6
 #define VNSI_STREAM_BUFFERSTATS  7
 #define VNSI_STREAM_REFTIME      8
+#define VNSI_STREAM_TIMES        9
 
 /** Scan packet types (server -> client) */
 #define VNSI_SCANNER_PERCENTAGE  1
@@ -176,4 +180,3 @@
 #define VNSI_RET_DATAINVALID     998
 #define VNSI_RET_ERROR           999
 
-#endif // VNSI_COMMAND_H

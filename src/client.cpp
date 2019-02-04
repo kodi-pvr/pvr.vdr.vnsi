@@ -52,11 +52,11 @@ int           g_iPriority               = DEFAULT_PRIORITY;     ///< The Priorit
 bool          g_bAutoChannelGroups      = DEFAULT_AUTOGROUPS;
 int           g_iTimeshift              = 1;
 std::string   g_szIconPath              = "";
+int           g_iChunkSize              = DEFAULT_CHUNKSIZE;
 
 int prioVals[] = {0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,99,100};
 
 CHelper_libXBMC_addon *XBMC = nullptr;
-CHelper_libXBMC_codec *CODEC = nullptr;
 CHelper_libKODI_guilib *GUI = nullptr;
 CHelper_libXBMC_pvr *PVR = nullptr;
 
@@ -65,9 +65,8 @@ cVNSIData *VNSIData = nullptr;
 cVNSIRecording *VNSIRecording = nullptr;
 
 bool IsTimeshift;
-time_t TimeshiftStartTime;
-time_t TimeshiftEndTime;
-time_t TimeshiftPlayTime;
+bool IsRealtime;
+int64_t PTSBufferEnd;
 P8PLATFORM::CMutex TimeshiftMutex;
 
 extern "C" {
@@ -96,20 +95,10 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
     return ADDON_STATUS_PERMANENT_FAILURE;
   }
 
-  CODEC = new CHelper_libXBMC_codec;
-  if (!CODEC->RegisterMe(hdl))
-  {
-    SAFE_DELETE(CODEC);
-    SAFE_DELETE(GUI);
-    SAFE_DELETE(XBMC);
-    return ADDON_STATUS_PERMANENT_FAILURE;
-  }
-
   PVR = new CHelper_libXBMC_pvr;
   if (!PVR->RegisterMe(hdl))
   {
     SAFE_DELETE(PVR);
-    SAFE_DELETE(CODEC);
     SAFE_DELETE(GUI);
     SAFE_DELETE(XBMC);
     return ADDON_STATUS_PERMANENT_FAILURE;
@@ -119,47 +108,47 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
 
   m_CurStatus    = ADDON_STATUS_UNKNOWN;
 
-  /* Read setting "host" from settings.xml */
+  // Read setting "host" from settings.xml
   char * buffer = (char*) malloc(128);
-  buffer[0] = 0; /* Set the end of string */
+  buffer[0] = 0;
 
   if (XBMC->GetSetting("host", buffer))
     g_szHostname = buffer;
   else
   {
-    /* If setting is unknown fallback to defaults */
+    // If setting is unknown fallback to defaults
     XBMC->Log(LOG_ERROR, "Couldn't get 'host' setting, falling back to '%s' as default", DEFAULT_HOST);
     g_szHostname = DEFAULT_HOST;
   }
   free(buffer);
 
   buffer = (char*) malloc(64);
-  buffer[0] = 0; /* Set the end of string */
+  buffer[0] = 0;
 
-  /* Read setting "wol_mac" from settings.xml */
+  // Read setting "wol_mac" from settings.xml
   if (XBMC->GetSetting("wol_mac", buffer))
     g_szWolMac = buffer;
   else
   {
-    /* If setting is unknown fallback to empty default */
+    // If setting is unknown fallback to empty default
     XBMC->Log(LOG_ERROR, "Couldn't get 'wol_mac' setting, falling back to default");
     g_szWolMac = "";
   }
   free(buffer);
 
-  /* Read setting "port" from settings.xml */
+  // Read setting "port" from settings.xml
   if (!XBMC->GetSetting("port", &g_iPort))
   {
-    /* If setting is unknown fallback to defaults */
+    // If setting is unknown fallback to defaults
     XBMC->Log(LOG_ERROR, "Couldn't get 'port' setting, falling back to '%i' as default", DEFAULT_PORT);
     g_iPort = DEFAULT_PORT;
   }
 
-  /* Read setting "priority" from settings.xml */
+  // Read setting "priority" from settings.xml
   int prio = DEFAULT_PRIORITY;
   if (!XBMC->GetSetting("priority", &prio))
   {
-    /* If setting is unknown fallback to defaults */
+    // If setting is unknown fallback to defaults
     XBMC->Log(LOG_ERROR, "Couldn't get 'priority' setting, falling back to %i as default", -1);
     prio = DEFAULT_PRIORITY;
   }
@@ -168,12 +157,12 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   /* Read setting "timeshift" from settings.xml */
   if (!XBMC->GetSetting("timeshift", &g_iTimeshift))
   {
-    /* If setting is unknown fallback to defaults */
+    // If setting is unknown fallback to defaults
     XBMC->Log(LOG_ERROR, "Couldn't get 'timeshift' setting, falling back to %i as default", 1);
     g_iTimeshift = 1;
   }
 
-  /* Read setting "convertchar" from settings.xml */
+  // Read setting "convertchar" from settings.xml
   if (!XBMC->GetSetting("convertchar", &g_bCharsetConv))
   {
     /* If setting is unknown fallback to defaults */
@@ -181,7 +170,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
     g_bCharsetConv = DEFAULT_CHARCONV;
   }
 
-  /* Read setting "timeout" from settings.xml */
+  // Read setting "timeout" from settings.xml
   if (!XBMC->GetSetting("timeout", &g_iConnectTimeout))
   {
     /* If setting is unknown fallback to defaults */
@@ -189,15 +178,15 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
     g_iConnectTimeout = DEFAULT_TIMEOUT;
   }
 
-  /* Read setting "autochannelgroups" from settings.xml */
+  // Read setting "autochannelgroups" from settings.xml
   if (!XBMC->GetSetting("autochannelgroups", &g_bAutoChannelGroups))
   {
-    /* If setting is unknown fallback to defaults */
+    // If setting is unknown fallback to defaults
     XBMC->Log(LOG_ERROR, "Couldn't get 'autochannelgroups' setting, falling back to 'false' as default");
     g_bAutoChannelGroups = DEFAULT_AUTOGROUPS;
   }
 
-  /* Read setting "iconpath" from settings.xml */
+  // Read setting "iconpath" from settings.xml
   buffer = (char*) malloc(512);
   buffer[0] = 0; /* Set the end of string */
 
@@ -205,11 +194,19 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
     g_szIconPath = buffer;
   else
   {
-    /* If setting is unknown fallback to defaults */
+    // If setting is unknown fallback to defaults
     XBMC->Log(LOG_ERROR, "Couldn't get 'iconpath' setting");
     g_szIconPath = "";
   }
   free(buffer);
+
+  // Read setting "chunksize" from settings.xml
+  if (!XBMC->GetSetting("chunksize", &g_iChunkSize))
+  {
+    /* If setting is unknown fallback to defaults */
+    XBMC->Log(LOG_ERROR, "Couldn't get 'chunksize' setting, falling back to %i as default", DEFAULT_CHUNKSIZE);
+    g_iChunkSize = DEFAULT_CHUNKSIZE;
+  }
 
   try
   {
@@ -246,8 +243,6 @@ ADDON_STATUS ADDON_GetStatus()
 
 void ADDON_Destroy()
 {
-  SAFE_DELETE(CODEC);
-
   if (VNSIDemuxer)
     SAFE_DELETE(VNSIDemuxer);
 
@@ -267,16 +262,6 @@ void ADDON_Destroy()
     SAFE_DELETE(XBMC);
 
   m_CurStatus = ADDON_STATUS_UNKNOWN;
-}
-
-bool ADDON_HasSettings()
-{
-  return true;
-}
-
-unsigned int ADDON_GetSettings(ADDON_StructSetting ***sSet)
-{
-  return 0;
 }
 
 ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
@@ -340,17 +325,17 @@ ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
       return ADDON_STATUS_NEED_RESTART;
     }
   }
+  else if (str == "chunksize")
+  {
+    XBMC->Log(LOG_INFO, "Changed Setting 'chunksize' from %u to %u", g_iChunkSize, *(int*) settingValue);
+    g_iChunkSize = *(int*) settingValue;
+  }
 
   return ADDON_STATUS_OK;
 }
 
 void ADDON_Stop()
 {
-}
-
-void ADDON_FreeSettings()
-{
-
 }
 
 /***********************************************************
@@ -377,30 +362,6 @@ void OnPowerSavingDeactivated()
 {
 }
 
-const char* GetPVRAPIVersion(void)
-{
-  static const char *strApiVersion = XBMC_PVR_API_VERSION;
-  return strApiVersion;
-}
-
-const char* GetMininumPVRAPIVersion(void)
-{
-  static const char *strMinApiVersion = XBMC_PVR_MIN_API_VERSION;
-  return strMinApiVersion;
-}
-
-const char* GetGUIAPIVersion(void)
-{
-  static const char *strGuiApiVersion = KODI_GUILIB_API_VERSION;
-  return strGuiApiVersion;
-}
-
-const char* GetMininumGUIAPIVersion(void)
-{
-  static const char *strMinGuiApiVersion = KODI_GUILIB_MIN_API_VERSION;
-  return strMinGuiApiVersion;
-}
-
 PVR_ERROR GetAddonCapabilities(PVR_ADDON_CAPABILITIES* pCapabilities)
 {
   pCapabilities->bSupportsEPG                = true;
@@ -416,6 +377,9 @@ PVR_ERROR GetAddonCapabilities(PVR_ADDON_CAPABILITIES* pCapabilities)
     pCapabilities->bSupportsChannelScan      = true;
   if (VNSIData && VNSIData->SupportRecordingsUndelete())
     pCapabilities->bSupportsRecordingsUndelete = true;
+  pCapabilities->bSupportsRecordingsRename = true;
+  pCapabilities->bSupportsRecordingsLifetimeChange = false;
+  pCapabilities->bSupportsDescrambleInfo = false;
 
   return PVR_ERROR_NO_ERROR;
 }
@@ -766,10 +730,14 @@ bool OpenLiveStream(const PVR_CHANNEL &channel)
   try
   {
     VNSIDemuxer = new cVNSIDemux;
-    TimeshiftStartTime = 0;
-    TimeshiftEndTime = 0;
-    TimeshiftPlayTime = 0;
-    return VNSIDemuxer->OpenChannel(channel);
+    IsRealtime = true;
+    if (!VNSIDemuxer->OpenChannel(channel)) {
+      delete VNSIDemuxer;
+      VNSIDemuxer = nullptr;
+      return false;
+    }
+
+    return true;
   }
   catch (std::exception e)
   {
@@ -783,12 +751,8 @@ bool OpenLiveStream(const PVR_CHANNEL &channel)
 
 void CloseLiveStream(void)
 {
-  if (VNSIDemuxer)
-  {
-    VNSIDemuxer->Close();
-    delete VNSIDemuxer;
-    VNSIDemuxer = NULL;
-  }
+  delete VNSIDemuxer;
+  VNSIDemuxer = NULL;
 }
 
 PVR_ERROR GetStreamProperties(PVR_STREAM_PROPERTIES* pProperties)
@@ -818,24 +782,32 @@ DemuxPacket* DemuxRead(void)
     return NULL;
   }
 
-  const CLockObject lock(TimeshiftMutex);
-  IsTimeshift = VNSIDemuxer->IsTimeshift();
-  TimeshiftStartTime = VNSIDemuxer->GetBufferTimeStart();
-  TimeshiftEndTime = VNSIDemuxer->GetBufferTimeEnd();
-  TimeshiftPlayTime = VNSIDemuxer->GetPlayingTime();
+  if (pkt)
+  {
+    const CLockObject lock(TimeshiftMutex);
+    IsTimeshift = VNSIDemuxer->IsTimeshift();
+    if ((PTSBufferEnd - pkt->dts) / DVD_TIME_BASE > 10)
+      IsRealtime = false;
+    else
+      IsRealtime = true;
+  }
   return pkt;
 }
 
-bool SwitchChannel(const PVR_CHANNEL &channel)
+PVR_ERROR GetStreamTimes(PVR_STREAM_TIMES *times)
 {
-  try {
-    if (VNSIDemuxer)
-      return VNSIDemuxer->SwitchChannel(channel);
-  } catch (std::exception e) {
-    XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
+  if (VNSIDemuxer && VNSIDemuxer->GetStreamTimes(times))
+  {
+    PTSBufferEnd = times->ptsEnd;
+    return PVR_ERROR_NO_ERROR;
   }
-
-  return false;
+  else if (VNSIRecording && VNSIRecording->GetStreamTimes(times))
+  {
+    PTSBufferEnd = times->ptsEnd;
+    return PVR_ERROR_NO_ERROR;
+  }
+  else
+    return PVR_ERROR_SERVER_ERROR;
 }
 
 PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
@@ -874,7 +846,7 @@ bool IsRealTimeStream()
     const CLockObject lock(TimeshiftMutex);
     if (!IsTimeshift)
       return true;
-    if (TimeshiftEndTime - TimeshiftPlayTime < 10)
+    if (IsRealtime)
       return true;
   }
   return false;
@@ -891,39 +863,6 @@ bool SeekTime(double time, bool backwards, double *startpts)
     XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
   }
   return ret;
-}
-
-time_t GetPlayingTime()
-{
-  time_t time = 0;
-  if (VNSIDemuxer)
-  {
-    const CLockObject lock(TimeshiftMutex);
-    time = TimeshiftPlayTime;
-  }
-  return time;
-}
-
-time_t GetBufferTimeStart()
-{
-  time_t time = 0;
-  if (VNSIDemuxer)
-  {
-    const CLockObject lock(TimeshiftMutex);
-    time = TimeshiftStartTime;
-  }
-  return time;
-}
-
-time_t GetBufferTimeEnd()
-{
-  time_t time = 0;
-  if (VNSIDemuxer)
-  {
-    const CLockObject lock(TimeshiftMutex);
-    time = TimeshiftEndTime;
-  }
-  return time;
 }
 
 bool IsTimeshifting()
@@ -953,12 +892,17 @@ bool OpenRecordedStream(const PVR_RECORDING &recording)
   VNSIRecording = new cVNSIRecording;
   try
   {
-    return VNSIRecording->OpenRecording(recording);
+    if (!VNSIRecording->OpenRecording(recording)) {
+      delete VNSIRecording;
+      VNSIRecording = nullptr;
+      return false;
+    }
+
+    return true;
   }
   catch (std::exception e)
   {
     XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
-    VNSIRecording->Close();
     delete VNSIRecording;
     VNSIRecording = NULL;
     return false;
@@ -967,12 +911,8 @@ bool OpenRecordedStream(const PVR_RECORDING &recording)
 
 void CloseRecordedStream(void)
 {
-  if (VNSIRecording)
-  {
-    VNSIRecording->Close();
-    delete VNSIRecording;
-    VNSIRecording = NULL;
-  }
+  delete VNSIRecording;
+  VNSIRecording = NULL;
 }
 
 int ReadRecordedStream(unsigned char *pBuffer, unsigned int iBufferSize)
@@ -1000,14 +940,6 @@ long long SeekRecordedStream(long long iPosition, int iWhence /* = SEEK_SET */)
   return -1;
 }
 
-long long PositionRecordedStream(void)
-{
-  if (VNSIRecording)
-    return VNSIRecording->Position();
-
-  return 0;
-}
-
 long long LengthRecordedStream(void)
 {
   if (VNSIRecording)
@@ -1029,6 +961,11 @@ PVR_ERROR GetRecordingEdl(const PVR_RECORDING& recinfo, PVR_EDL_ENTRY edl[], int
   }
 }
 
+PVR_ERROR GetStreamReadChunkSize(int* chunksize)
+{
+  *chunksize = g_iChunkSize;
+  return PVR_ERROR_NO_ERROR;
+}
 
 /*******************************************/
 /** PVR Menu Hook Functions               **/
@@ -1051,19 +988,24 @@ PVR_ERROR CallMenuHook(const PVR_MENUHOOK &menuhook, const PVR_MENUHOOK_DATA &it
 /** UNUSED API FUNCTIONS */
 PVR_ERROR DeleteChannel(const PVR_CHANNEL &channel) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR RenameChannel(const PVR_CHANNEL &channel) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR MoveChannel(const PVR_CHANNEL &channel) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR OpenDialogChannelSettings(const PVR_CHANNEL &channel) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR OpenDialogChannelAdd(const PVR_CHANNEL &channel) { return PVR_ERROR_NOT_IMPLEMENTED; }
 void DemuxReset(void) {}
 void DemuxFlush(void) {}
 int ReadLiveStream(unsigned char *pBuffer, unsigned int iBufferSize) { return 0; }
 long long SeekLiveStream(long long iPosition, int iWhence /* = SEEK_SET */) { return -1; }
-long long PositionLiveStream(void) { return -1; }
 long long LengthLiveStream(void) { return -1; }
-const char * GetLiveStreamURL(const PVR_CHANNEL &channel) { return ""; }
 PVR_ERROR SetRecordingPlayCount(const PVR_RECORDING &recording, int count) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR SetRecordingLastPlayedPosition(const PVR_RECORDING &recording, int lastplayedposition) { return PVR_ERROR_NOT_IMPLEMENTED; }
 int GetRecordingLastPlayedPosition(const PVR_RECORDING &recording) { return -1; }
-unsigned int GetChannelSwitchDelay(void) { return 0; }
 PVR_ERROR SetEPGTimeFrame(int) { return PVR_ERROR_NOT_IMPLEMENTED; }
+PVR_ERROR GetDescrambleInfo(PVR_DESCRAMBLE_INFO*) { return PVR_ERROR_NOT_IMPLEMENTED; }
+PVR_ERROR SetRecordingLifetime(const PVR_RECORDING*) { return PVR_ERROR_NOT_IMPLEMENTED; }
+PVR_ERROR GetChannelStreamProperties(const PVR_CHANNEL*, PVR_NAMED_VALUE*, unsigned int*) { return PVR_ERROR_NOT_IMPLEMENTED; }
+PVR_ERROR GetRecordingStreamProperties(const PVR_RECORDING*, PVR_NAMED_VALUE*, unsigned int*) { return PVR_ERROR_NOT_IMPLEMENTED; }
+PVR_ERROR IsEPGTagRecordable(const EPG_TAG*, bool*) { return PVR_ERROR_NOT_IMPLEMENTED; }
+PVR_ERROR IsEPGTagPlayable(const EPG_TAG*, bool*) { return PVR_ERROR_NOT_IMPLEMENTED; }
+PVR_ERROR GetEPGTagStreamProperties(const EPG_TAG*, PVR_NAMED_VALUE*, unsigned int*) { return PVR_ERROR_NOT_IMPLEMENTED; }
+PVR_ERROR GetEPGTagEdl(const EPG_TAG* epgTag, PVR_EDL_ENTRY edl[], int *size) { return PVR_ERROR_NOT_IMPLEMENTED; }
+
 }

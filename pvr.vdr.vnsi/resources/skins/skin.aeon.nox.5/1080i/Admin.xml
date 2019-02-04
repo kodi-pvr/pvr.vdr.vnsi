@@ -18,7 +18,7 @@
       <textoffsety>-4</textoffsety>
       <label>Controlling OSD - press info to exit</label>
       <label>$ADDON[pvr.vdr.vnsi 30103]</label>
-      <visible>StringCompare(Window.Property(menu),osd) +
+      <visible>String.IsEqual(Window.Property(menu),osd) +
         ControlGroup(12).HasFocus()</visible>
     </control>
     <control type="group">
@@ -32,8 +32,8 @@
         <width>356</width>
         <height>720</height>
         <onleft>61</onleft>
-        <onright condition="!StringCompare(Window.Property(menu),channels)">11</onright>
-        <onright condition="StringCompare(Window.Property(menu),channels)">38</onright>
+        <onright condition="!String.IsEqual(Window.Property(menu),channels)">11</onright>
+        <onright condition="String.IsEqual(Window.Property(menu),channels)">38</onright>
         <onup>10</onup>
         <ondown>10</ondown>
         <pagecontrol>61</pagecontrol>
@@ -46,7 +46,6 @@
             <texture border="1">separator2.png</texture>
           </control>
           <control type="label">
-            <posx>356</posx>
             <posy>0</posy>
             <width>356</width>
             <height>90</height>
@@ -81,7 +80,6 @@
             <include>VisibleFadeEffect</include>
           </control>
           <control type="label">
-            <posx>356</posx>
             <posy>0</posy>
             <width>356</width>
             <height>90</height>
@@ -157,7 +155,7 @@
           <onright>60</onright>
           <onup>12</onup>
           <ondown>12</ondown>
-          <visible>StringCompare(Window.Property(menu),osd)</visible>
+          <visible>String.IsEqual(Window.Property(menu),osd)</visible>
           <control type="button" id="13"> 
             <description>osd control label</description> 
             <width>1316</width> 
@@ -192,7 +190,7 @@
           <onright>60</onright>
           <onup>20</onup>
           <ondown>20</ondown>
-          <visible>StringCompare(Window.Property(menu),setup)</visible>
+          <visible>String.IsEqual(Window.Property(menu),setup)</visible>
           <include>SettingsFadeEffect</include>
           <control type="spincontrolex" id="21">
             <description>Source Type</description>
@@ -254,7 +252,7 @@
         </control>
         <control type="group" id="30">
           <include>SettingsFadeEffect</include>
-          <visible>StringCompare(Window.Property(menu),channels)</visible>
+          <visible>String.IsEqual(Window.Property(menu),channels)</visible>
           <control type="radiobutton" id="31">
             <description>Channels label</description>
             <posx>522</posx>
@@ -270,7 +268,7 @@
             <texturenofocus border="1">separator5.png
             </texturenofocus>
             <label>$ADDON[pvr.vdr.vnsi 30111]</label>
-            <selected>StringCompare(Window.Property(IsDirty),1)</selected>
+            <selected>String.IsEqual(Window.Property(IsDirty),1)</selected>
           </control>
           <control type="grouplist" id ="38">
             <description>control area</description>

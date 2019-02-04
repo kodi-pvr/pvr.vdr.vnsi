@@ -38,12 +38,25 @@ struct SQuality
   uint32_t    fe_unc;
 };
 
+class CVNSIDemuxStatus : public cVNSISession
+{
+public:
+
+  CVNSIDemuxStatus() = default;
+  virtual ~CVNSIDemuxStatus() = default;
+
+  int GetSocket();
+  void ReleaseServerClient();
+  std::unique_ptr<cResponsePacket> ReadStatus();
+  bool IsConnected();
+};
+
 class cVNSIDemux : public cVNSISession
 {
 public:
 
   cVNSIDemux();
-  ~cVNSIDemux();
+  virtual ~cVNSIDemux();
 
   void Close();
   bool OpenChannel(const PVR_CHANNEL &channelinfo);
@@ -55,9 +68,7 @@ public:
   bool GetSignalStatus(PVR_SIGNAL_STATUS &qualityinfo);
   bool IsTimeshift() { return m_bTimeshift; }
   bool SeekTime(int time, bool backwards, double *startpts);
-  time_t GetPlayingTime();
-  time_t GetBufferTimeStart();
-  time_t GetBufferTimeEnd();
+  bool GetStreamTimes(PVR_STREAM_TIMES *times);
 
 protected:
 
@@ -65,8 +76,7 @@ protected:
   void StreamStatus(cResponsePacket *resp);
   void StreamSignalInfo(cResponsePacket *resp);
   bool StreamContentInfo(cResponsePacket *resp);
-
-private:
+  void ReadStatus();
 
   PVR_STREAM_PROPERTIES m_streams;
   PVR_CHANNEL m_channelinfo;
@@ -75,7 +85,8 @@ private:
   uint32_t m_MuxPacketSerial;
   time_t m_ReferenceTime;
   double m_ReferenceDTS;
-  double m_CurrentDTS;
-  time_t m_BufferTimeStart;
-  time_t m_BufferTimeEnd;
+  double m_minPTS;
+  double m_maxPTS;
+  CVNSIDemuxStatus m_statusCon;
+  time_t m_lastStatus = 0;
 };
