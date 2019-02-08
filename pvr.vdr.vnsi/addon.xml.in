@@ -3,7 +3,7 @@
   id="pvr.vdr.vnsi"
   version="3.6.3"
   name="VDR VNSI Client"
-  provider-name="FernetMenta, Team Kodi">
+  provider-name="Team Kodi, FernetMenta">
   <requires>@ADDON_DEPENDS@</requires>
   <extension
     point="xbmc.pvrclient"

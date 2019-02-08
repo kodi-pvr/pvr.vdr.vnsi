@@ -1,0 +1,4 @@
+3.6.3
+- With this version, kodi-pvr is upstream repo for this addon again. 
+- Merged sources from FernetMenta/pvr.vdr.vnsi master.
+- Translation updates.
