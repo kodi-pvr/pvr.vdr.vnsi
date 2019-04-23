@@ -44,7 +44,7 @@ public:
 
   int         GetChannelsCount();
   bool        GetChannelsList(ADDON_HANDLE handle, bool radio = false);
-  bool        GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t start, time_t end);
+  bool        GetEPGForChannel(ADDON_HANDLE handle, int iChannelUid, time_t start, time_t end);
 
   int         GetChannelGroupCount(bool automatic);
   bool        GetChannelGroupList(ADDON_HANDLE handle, bool bRadio);
