@@ -444,13 +444,13 @@ PVR_ERROR OpenDialogChannelScan(void)
 /*******************************************/
 /** PVR EPG Functions                     **/
 
-PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
+PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, int iChannelUid, time_t iStart, time_t iEnd)
 {
   if (!VNSIData)
     return PVR_ERROR_SERVER_ERROR;
 
   try {
-    return (VNSIData->GetEPGForChannel(handle, channel, iStart, iEnd) ? PVR_ERROR_NO_ERROR: PVR_ERROR_SERVER_ERROR);
+    return (VNSIData->GetEPGForChannel(handle, iChannelUid, iStart, iEnd) ? PVR_ERROR_NO_ERROR: PVR_ERROR_SERVER_ERROR);
   } catch (std::exception e) {
     XBMC->Log(LOG_ERROR, "%s - %s", __FUNCTION__, e.what());
     return PVR_ERROR_SERVER_ERROR;
@@ -865,17 +865,6 @@ bool SeekTime(double time, bool backwards, double *startpts)
   return ret;
 }
 
-bool IsTimeshifting()
-{
-  bool ret = false;
-  if (VNSIDemuxer)
-  {
-    const CLockObject lock(TimeshiftMutex);
-    ret = IsTimeshift;
-  }
-  return ret;
-}
-
 void SetSpeed(int) {};
 void PauseStream(bool bPaused) {}
 
@@ -992,6 +981,7 @@ PVR_ERROR OpenDialogChannelSettings(const PVR_CHANNEL &channel) { return PVR_ERR
 PVR_ERROR OpenDialogChannelAdd(const PVR_CHANNEL &channel) { return PVR_ERROR_NOT_IMPLEMENTED; }
 void DemuxReset(void) {}
 void DemuxFlush(void) {}
+void FillBuffer(bool mode) {}
 int ReadLiveStream(unsigned char *pBuffer, unsigned int iBufferSize) { return 0; }
 long long SeekLiveStream(long long iPosition, int iWhence /* = SEEK_SET */) { return -1; }
 long long LengthLiveStream(void) { return -1; }

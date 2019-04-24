@@ -299,11 +299,11 @@ bool cVNSIData::GetChannelsList(ADDON_HANDLE handle, bool radio)
   return true;
 }
 
-bool cVNSIData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t start, time_t end)
+bool cVNSIData::GetEPGForChannel(ADDON_HANDLE handle, int iChannelUid, time_t start, time_t end)
 {
   cRequestPacket vrp;
   vrp.init(VNSI_EPG_GETFORCHANNEL);
-  vrp.add_U32(channel.iUniqueId);
+  vrp.add_U32(iChannelUid);
   vrp.add_U32(start);
   vrp.add_U32(end - start);
 
@@ -319,7 +319,7 @@ bool cVNSIData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel
     EPG_TAG tag;
     memset(&tag, 0 , sizeof(tag));
 
-    tag.iUniqueChannelId    = channel.iUniqueId;
+    tag.iUniqueChannelId    = iChannelUid;
     tag.iUniqueBroadcastId  = vresp->extract_U32();
     tag.startTime           = vresp->extract_U32();
     tag.endTime             = tag.startTime + vresp->extract_U32();
