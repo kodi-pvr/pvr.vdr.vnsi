@@ -7,7 +7,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR})
 enable_language(CXX)
 
 find_package(Kodi REQUIRED)
-find_package(kodiplatform REQUIRED)
 find_package(p8-platform REQUIRED)
 
 add_definitions(-DUSE_DEMUX)
@@ -81,7 +80,6 @@ endif()
 message(STATUS "Configured render system: ${APP_RENDER_SYSTEM}")
 
 include_directories(${INCLUDES}
-                    ${kodiplatform_INCLUDE_DIRS}
                     ${p8-platform_INCLUDE_DIRS}
                     ${KODI_INCLUDE_DIR})
 
