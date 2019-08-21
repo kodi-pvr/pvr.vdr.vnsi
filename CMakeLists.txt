@@ -1,10 +1,7 @@
+cmake_minimum_required(VERSION 3.5)
 project(pvr.vdr.vnsi)
 
-cmake_minimum_required(VERSION 2.6)
-
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR})
-
-enable_language(CXX)
 
 find_package(Kodi REQUIRED)
 find_package(p8-platform REQUIRED)
@@ -81,7 +78,7 @@ message(STATUS "Configured render system: ${APP_RENDER_SYSTEM}")
 
 include_directories(${INCLUDES}
                     ${p8-platform_INCLUDE_DIRS}
-                    ${KODI_INCLUDE_DIR})
+                    ${KODI_INCLUDE_DIR}/..) # Hack way with "/..", need bigger Kodi cmake rework to match right include ways
 
 build_addon(pvr.vdr.vnsi VDR DEPLIBS)
 
