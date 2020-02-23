@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/kodi-pvr/pvr.vdr.vnsi.svg?branch=master)](https://travis-ci.org/kodi-pvr/pvr.vdr.vnsi)
+[![Build Status](https://dev.azure.com/teamkodi/kodi-pvr/_apis/build/status/kodi-pvr.pvr.vdr.vnsi?branchName=Leia)](https://dev.azure.com/teamkodi/kodi-pvr/_build/latest?definitionId=69&branchName=Leia)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/5120/badge.svg)](https://scan.coverity.com/projects/5120)
 
 # VDR VNSI PVR
