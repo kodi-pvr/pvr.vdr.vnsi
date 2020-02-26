@@ -1,3 +1,8 @@
+3.6.4
+- Remove usage of kodi-platform as depend
+- Add Azure for Windows test builds
+- Minor cleanups
+
 3.6.3
 - With this version, kodi-pvr is upstream repo for this addon again. 
 - Merged sources from FernetMenta/pvr.vdr.vnsi master.
