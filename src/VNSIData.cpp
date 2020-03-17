@@ -340,6 +340,9 @@ bool cVNSIData::GetEPGForChannel(ADDON_HANDLE handle, int iChannelUid, time_t st
     if (tag.strPlotOutline)
       tag.strEpisodeName    = strdup(tag.strPlotOutline);
     tag.iFlags              = EPG_TAG_FLAG_UNDEFINED;
+    tag.iSeriesNumber = EPG_TAG_INVALID_SERIES_EPISODE;
+    tag.iEpisodeNumber = EPG_TAG_INVALID_SERIES_EPISODE;
+    tag.iEpisodePartNumber = EPG_TAG_INVALID_SERIES_EPISODE;
 
     PVR->TransferEpgEntry(handle, &tag);
     free((void*)tag.strEpisodeName);
@@ -906,6 +909,8 @@ PVR_ERROR cVNSIData::GetRecordingsList(ADDON_HANDLE handle)
     tag.iPriority       = vresp->extract_U32();
     tag.iLifetime       = vresp->extract_U32();
     tag.bIsDeleted      = false;
+    tag.iSeriesNumber = PVR_RECORDING_INVALID_SERIES_EPISODE;
+    tag.iEpisodeNumber = PVR_RECORDING_INVALID_SERIES_EPISODE;
 
     char *strChannelName = vresp->extract_String();
     strncpy(tag.strChannelName, strChannelName, sizeof(tag.strChannelName) - 1);
