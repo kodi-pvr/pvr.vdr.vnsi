@@ -5,7 +5,7 @@
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/5120/badge.svg)](https://scan.coverity.com/projects/5120)
 
 # VDR VNSI PVR
-VDR VNSI PVR client addon for [Kodi] (http://kodi.tv)
+VDR VNSI PVR client addon for [Kodi](https://kodi.tv)
 
 ## Build instructions
 
@@ -19,5 +19,5 @@ VDR VNSI PVR client addon for [Kodi] (http://kodi.tv)
 
 ##### Useful links
 
-* [Kodi's PVR user support] (http://forum.kodi.tv/forumdisplay.php?fid=169)
-* [Kodi's PVR development support] (http://forum.kodi.tv/forumdisplay.php?fid=136)
+* [Kodi's PVR user support](https://forum.kodi.tv/forumdisplay.php?fid=169)
+* [Kodi's PVR development support](https://forum.kodi.tv/forumdisplay.php?fid=136)
