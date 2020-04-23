@@ -124,7 +124,7 @@ bool cVNSISession::Login()
 
     if (m_name.empty())
     {
-      XBMC->Log(LOG_NOTICE, "Logged in at '%lu+%i' to '%s' Version: '%s' with protocol version '%d'",
+      XBMC->Log(LOG_INFO, "Logged in at '%lu+%i' to '%s' Version: '%s' with protocol version '%d'",
                 vdrTime, vdrTimeOffset, ServerName, ServerVersion, protocol);
     }
   }
