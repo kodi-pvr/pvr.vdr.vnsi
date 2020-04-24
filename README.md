@@ -1,11 +1,11 @@
-[![License: GPL v2+](https://img.shields.io/badge/License-GPL%20v2+-blue.svg)](LICENSE.md)
+[![License: GPL-2.0-or-later](https://img.shields.io/badge/License-GPL%20v2+-blue.svg)](LICENSE.md)
 [![Build Status](https://travis-ci.org/kodi-pvr/pvr.vdr.vnsi.svg?branch=Matrix)](https://travis-ci.org/kodi-pvr/pvr.vdr.vnsi/branches)
 [![Build Status](https://dev.azure.com/teamkodi/kodi-pvr/_apis/build/status/kodi-pvr.pvr.vdr.vnsi?branchName=Matrix)](https://dev.azure.com/teamkodi/kodi-pvr/_build/latest?definitionId=69&branchName=Matrix)
 [![Build Status](https://jenkins.kodi.tv/view/Addons/job/kodi-pvr/job/pvr.vdr.vnsi/job/Matrix/badge/icon)](https://jenkins.kodi.tv/blue/organizations/jenkins/kodi-pvr%2Fpvr.vdr.vnsi/branches/)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/5120/badge.svg)](https://scan.coverity.com/projects/5120)
 
 # VDR VNSI PVR
-VDR VNSI PVR client addon for [Kodi] (http://kodi.tv)
+VDR VNSI PVR client addon for [Kodi](https://kodi.tv)
 
 ## Build instructions
 
@@ -19,5 +19,5 @@ VDR VNSI PVR client addon for [Kodi] (http://kodi.tv)
 
 ##### Useful links
 
-* [Kodi's PVR user support] (http://forum.kodi.tv/forumdisplay.php?fid=169)
-* [Kodi's PVR development support] (http://forum.kodi.tv/forumdisplay.php?fid=136)
+* [Kodi's PVR user support](https://forum.kodi.tv/forumdisplay.php?fid=169)
+* [Kodi's PVR development support](https://forum.kodi.tv/forumdisplay.php?fid=136)
