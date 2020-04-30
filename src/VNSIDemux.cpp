@@ -323,17 +323,17 @@ bool cVNSIDemux::SwitchChannel(const PVR_CHANNEL &channelinfo)
   return true;
 }
 
-bool cVNSIDemux::GetSignalStatus(PVR_SIGNAL_STATUS &qualityinfo)
+bool cVNSIDemux::GetSignalStatus(PVR_SIGNAL_STATUS *qualityinfo)
 {
   if (m_Quality.fe_name.empty())
     return true;
 
-  strncpy(qualityinfo.strAdapterName, m_Quality.fe_name.c_str(), sizeof(qualityinfo.strAdapterName));
-  strncpy(qualityinfo.strAdapterStatus, m_Quality.fe_status.c_str(), sizeof(qualityinfo.strAdapterStatus));
-  qualityinfo.iSignal = (uint16_t)m_Quality.fe_signal;
-  qualityinfo.iSNR = (uint16_t)m_Quality.fe_snr;
-  qualityinfo.iBER = (uint32_t)m_Quality.fe_ber;
-  qualityinfo.iUNC = (uint32_t)m_Quality.fe_unc;
+  strncpy(qualityinfo->strAdapterName, m_Quality.fe_name.c_str(), sizeof(qualityinfo->strAdapterName));
+  strncpy(qualityinfo->strAdapterStatus, m_Quality.fe_status.c_str(), sizeof(qualityinfo->strAdapterStatus));
+  qualityinfo->iSignal = (uint16_t)m_Quality.fe_signal;
+  qualityinfo->iSNR = (uint16_t)m_Quality.fe_snr;
+  qualityinfo->iBER = (uint32_t)m_Quality.fe_ber;
+  qualityinfo->iUNC = (uint32_t)m_Quality.fe_unc;
 
   return true;
 }

@@ -54,7 +54,7 @@ public:
   DemuxPacket* Read();
   bool SwitchChannel(const PVR_CHANNEL &channelinfo);
   int CurrentChannel() { return m_channelinfo.iChannelNumber; }
-  bool GetSignalStatus(PVR_SIGNAL_STATUS &qualityinfo);
+  bool GetSignalStatus(PVR_SIGNAL_STATUS *qualityinfo);
   bool IsTimeshift() { return m_bTimeshift; }
   bool SeekTime(int time, bool backwards, double *startpts);
   bool GetStreamTimes(PVR_STREAM_TIMES *times);
