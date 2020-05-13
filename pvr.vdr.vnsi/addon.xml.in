@@ -6,7 +6,7 @@
   provider-name="Team Kodi, FernetMenta">
   <requires>@ADDON_DEPENDS@</requires>
   <extension
-    point="xbmc.pvrclient"
+    point="kodi.pvrclient"
     library_@PLATFORM@="@LIBRARY_FILENAME@"/>
   <extension point="xbmc.addon.metadata">
     <summary lang="af_ZA">PVR kliënt om VDR te konnekteer aan Kodi oor die VNSI koppelvlak</summary>
