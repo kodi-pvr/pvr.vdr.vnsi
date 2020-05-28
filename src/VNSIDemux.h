@@ -73,7 +73,7 @@ protected:
   bool m_bTimeshift;
   uint32_t m_MuxPacketSerial;
   time_t m_ReferenceTime;
-  double m_ReferenceDTS;
+  double m_ReferenceDTS = 0.;
   double m_minPTS;
   double m_maxPTS;
   CVNSIDemuxStatus m_statusCon;
