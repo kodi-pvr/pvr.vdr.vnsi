@@ -110,14 +110,20 @@ bool cVNSIData::Start(const std::string& hostname, int port, const char* name, c
 
 void cVNSIData::OnDisconnect()
 {
-  PVR->ConnectionStateChange("vnsi connection lost", PVR_CONNECTION_STATE_DISCONNECTED, XBMC->GetLocalizedString(30044));
+  char* str;
+
+  PVR->ConnectionStateChange("vnsi connection lost", PVR_CONNECTION_STATE_DISCONNECTED, str = XBMC->GetLocalizedString(30044));
+  XBMC->FreeString(str);
 }
 
 void cVNSIData::OnReconnect()
 {
+  char* str;
+
   EnableStatusInterface(true, false);
 
-  PVR->ConnectionStateChange("vnsi connection established", PVR_CONNECTION_STATE_CONNECTED, XBMC->GetLocalizedString(30045));
+  PVR->ConnectionStateChange("vnsi connection established", PVR_CONNECTION_STATE_CONNECTED, str = XBMC->GetLocalizedString(30045));
+  XBMC->FreeString(str);
 
   PVR->TriggerChannelUpdate();
   PVR->TriggerTimerUpdate();
@@ -752,11 +758,14 @@ PVR_ERROR cVNSIData::UpdateTimer(const PVR_TIMER &timerinfo)
 
 PVR_ERROR cVNSIData::GetTimerTypes(PVR_TIMER_TYPE types[], int *size)
 {
+  char* str;
+
   *size = 0;
   // One-shot manual
   memset(&types[*size], 0, sizeof(types[*size]));
   types[*size].iId = VNSI_TIMER_TYPE_MAN;
-  strncpy(types[*size].strDescription, XBMC->GetLocalizedString(30200), 64);
+  strncpy(types[*size].strDescription, str = XBMC->GetLocalizedString(30200), 64);
+  XBMC->FreeString(str);
   types[*size].iAttributes = PVR_TIMER_TYPE_IS_MANUAL               |
                              PVR_TIMER_TYPE_SUPPORTS_ENABLE_DISABLE |
                              PVR_TIMER_TYPE_SUPPORTS_CHANNELS       |
@@ -771,7 +780,8 @@ PVR_ERROR cVNSIData::GetTimerTypes(PVR_TIMER_TYPE types[], int *size)
   // Repeating manual
   memset(&types[*size], 0, sizeof(types[*size]));
   types[*size].iId = VNSI_TIMER_TYPE_MAN_REPEAT;
-  strncpy(types[*size].strDescription, XBMC->GetLocalizedString(30201), 64);
+  strncpy(types[*size].strDescription, str = XBMC->GetLocalizedString(30201), 64);
+  XBMC->FreeString(str);
   types[*size].iAttributes = PVR_TIMER_TYPE_IS_MANUAL               |
                              PVR_TIMER_TYPE_IS_REPEATING            |
                              PVR_TIMER_TYPE_SUPPORTS_ENABLE_DISABLE |
@@ -788,7 +798,8 @@ PVR_ERROR cVNSIData::GetTimerTypes(PVR_TIMER_TYPE types[], int *size)
   // Repeating manual
   memset(&types[*size], 0, sizeof(types[*size]));
   types[*size].iId = VNSI_TIMER_TYPE_MAN_REPEAT_CHILD;
-  strncpy(types[*size].strDescription, XBMC->GetLocalizedString(30205), 64);
+  strncpy(types[*size].strDescription, str = XBMC->GetLocalizedString(30205), 64);
+  XBMC->FreeString(str);
   types[*size].iAttributes = PVR_TIMER_TYPE_IS_MANUAL               |
                              PVR_TIMER_TYPE_IS_READONLY             |
                              PVR_TIMER_TYPE_SUPPORTS_CHANNELS       |
@@ -802,7 +813,8 @@ PVR_ERROR cVNSIData::GetTimerTypes(PVR_TIMER_TYPE types[], int *size)
   // One-shot epg-based
   memset(&types[*size], 0, sizeof(types[*size]));
   types[*size].iId = VNSI_TIMER_TYPE_EPG;
-  strncpy(types[*size].strDescription, XBMC->GetLocalizedString(30202), 64);
+  strncpy(types[*size].strDescription, str = XBMC->GetLocalizedString(30202), 64);
+  XBMC->FreeString(str);
   types[*size].iAttributes = PVR_TIMER_TYPE_SUPPORTS_ENABLE_DISABLE    |
                              PVR_TIMER_TYPE_REQUIRES_EPG_TAG_ON_CREATE |
                              PVR_TIMER_TYPE_SUPPORTS_CHANNELS          |
@@ -831,7 +843,8 @@ PVR_ERROR cVNSIData::GetTimerTypes(PVR_TIMER_TYPE types[], int *size)
       // EPG search timer
       memset(&types[*size], 0, sizeof(types[*size]));
       types[*size].iId = VNSI_TIMER_TYPE_EPG_SEARCH;
-      strncpy(types[*size].strDescription, XBMC->GetLocalizedString(30204), 64);
+      strncpy(types[*size].strDescription, str = XBMC->GetLocalizedString(30204), 64);
+      XBMC->FreeString(str);
       types[*size].iAttributes = PVR_TIMER_TYPE_IS_REPEATING |
                                  PVR_TIMER_TYPE_SUPPORTS_ENABLE_DISABLE |
                                  PVR_TIMER_TYPE_SUPPORTS_CHANNELS |
@@ -844,7 +857,8 @@ PVR_ERROR cVNSIData::GetTimerTypes(PVR_TIMER_TYPE types[], int *size)
     // VPS Timer
     memset(&types[*size], 0, sizeof(types[*size]));
     types[*size].iId = VNSI_TIMER_TYPE_VPS;
-    strncpy(types[*size].strDescription, XBMC->GetLocalizedString(30203), 64);
+    strncpy(types[*size].strDescription, str = XBMC->GetLocalizedString(30203), 64);
+    XBMC->FreeString(str);
     types[*size].iAttributes = PVR_TIMER_TYPE_IS_MANUAL |
                                PVR_TIMER_TYPE_SUPPORTS_ENABLE_DISABLE |
                                PVR_TIMER_TYPE_SUPPORTS_CHANNELS       |
@@ -910,11 +924,11 @@ PVR_ERROR cVNSIData::GetRecordingsList(ADDON_HANDLE handle)
         tag.iChannelUid = uuid;
       uint8_t type = vresp->extract_U8();
       if (type == 1)
-	tag.channelType = PVR_RECORDING_CHANNEL_TYPE_RADIO;
+        tag.channelType = PVR_RECORDING_CHANNEL_TYPE_RADIO;
       else if (type == 2)
-	tag.channelType = PVR_RECORDING_CHANNEL_TYPE_TV;
+        tag.channelType = PVR_RECORDING_CHANNEL_TYPE_TV;
       else
-	tag.channelType = PVR_RECORDING_CHANNEL_TYPE_UNKNOWN;
+        tag.channelType = PVR_RECORDING_CHANNEL_TYPE_UNKNOWN;
     }
     else
     {
