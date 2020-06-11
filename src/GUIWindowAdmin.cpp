@@ -35,40 +35,44 @@
 #include <stdio.h>
 
 #if !defined(GL_UNPACK_ROW_LENGTH)
-  #if defined(GL_UNPACK_ROW_LENGTH_EXT)
-    #define GL_UNPACK_ROW_LENGTH GL_UNPACK_ROW_LENGTH_EXT
-    #define GL_UNPACK_SKIP_ROWS GL_UNPACK_SKIP_ROWS_EXT
-    #define GL_UNPACK_SKIP_PIXELS GL_UNPACK_SKIP_PIXELS_EXT
-  #else
+#if defined(GL_UNPACK_ROW_LENGTH_EXT)
+#define GL_UNPACK_ROW_LENGTH GL_UNPACK_ROW_LENGTH_EXT
+#define GL_UNPACK_SKIP_ROWS GL_UNPACK_SKIP_ROWS_EXT
+#define GL_UNPACK_SKIP_PIXELS GL_UNPACK_SKIP_PIXELS_EXT
+#else
 #undef HAS_GLES
 #endif
 #endif
 
-#define CONTROL_RENDER_ADDON                  9
-#define CONTROL_MENU                         10
-#define CONTROL_OSD_BUTTON                   13
-#define CONTROL_SPIN_TIMESHIFT_MODE          21
-#define CONTROL_SPIN_TIMESHIFT_BUFFER_RAM    22
-#define CONTROL_SPIN_TIMESHIFT_BUFFER_FILE   23
-#define CONTROL_LABEL_FILTERS                31
-#define CONTROL_RADIO_ISRADIO                32
-#define CONTROL_PROVIDERS_BUTTON             33
-#define CONTROL_CHANNELS_BUTTON              34
-#define CONTROL_FILTERSAVE_BUTTON            35
-#define CONTROL_ITEM_LIST                    36
+#define CONTROL_RENDER_ADDON 9
+#define CONTROL_MENU 10
+#define CONTROL_OSD_BUTTON 13
+#define CONTROL_SPIN_TIMESHIFT_MODE 21
+#define CONTROL_SPIN_TIMESHIFT_BUFFER_RAM 22
+#define CONTROL_SPIN_TIMESHIFT_BUFFER_FILE 23
+#define CONTROL_LABEL_FILTERS 31
+#define CONTROL_RADIO_ISRADIO 32
+#define CONTROL_PROVIDERS_BUTTON 33
+#define CONTROL_CHANNELS_BUTTON 34
+#define CONTROL_FILTERSAVE_BUTTON 35
+#define CONTROL_ITEM_LIST 36
 
 class cOSDTexture
 {
 public:
   cOSDTexture(int bpp, int x0, int y0, int x1, int y1);
   virtual ~cOSDTexture();
-  void SetPalette(int numColors, uint32_t *colors);
-  void SetBlock(int x0, int y0, int x1, int y1, int stride, void *data, int len);
+  void SetPalette(int numColors, uint32_t* colors);
+  void SetBlock(int x0, int y0, int x1, int y1, int stride, void* data, int len);
   void Clear();
-  void GetSize(int &width, int &height);
-  void GetOrigin(int &x0, int &y0) { x0 = m_x0; y0 = m_y0;};
-  bool IsDirty(int &x0, int &y0, int &x1, int &y1);
-  void *GetBuffer() {return (void*)m_buffer;};
+  void GetSize(int& width, int& height);
+  void GetOrigin(int& x0, int& y0)
+  {
+    x0 = m_x0;
+    y0 = m_y0;
+  };
+  bool IsDirty(int& x0, int& y0, int& x1, int& y1);
+  void* GetBuffer() { return (void*)m_buffer; };
 
 protected:
   int m_x0, m_x1, m_y0, m_y1;
@@ -76,7 +80,7 @@ protected:
   int m_bpp;
   int m_numColors;
   uint32_t m_palette[256];
-  uint8_t *m_buffer;
+  uint8_t* m_buffer;
   bool m_dirty;
 };
 
@@ -87,8 +91,8 @@ cOSDTexture::cOSDTexture(int bpp, int x0, int y0, int x1, int y1)
   m_x1 = x1;
   m_y0 = y0;
   m_y1 = y1;
-  m_buffer = new uint8_t[(x1-x0+1)*(y1-y0+1)*sizeof(uint32_t)];
-  memset(m_buffer,0, (x1-x0+1)*(y1-y0+1)*sizeof(uint32_t));
+  m_buffer = new uint8_t[(x1 - x0 + 1) * (y1 - y0 + 1) * sizeof(uint32_t)];
+  memset(m_buffer, 0, (x1 - x0 + 1) * (y1 - y0 + 1) * sizeof(uint32_t));
   m_dirtyX0 = m_dirtyY0 = 0;
   m_dirtyX1 = x1 - x0;
   m_dirtyY1 = y1 - y0;
@@ -97,32 +101,32 @@ cOSDTexture::cOSDTexture(int bpp, int x0, int y0, int x1, int y1)
 
 cOSDTexture::~cOSDTexture()
 {
-  delete [] m_buffer;
+  delete[] m_buffer;
 }
 
 void cOSDTexture::Clear()
 {
-  memset(m_buffer,0, (m_x1-m_x0+1)*(m_y1-m_y0+1)*sizeof(uint32_t));
+  memset(m_buffer, 0, (m_x1 - m_x0 + 1) * (m_y1 - m_y0 + 1) * sizeof(uint32_t));
   m_dirtyX0 = m_dirtyY0 = 0;
   m_dirtyX1 = m_x1 - m_x0;
   m_dirtyY1 = m_y1 - m_y0;
   m_dirty = false;
 }
 
-void cOSDTexture::SetBlock(int x0, int y0, int x1, int y1, int stride, void *data, int len)
+void cOSDTexture::SetBlock(int x0, int y0, int x1, int y1, int stride, void* data, int len)
 {
   int line = y0;
   int col;
   int color;
   int width = m_x1 - m_x0 + 1;
-  uint8_t *dataPtr = (uint8_t*)data;
+  uint8_t* dataPtr = (uint8_t*)data;
   int pos = 0;
-  uint32_t *buffer = (uint32_t*)m_buffer;
+  uint32_t* buffer = (uint32_t*)m_buffer;
   while (line <= y1)
   {
     int lastPos = pos;
     col = x0;
-    int offset = line*width;
+    int offset = line * width;
     while (col <= x1)
     {
       if (pos >= len)
@@ -133,19 +137,19 @@ void cOSDTexture::SetBlock(int x0, int y0, int x1, int y1, int stride, void *dat
       color = dataPtr[pos];
       if (m_bpp == 8)
       {
-        buffer[offset+col] = m_palette[color];
+        buffer[offset + col] = m_palette[color];
       }
       else if (m_bpp == 4)
       {
-        buffer[offset+col] = m_palette[color & 0x0F];
+        buffer[offset + col] = m_palette[color & 0x0F];
       }
       else if (m_bpp == 2)
       {
-        buffer[offset+col] = m_palette[color & 0x03];
+        buffer[offset + col] = m_palette[color & 0x03];
       }
       else if (m_bpp == 1)
       {
-        buffer[offset+col] = m_palette[color & 0x01];
+        buffer[offset + col] = m_palette[color & 0x01];
       }
       pos++;
       col++;
@@ -164,23 +168,24 @@ void cOSDTexture::SetBlock(int x0, int y0, int x1, int y1, int stride, void *dat
   m_dirty = true;
 }
 
-void cOSDTexture::SetPalette(int numColors, uint32_t *colors)
+void cOSDTexture::SetPalette(int numColors, uint32_t* colors)
 {
   m_numColors = numColors;
-  for (int i=0; i<m_numColors; i++)
+  for (int i = 0; i < m_numColors; i++)
   {
     // convert from ARGB to RGBA
-    m_palette[i] = ((colors[i] & 0xFF000000)) | ((colors[i] & 0x00FF0000) >> 16) | ((colors[i] & 0x0000FF00)) | ((colors[i] & 0x000000FF) << 16);
+    m_palette[i] = ((colors[i] & 0xFF000000)) | ((colors[i] & 0x00FF0000) >> 16) |
+                   ((colors[i] & 0x0000FF00)) | ((colors[i] & 0x000000FF) << 16);
   }
 }
 
-void cOSDTexture::GetSize(int &width, int &height)
+void cOSDTexture::GetSize(int& width, int& height)
 {
   width = m_x1 - m_x0 + 1;
   height = m_y1 - m_y0 + 1;
 }
 
-bool cOSDTexture::IsDirty(int &x0, int &y0, int &x1, int &y1)
+bool cOSDTexture::IsDirty(int& x0, int& y0, int& x1, int& y1)
 {
   bool ret = m_dirty;
   x0 = m_dirtyX0;
@@ -198,20 +203,28 @@ class cOSDRender
 public:
   cOSDRender();
   virtual ~cOSDRender();
-  void SetOSDSize(int width, int height) {m_osdWidth = width; m_osdHeight = height;};
-  void SetControlSize(int width, int height) {m_controlWidth = width; m_controlHeight = height;};
+  void SetOSDSize(int width, int height)
+  {
+    m_osdWidth = width;
+    m_osdHeight = height;
+  };
+  void SetControlSize(int width, int height)
+  {
+    m_controlWidth = width;
+    m_controlHeight = height;
+  };
   void AddTexture(int wndId, int bpp, int x0, int y0, int x1, int y1, int reset);
-  void SetPalette(int wndId, int numColors, uint32_t *colors);
-  void SetBlock(int wndId, int x0, int y0, int x1, int y1, int stride, void *data, int len);
+  void SetPalette(int wndId, int numColors, uint32_t* colors);
+  void SetBlock(int wndId, int x0, int y0, int x1, int y1, int stride, void* data, int len);
   void Clear(int wndId);
   virtual void DisposeTexture(int wndId);
   virtual void FreeResources();
-  virtual void Render() {};
-  virtual void SetDevice(void *device) {};
+  virtual void Render(){};
+  virtual void SetDevice(void* device){};
   virtual bool Init() { return true; };
 
 protected:
-  cOSDTexture *m_osdTextures[MAX_TEXTURES];
+  cOSDTexture* m_osdTextures[MAX_TEXTURES];
   std::queue<cOSDTexture*> m_disposedTextures;
   int m_osdWidth, m_osdHeight;
   int m_controlWidth, m_controlHeight;
@@ -264,13 +277,14 @@ void cOSDRender::Clear(int wndId)
     m_osdTextures[wndId]->Clear();
 }
 
-void cOSDRender::SetPalette(int wndId, int numColors, uint32_t *colors)
+void cOSDRender::SetPalette(int wndId, int numColors, uint32_t* colors)
 {
   if (m_osdTextures[wndId])
     m_osdTextures[wndId]->SetPalette(numColors, colors);
 }
 
-void cOSDRender::SetBlock(int wndId, int x0, int y0, int x1, int y1, int stride, void *data, int len)
+void cOSDRender::SetBlock(
+    int wndId, int x0, int y0, int x1, int y1, int stride, void* data, int len)
 {
   if (m_osdTextures[wndId])
     m_osdTextures[wndId]->SetBlock(x0, y0, x1, y1, stride, data, len);
@@ -375,7 +389,7 @@ void cOSDRenderGL::Render()
   for (int i = 0; i < MAX_TEXTURES; i++)
   {
     int width, height, offsetX, offsetY;
-    int x0,x1,y0,y1;
+    int x0, x1, y0, y1;
     bool dirty;
 
     if (m_osdTextures[i] == 0)
@@ -383,7 +397,7 @@ void cOSDRenderGL::Render()
 
     m_osdTextures[i]->GetSize(width, height);
     m_osdTextures[i]->GetOrigin(offsetX, offsetY);
-    dirty = m_osdTextures[i]->IsDirty(x0,y0,x1,y1);
+    dirty = m_osdTextures[i]->IsDirty(x0, y0, x1, y1);
 
     // create gl texture
     if (dirty && !glIsTexture(m_hwTextures[i]))
@@ -396,7 +410,8 @@ void cOSDRenderGL::Render()
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
       glPixelStorei(GL_UNPACK_ROW_LENGTH, width);
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_osdTextures[i]->GetBuffer());
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                   m_osdTextures[i]->GetBuffer());
       glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     }
     // update texture
@@ -411,28 +426,29 @@ void cOSDRenderGL::Render()
       glPixelStorei(GL_UNPACK_ROW_LENGTH, width);
       glPixelStorei(GL_UNPACK_SKIP_PIXELS, x0);
       glPixelStorei(GL_UNPACK_SKIP_ROWS, y0);
-      glTexSubImage2D(GL_TEXTURE_2D, 0, x0, y0, x1-x0+1, y1-y0+1, GL_RGBA, GL_UNSIGNED_BYTE, m_osdTextures[i]->GetBuffer());
+      glTexSubImage2D(GL_TEXTURE_2D, 0, x0, y0, x1 - x0 + 1, y1 - y0 + 1, GL_RGBA, GL_UNSIGNED_BYTE,
+                      m_osdTextures[i]->GetBuffer());
       glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     }
 
     // render texture
 
     // calculate ndc for OSD texture
-    float destX0 = (float)offsetX*2/m_osdWidth -1;
-    float destX1 = (float)(offsetX+width)*2/m_osdWidth -1;
-    float destY0 = (float)offsetY*2/m_osdHeight -1;
-    float destY1 = (float)(offsetY+height)*2/m_osdHeight -1;
-    float aspectControl = (float)m_controlWidth/m_controlHeight;
-    float aspectOSD = (float)m_osdWidth/m_osdHeight;
+    float destX0 = (float)offsetX * 2 / m_osdWidth - 1;
+    float destX1 = (float)(offsetX + width) * 2 / m_osdWidth - 1;
+    float destY0 = (float)offsetY * 2 / m_osdHeight - 1;
+    float destY1 = (float)(offsetY + height) * 2 / m_osdHeight - 1;
+    float aspectControl = (float)m_controlWidth / m_controlHeight;
+    float aspectOSD = (float)m_osdWidth / m_osdHeight;
     if (aspectOSD > aspectControl)
     {
-      destY0 *= aspectControl/aspectOSD;
-      destY1 *= aspectControl/aspectOSD;
+      destY0 *= aspectControl / aspectOSD;
+      destY1 *= aspectControl / aspectOSD;
     }
     else if (aspectOSD < aspectControl)
     {
-      destX0 *= aspectOSD/aspectControl;
-      destX1 *= aspectOSD/aspectControl;
+      destX0 *= aspectOSD / aspectControl;
+      destX1 *= aspectOSD / aspectControl;
     }
 
     // y inveted
@@ -476,7 +492,7 @@ void cOSDRenderGL::Render()
     vertex[3].v1 = 1.0f;
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vertexVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(PackedVertex)*4, &vertex[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(PackedVertex) * 4, &vertex[0], GL_STATIC_DRAW);
 
     glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, sizeof(PackedVertex),
                           BUFFER_OFFSET(offsetof(PackedVertex, x)));
@@ -505,7 +521,7 @@ void cOSDRenderGL::Render()
     // Set vertex coordinates
     for (int i = 0; i < 4; i++)
     {
-      ver[i][2] = 0.0f;// set z to 0
+      ver[i][2] = 0.0f; // set z to 0
       ver[i][3] = 1.0f;
     }
     ver[0][0] = ver[3][0] = destX0;
@@ -756,7 +772,7 @@ bool cVNSIAdmin::OnClick(int controlId)
   }
   else if (controlId == CONTROL_PROVIDERS_BUTTON)
   {
-    if(!m_channels.m_loaded || m_ratioIsRadio->IsSelected() != m_channels.m_radio)
+    if (!m_channels.m_loaded || m_ratioIsRadio->IsSelected() != m_channels.m_radio)
     {
       ReadChannelList(m_ratioIsRadio->IsSelected());
       ReadChannelWhitelist(m_ratioIsRadio->IsSelected());
@@ -773,7 +789,7 @@ bool cVNSIAdmin::OnClick(int controlId)
   }
   else if (controlId == CONTROL_CHANNELS_BUTTON)
   {
-    if(!m_channels.m_loaded || m_ratioIsRadio->IsSelected() != m_channels.m_radio)
+    if (!m_channels.m_loaded || m_ratioIsRadio->IsSelected() != m_channels.m_radio)
     {
       ReadChannelList(m_ratioIsRadio->IsSelected());
       ReadChannelWhitelist(m_ratioIsRadio->IsSelected());
@@ -876,7 +892,7 @@ bool cVNSIAdmin::Create(int x, int y, int w, int h, void* device)
 {
   if (m_osdRender)
   {
-    m_osdRender->SetControlSize(w,h);
+    m_osdRender->SetControlSize(w, h);
     m_osdRender->SetDevice(device);
   }
   return true;
@@ -908,7 +924,7 @@ bool cVNSIAdmin::Dirty()
   return m_bIsOsdDirty;
 }
 
-bool cVNSIAdmin::CreateCB(GUIHANDLE cbhdl, int x, int y, int w, int h, void *device)
+bool cVNSIAdmin::CreateCB(GUIHANDLE cbhdl, int x, int y, int w, int h, void* device)
 {
   cVNSIAdmin* osd = static_cast<cVNSIAdmin*>(cbhdl);
   return osd->Create(x, y, w, h, device);
@@ -937,7 +953,7 @@ bool cVNSIAdmin::OnResponsePacket(cResponsePacket* resp)
   if (resp->getChannelID() == VNSI_CHANNEL_OSD)
   {
     uint32_t wnd, color, x0, y0, x1, y1, len;
-    uint8_t *data;
+    uint8_t* data;
     resp->getOSDData(wnd, color, x0, y0, x1, y1);
     if (wnd >= MAX_TEXTURES)
     {
@@ -1038,20 +1054,20 @@ bool cVNSIAdmin::ReadChannelList(bool radio)
     CChannel channel;
     channel.m_blacklist = false;
 
-    channel.m_number      = vresp->extract_U32();
-    char *strChannelName  = vresp->extract_String();
+    channel.m_number = vresp->extract_U32();
+    char* strChannelName = vresp->extract_String();
     channel.m_name = strChannelName;
-    char *strProviderName = vresp->extract_String();
-    channel.m_provider    = strProviderName;
-    channel.m_id          = vresp->extract_U32();
-                            vresp->extract_U32(); // first caid
-    char *strCaids        = vresp->extract_String();
+    char* strProviderName = vresp->extract_String();
+    channel.m_provider = strProviderName;
+    channel.m_id = vresp->extract_U32();
+    vresp->extract_U32(); // first caid
+    char* strCaids = vresp->extract_String();
     channel.SetCaids(strCaids);
     if (m_protocol >= 6)
     {
       std::string ref = vresp->extract_String();
     }
-    channel.m_radio       = radio;
+    channel.m_radio = radio;
 
     m_channels.m_channels.push_back(channel);
     m_channels.m_channelsMap[channel.m_id] = m_channels.m_channels.size() - 1;
@@ -1077,7 +1093,7 @@ bool cVNSIAdmin::ReadChannelWhitelist(bool radio)
   CProvider provider;
   while (vresp->getRemainingLength() >= 1 + 4)
   {
-    char *strProviderName = vresp->extract_String();
+    char* strProviderName = vresp->extract_String();
     provider.m_name = strProviderName;
     provider.m_caid = vresp->extract_U32();
     m_channels.m_providerWhitelist.push_back(provider);
@@ -1094,7 +1110,7 @@ bool cVNSIAdmin::SaveChannelWhitelist(bool radio)
   vrp.init(VNSI_CHANNELS_SETWHITELIST);
   vrp.add_U8(radio);
 
-  for (const auto &provider : m_channels.m_providerWhitelist)
+  for (const auto& provider : m_channels.m_providerWhitelist)
   {
     vrp.add_String(provider.m_name.c_str());
     vrp.add_S32(provider.m_caid);
@@ -1208,12 +1224,12 @@ void cVNSIAdmin::LoadListItemsChannels()
   std::string tmp;
   for (unsigned int i = 0; i < m_channels.m_channels.size(); i++)
   {
-    if(!m_channels.IsWhitelist(m_channels.m_channels[i]))
+    if (!m_channels.IsWhitelist(m_channels.m_channels[i]))
       continue;
 
     tmp = m_channels.m_channels[i].m_name;
     tmp += " (";
-    if(!m_channels.m_channels[i].m_provider.empty())
+    if (!m_channels.m_channels[i].m_provider.empty())
       tmp += m_channels.m_channels[i].m_provider;
     else
       tmp += kodi::GetLocalizedString(30114);

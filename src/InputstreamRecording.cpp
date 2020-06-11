@@ -36,7 +36,7 @@ bool cVNSIRecording::OpenRecording(const kodi::addon::PVRRecording& recinfo)
                           "XBMC RecordingStream Receiver"))
     return false;
 
-  if(!cVNSISession::Login())
+  if (!cVNSISession::Login())
     return false;
 
   cRequestPacket vrp;

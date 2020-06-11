@@ -20,32 +20,32 @@
 #include <limits.h>
 #include <sstream>
 
-#define BUTTON_START                    5
-#define BUTTON_BACK                     6
-#define BUTTON_CANCEL                   7
-#define HEADER_LABEL                    8
+#define BUTTON_START 5
+#define BUTTON_BACK 6
+#define BUTTON_CANCEL 7
+#define HEADER_LABEL 8
 
-#define SPIN_CONTROL_SOURCE_TYPE        10
-#define CONTROL_RADIO_BUTTON_TV         11
-#define CONTROL_RADIO_BUTTON_RADIO      12
-#define CONTROL_RADIO_BUTTON_FTA        13
-#define CONTROL_RADIO_BUTTON_SCRAMBLED  14
-#define CONTROL_RADIO_BUTTON_HD         15
-#define CONTROL_SPIN_COUNTRIES          16
-#define CONTROL_SPIN_SATELLITES         17
-#define CONTROL_SPIN_DVBC_INVERSION     18
-#define CONTROL_SPIN_DVBC_SYMBOLRATE    29
-#define CONTROL_SPIN_DVBC_QAM           20
-#define CONTROL_SPIN_DVBT_INVERSION     21
-#define CONTROL_SPIN_ATSC_TYPE          22
+#define SPIN_CONTROL_SOURCE_TYPE 10
+#define CONTROL_RADIO_BUTTON_TV 11
+#define CONTROL_RADIO_BUTTON_RADIO 12
+#define CONTROL_RADIO_BUTTON_FTA 13
+#define CONTROL_RADIO_BUTTON_SCRAMBLED 14
+#define CONTROL_RADIO_BUTTON_HD 15
+#define CONTROL_SPIN_COUNTRIES 16
+#define CONTROL_SPIN_SATELLITES 17
+#define CONTROL_SPIN_DVBC_INVERSION 18
+#define CONTROL_SPIN_DVBC_SYMBOLRATE 29
+#define CONTROL_SPIN_DVBC_QAM 20
+#define CONTROL_SPIN_DVBT_INVERSION 21
+#define CONTROL_SPIN_ATSC_TYPE 22
 
-#define LABEL_TYPE                      30
-#define LABEL_DEVICE                    31
-#define PROGRESS_DONE                   32
-#define LABEL_TRANSPONDER               33
-#define LABEL_SIGNAL                    34
-#define PROGRESS_SIGNAL                 35
-#define LABEL_STATUS                    36
+#define LABEL_TYPE 30
+#define LABEL_DEVICE 31
+#define PROGRESS_DONE 32
+#define LABEL_TRANSPONDER 33
+#define LABEL_SIGNAL 34
+#define PROGRESS_SIGNAL 35
+#define LABEL_STATUS 36
 
 cVNSIChannelScan::cVNSIChannelScan(kodi::addon::CInstancePVRClient& instance)
   : cVNSISession(instance), kodi::gui::CWindow("ChannelScan.xml", "skin.estuary", true, false)
@@ -379,9 +379,9 @@ bool cVNSIChannelScan::ReadCountries()
   {
     while (vresp->getRemainingLength() >= 4 + 2)
     {
-      uint32_t    index     = vresp->extract_U32();
-      const char *isoName   = vresp->extract_String();
-      const char *longName  = vresp->extract_String();
+      uint32_t index = vresp->extract_U32();
+      const char* isoName = vresp->extract_String();
+      const char* longName = vresp->extract_String();
       m_spinCountries->AddLabel(longName, index);
       if (dvdlang == isoName)
         startIndex = index;
@@ -412,9 +412,9 @@ bool cVNSIChannelScan::ReadSatellites()
   {
     while (vresp->getRemainingLength() >= 4 + 2)
     {
-      uint32_t    index     = vresp->extract_U32();
-      const char *shortName = vresp->extract_String();
-      const char *longName  = vresp->extract_String();
+      uint32_t index = vresp->extract_U32();
+      const char* shortName = vresp->extract_String();
+      const char* longName = vresp->extract_String();
       m_spinSatellites->AddLabel(longName, index);
     }
     m_spinSatellites->SetIntValue(6); /* default to Astra 19.2         */
@@ -436,11 +436,16 @@ void cVNSIChannelScan::SetControlsVisible(scantype_t type)
   m_spinDVBCqam->SetVisible(type == DVB_CABLE);
   m_spinDVBTInversion->SetVisible(type == DVB_TERR);
   m_spinATSCType->SetVisible(type == DVB_ATSC);
-  m_radioButtonTV->SetVisible(type == DVB_TERR || type == DVB_CABLE || type == DVB_SAT || type == DVB_ATSC);
-  m_radioButtonRadio->SetVisible(type == DVB_TERR || type == DVB_CABLE || type == DVB_SAT || type == DVB_ATSC);
-  m_radioButtonFTA->SetVisible(type == DVB_TERR || type == DVB_CABLE || type == DVB_SAT || type == DVB_ATSC);
-  m_radioButtonScrambled->SetVisible(type == DVB_TERR || type == DVB_CABLE || type == DVB_SAT || type == DVB_ATSC);
-  m_radioButtonHD->SetVisible(type == DVB_TERR || type == DVB_CABLE || type == DVB_SAT || type == DVB_ATSC);
+  m_radioButtonTV->SetVisible(type == DVB_TERR || type == DVB_CABLE || type == DVB_SAT ||
+                              type == DVB_ATSC);
+  m_radioButtonRadio->SetVisible(type == DVB_TERR || type == DVB_CABLE || type == DVB_SAT ||
+                                 type == DVB_ATSC);
+  m_radioButtonFTA->SetVisible(type == DVB_TERR || type == DVB_CABLE || type == DVB_SAT ||
+                               type == DVB_ATSC);
+  m_radioButtonScrambled->SetVisible(type == DVB_TERR || type == DVB_CABLE || type == DVB_SAT ||
+                                     type == DVB_ATSC);
+  m_radioButtonHD->SetVisible(type == DVB_TERR || type == DVB_CABLE || type == DVB_SAT ||
+                              type == DVB_ATSC);
 }
 
 bool cVNSIChannelScan::OnResponsePacket(cResponsePacket* resp)
@@ -456,8 +461,8 @@ bool cVNSIChannelScan::OnResponsePacket(cResponsePacket* resp)
   else if (requestID == VNSI_SCANNER_SIGNAL)
   {
     uint32_t strength = resp->extract_U32();
-    uint32_t locked   = resp->extract_U32();
-    SetSignal(strength, (locked>0));
+    uint32_t locked = resp->extract_U32();
+    SetSignal(strength, (locked > 0));
   }
   else if (requestID == VNSI_SCANNER_DEVICE)
   {
@@ -471,10 +476,10 @@ bool cVNSIChannelScan::OnResponsePacket(cResponsePacket* resp)
   }
   else if (requestID == VNSI_SCANNER_NEWCHANNEL)
   {
-    uint32_t isRadio      = resp->extract_U32();
-    uint32_t isEncrypted  = resp->extract_U32();
-    uint32_t isHD         = resp->extract_U32();
-    char* str             = resp->extract_String();
+    uint32_t isRadio = resp->extract_U32();
+    uint32_t isEncrypted = resp->extract_U32();
+    uint32_t isHD = resp->extract_U32();
+    char* str = resp->extract_String();
 
     std::shared_ptr<kodi::gui::CListItem> item = std::make_shared<kodi::gui::CListItem>(str);
 

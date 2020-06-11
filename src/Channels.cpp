@@ -13,10 +13,9 @@
 
 CProvider::CProvider(std::string name, int caid) : m_name(name), m_caid(caid), m_whitelist(false)
 {
-
 }
 
-bool CProvider::operator==(const CProvider &rhs) const
+bool CProvider::operator==(const CProvider& rhs) const
 {
   if (rhs.m_caid != m_caid)
     return false;
@@ -25,7 +24,7 @@ bool CProvider::operator==(const CProvider &rhs) const
   return true;
 }
 
-void CChannel::SetCaids(const char *caids)
+void CChannel::SetCaids(const char* caids)
 {
   m_caids.clear();
   std::string strCaids = caids;
@@ -33,16 +32,16 @@ void CChannel::SetCaids(const char *caids)
   if (pos == strCaids.npos)
     return;
 
-  strCaids.erase(0,6);
+  strCaids.erase(0, 6);
   std::string token;
   int caid;
-  char *pend;
+  char* pend;
   while ((pos = strCaids.find(";")) != strCaids.npos)
   {
     token = strCaids.substr(0, pos);
     caid = strtol(token.c_str(), &pend, 10);
     m_caids.push_back(caid);
-    strCaids.erase(0, pos+1);
+    strCaids.erase(0, pos + 1);
   }
   if (strCaids.length() > 1)
   {
@@ -56,7 +55,7 @@ void CVNSIChannels::CreateProviders()
   CProvider provider;
   m_providers.clear();
 
-  for (const auto &channel : m_channels)
+  for (const auto& channel : m_channels)
   {
     provider.m_name = channel.m_provider;
     for (auto caid : channel.m_caids)
@@ -83,12 +82,12 @@ void CVNSIChannels::CreateProviders()
 void CVNSIChannels::LoadProviderWhitelist()
 {
   bool select = m_providerWhitelist.empty();
-  for (auto &provider : m_providers)
+  for (auto& provider : m_providers)
   {
     provider.m_whitelist = select;
   }
 
-  for (auto &w : m_providerWhitelist)
+  for (auto& w : m_providerWhitelist)
   {
     auto p_it = std::find(m_providers.begin(), m_providers.end(), w);
     if (p_it != m_providers.end())
@@ -114,7 +113,7 @@ void CVNSIChannels::LoadChannelBlacklist()
 void CVNSIChannels::ExtractProviderWhitelist()
 {
   m_providerWhitelist.clear();
-  for (const auto &provider : m_providers)
+  for (const auto& provider : m_providers)
   {
     if (provider.m_whitelist)
       m_providerWhitelist.push_back(provider);
@@ -136,14 +135,14 @@ void CVNSIChannels::ExtractProviderWhitelist()
 void CVNSIChannels::ExtractChannelBlacklist()
 {
   m_channelBlacklist.clear();
-  for (const auto &channel : m_channels)
+  for (const auto& channel : m_channels)
   {
     if (channel.m_blacklist)
       m_channelBlacklist.push_back(channel.m_id);
   }
 }
 
-bool CVNSIChannels::IsWhitelist(const CChannel &channel) const
+bool CVNSIChannels::IsWhitelist(const CChannel& channel) const
 {
   CProvider provider;
   provider.m_name = channel.m_provider;

@@ -44,7 +44,6 @@ private:
   CVNSISettings(const CVNSISettings&) = delete;
   CVNSISettings& operator=(const CVNSISettings&) = delete;
 
-
   std::string m_szHostname = DEFAULT_HOST; /*!< hostname or ip-address of the server */
   std::string m_szWolMac;
   int m_iPort = DEFAULT_PORT; /*!< TCP port of the vnsi server */

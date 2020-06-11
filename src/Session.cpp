@@ -51,7 +51,7 @@ void cVNSISession::Close()
   m_socket = nullptr;
 }
 
-bool cVNSISession::Open(const std::string& hostname, int port, const char *name)
+bool cVNSISession::Open(const std::string& hostname, int port, const char* name)
 {
   Close();
 
@@ -141,7 +141,8 @@ bool cVNSISession::Login()
   return true;
 }
 
-std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /*= 10000*/, int iDatapacketTimeout /*= 10000*/)
+std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /*= 10000*/,
+                                                           int iDatapacketTimeout /*= 10000*/)
 {
   uint32_t channelID = 0;
   uint32_t userDataLength = 0;
@@ -302,7 +303,8 @@ std::unique_ptr<cResponsePacket> cVNSISession::ReadResult(cRequestPacket* vrp)
   while ((pkt = ReadMessage(10000, 10000)))
   {
     // Discard everything other as response packets until it is received
-    if (pkt->getChannelID() == VNSI_CHANNEL_REQUEST_RESPONSE && pkt->getRequestID() == vrp->getSerial())
+    if (pkt->getChannelID() == VNSI_CHANNEL_REQUEST_RESPONSE &&
+        pkt->getRequestID() == vrp->getSerial())
     {
       return pkt;
     }
@@ -380,7 +382,7 @@ bool cVNSISession::ReadData(uint8_t* buffer, int totalBytes, int timeout)
   else if (m_socket->GetErrorNumber() == ETIMEDOUT && bytesRead > 0)
   {
     // we did read something. try to finish the read
-    bytesRead += m_socket->Read(buffer+bytesRead, totalBytes-bytesRead, timeout);
+    bytesRead += m_socket->Read(buffer + bytesRead, totalBytes - bytesRead, timeout);
     if (bytesRead == totalBytes)
       return true;
   }

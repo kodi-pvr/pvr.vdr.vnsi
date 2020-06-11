@@ -21,7 +21,7 @@ class cRequestPacket;
 
 namespace P8PLATFORM
 {
-  class CTcpConnection;
+class CTcpConnection;
 }
 
 class ATTRIBUTE_HIDDEN cVNSISession

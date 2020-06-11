@@ -21,7 +21,7 @@ public:
   CProvider() = default;
   CProvider(std::string name, int caid);
 
-  bool operator==(const CProvider &rhs) const;
+  bool operator==(const CProvider& rhs) const;
 
   std::string m_name;
   int m_caid = 0;
@@ -31,7 +31,7 @@ public:
 class ATTRIBUTE_HIDDEN CChannel
 {
 public:
-  void SetCaids(const char *caids);
+  void SetCaids(const char* caids);
 
   unsigned int m_id;
   unsigned int m_number;
@@ -52,7 +52,7 @@ public:
   void LoadChannelBlacklist();
   void ExtractProviderWhitelist();
   void ExtractChannelBlacklist();
-  bool IsWhitelist(const CChannel &channel) const;
+  bool IsWhitelist(const CChannel& channel) const;
 
   std::vector<CChannel> m_channels;
   std::map<int, int> m_channelsMap;
