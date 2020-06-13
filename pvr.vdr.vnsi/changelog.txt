@@ -1,3 +1,10 @@
+6.0.0
+- Update PVR API 7.0.0
+- Rewrite code to match new API
+- Rewrite settings.xml to match new style
+- Rework admin window to use GL on all platforms (Windows via angle)
+- Major code cleanups
+
 5.0.0
 - Update PVR API 6.5.1
 - Update Global API 1.2.0
