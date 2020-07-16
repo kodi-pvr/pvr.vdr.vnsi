@@ -1543,12 +1543,12 @@ PVR_ERROR CVNSIClientInstance::GetStreamProperties(
   return (m_demuxer->GetStreamProperties(properties) ? PVR_ERROR_NO_ERROR : PVR_ERROR_SERVER_ERROR);
 }
 
-DemuxPacket* CVNSIClientInstance::DemuxRead()
+DEMUX_PACKET* CVNSIClientInstance::DemuxRead()
 {
   if (!m_demuxer)
     return nullptr;
 
-  DemuxPacket* pkt;
+  DEMUX_PACKET* pkt;
   try
   {
     pkt = m_demuxer->Read();
@@ -1563,7 +1563,7 @@ DemuxPacket* CVNSIClientInstance::DemuxRead()
   {
     std::lock_guard<std::recursive_mutex> lock(m_timeshiftMutex);
     m_isTimeshift = m_demuxer->IsTimeshift();
-    if ((m_ptsBufferEnd - pkt->dts) / DVD_TIME_BASE > 10)
+    if ((m_ptsBufferEnd - pkt->dts) / STREAM_TIME_BASE > 10)
       m_isTimeshift = false;
     else
       m_isTimeshift = true;
