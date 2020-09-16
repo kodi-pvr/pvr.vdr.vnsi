@@ -225,9 +225,9 @@ bool cVNSIChannelScan::OnClick(int controlId)
   return true;
 }
 
-bool cVNSIChannelScan::OnAction(int actionId, uint32_t buttoncode, wchar_t unicode)
+bool cVNSIChannelScan::OnAction(ADDON_ACTION actionId)
 {
-  if (actionId == ACTION_NAV_BACK || actionId == ACTION_PREVIOUS_MENU)
+  if (actionId == ADDON_ACTION_NAV_BACK || actionId == ADDON_ACTION_PREVIOUS_MENU)
     OnClick(BUTTON_BACK);
 
   return true;

@@ -47,7 +47,7 @@ public:
   bool OnInit() override;
   bool OnFocus(int controlId) override;
   bool OnClick(int controlId) override;
-  bool OnAction(int actionId, uint32_t buttoncode, wchar_t unicode) override;
+  bool OnAction(ADDON_ACTION actionId) override;
 
 protected:
   void* Process(void) override;

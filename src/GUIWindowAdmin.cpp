@@ -26,7 +26,6 @@
 #include "ResponsePacket.h"
 #include "vnsicommand.h"
 
-#include <kodi/ActionIDs.h>
 #include <kodi/General.h>
 #include <kodi/Network.h>
 #include <kodi/gui/gl/GL.h>
@@ -623,14 +622,17 @@ bool cVNSIAdmin::Open(const std::string& hostname,
 
 bool cVNSIAdmin::IsVdrAction(int action)
 {
-  if (action == ACTION_MOVE_LEFT || action == ACTION_MOVE_RIGHT || action == ACTION_MOVE_UP ||
-      action == ACTION_MOVE_DOWN || action == ACTION_SELECT_ITEM ||
-      action == ACTION_PREVIOUS_MENU || action == REMOTE_0 || action == REMOTE_1 ||
-      action == REMOTE_2 || action == REMOTE_3 || action == REMOTE_4 || action == REMOTE_5 ||
-      action == REMOTE_6 || action == REMOTE_7 || action == REMOTE_8 || action == REMOTE_9 ||
-      action == ACTION_NAV_BACK || action == ACTION_TELETEXT_RED ||
-      action == ACTION_TELETEXT_GREEN || action == ACTION_TELETEXT_YELLOW ||
-      action == ACTION_TELETEXT_BLUE)
+  if (action == ADDON_ACTION_MOVE_LEFT || action == ADDON_ACTION_MOVE_RIGHT ||
+      action == ADDON_ACTION_MOVE_UP || action == ADDON_ACTION_MOVE_DOWN ||
+      action == ADDON_ACTION_SELECT_ITEM || action == ADDON_ACTION_PREVIOUS_MENU ||
+      action == ADDON_ACTION_REMOTE_0 || action == ADDON_ACTION_REMOTE_1 ||
+      action == ADDON_ACTION_REMOTE_2 || action == ADDON_ACTION_REMOTE_3 ||
+      action == ADDON_ACTION_REMOTE_4 || action == ADDON_ACTION_REMOTE_5 ||
+      action == ADDON_ACTION_REMOTE_6 || action == ADDON_ACTION_REMOTE_7 ||
+      action == ADDON_ACTION_REMOTE_8 || action == ADDON_ACTION_REMOTE_9 ||
+      action == ADDON_ACTION_NAV_BACK || action == ADDON_ACTION_TELETEXT_RED ||
+      action == ADDON_ACTION_TELETEXT_GREEN || action == ADDON_ACTION_TELETEXT_YELLOW ||
+      action == ADDON_ACTION_TELETEXT_BLUE)
     return true;
   else
     return false;
@@ -853,7 +855,7 @@ bool cVNSIAdmin::OnClick(int controlId)
   return false;
 }
 
-bool cVNSIAdmin::OnAction(int actionId, uint32_t buttoncode, wchar_t unicode)
+bool cVNSIAdmin::OnAction(ADDON_ACTION actionId)
 {
   if (GetFocusId() != CONTROL_OSD_BUTTON && m_bIsOsdControl)
   {
@@ -863,7 +865,7 @@ bool cVNSIAdmin::OnAction(int actionId, uint32_t buttoncode, wchar_t unicode)
   }
   else if (GetFocusId() == CONTROL_OSD_BUTTON)
   {
-    if (actionId == ACTION_SHOW_INFO)
+    if (actionId == ADDON_ACTION_SHOW_INFO)
     {
       SetFocusId(CONTROL_MENU);
       return true;
@@ -879,7 +881,7 @@ bool cVNSIAdmin::OnAction(int actionId, uint32_t buttoncode, wchar_t unicode)
     }
   }
 
-  if (actionId == ACTION_PREVIOUS_MENU || actionId == ACTION_NAV_BACK)
+  if (actionId == ADDON_ACTION_PREVIOUS_MENU || actionId == ADDON_ACTION_NAV_BACK)
   {
     kodi::gui::CWindow::Close();
     return true;
@@ -924,25 +926,25 @@ bool cVNSIAdmin::Dirty()
   return m_bIsOsdDirty;
 }
 
-bool cVNSIAdmin::CreateCB(GUIHANDLE cbhdl, int x, int y, int w, int h, void* device)
+bool cVNSIAdmin::CreateCB(kodi::gui::ClientHandle cbhdl, int x, int y, int w, int h, void* device)
 {
   cVNSIAdmin* osd = static_cast<cVNSIAdmin*>(cbhdl);
   return osd->Create(x, y, w, h, device);
 }
 
-void cVNSIAdmin::RenderCB(GUIHANDLE cbhdl)
+void cVNSIAdmin::RenderCB(kodi::gui::ClientHandle cbhdl)
 {
   cVNSIAdmin* osd = static_cast<cVNSIAdmin*>(cbhdl);
   osd->Render();
 }
 
-void cVNSIAdmin::StopCB(GUIHANDLE cbhdl)
+void cVNSIAdmin::StopCB(kodi::gui::ClientHandle cbhdl)
 {
   cVNSIAdmin* osd = static_cast<cVNSIAdmin*>(cbhdl);
   osd->Stop();
 }
 
-bool cVNSIAdmin::DirtyCB(GUIHANDLE cbhdl)
+bool cVNSIAdmin::DirtyCB(kodi::gui::ClientHandle cbhdl)
 {
   cVNSIAdmin* osd = static_cast<cVNSIAdmin*>(cbhdl);
   return osd->Dirty();
