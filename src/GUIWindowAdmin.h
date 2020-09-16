@@ -50,17 +50,17 @@ public:
   bool OnInit() override;
   bool OnFocus(int controlId) override;
   bool OnClick(int controlId) override;
-  bool OnAction(int actionId, uint32_t buttoncode, wchar_t unicode) override;
+  bool OnAction(ADDON_ACTION actionId) override;
 
   bool Create(int x, int y, int w, int h, void* device);
   void Render();
   void Stop();
   bool Dirty();
 
-  static bool CreateCB(GUIHANDLE cbhdl, int x, int y, int w, int h, void* device);
-  static void RenderCB(GUIHANDLE cbhdl);
-  static void StopCB(GUIHANDLE cbhdl);
-  static bool DirtyCB(GUIHANDLE cbhdl);
+  static bool CreateCB(kodi::gui::ClientHandle cbhdl, int x, int y, int w, int h, void* device);
+  static void RenderCB(kodi::gui::ClientHandle cbhdl);
+  static void StopCB(kodi::gui::ClientHandle cbhdl);
+  static bool DirtyCB(kodi::gui::ClientHandle cbhdl);
 
 protected:
   void* Process(void) override;

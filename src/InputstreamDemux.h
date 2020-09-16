@@ -57,12 +57,12 @@ protected:
   std::vector<kodi::addon::PVRStreamProperties> m_streams;
   kodi::addon::PVRChannel m_channelinfo;
   kodi::addon::PVRSignalStatus m_Quality;
-  bool m_bTimeshift;
-  uint32_t m_MuxPacketSerial;
-  time_t m_ReferenceTime;
-  double m_ReferenceDTS;
-  double m_minPTS;
-  double m_maxPTS;
+  bool m_bTimeshift = false;
+  uint32_t m_MuxPacketSerial = 0;
+  time_t m_ReferenceTime = 0;
+  double m_ReferenceDTS = 0.0;
+  double m_minPTS = 0.0;
+  double m_maxPTS = 0.0;
   CVNSIDemuxStatus m_statusCon;
   time_t m_lastStatus = 0;
 
