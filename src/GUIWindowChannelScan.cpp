@@ -72,7 +72,8 @@ bool cVNSIChannelScan::Open(const std::string& hostname,
 
   m_abort = false;
   m_connectionLost = false;
-  CreateThread();
+  m_threadRunning = true;
+  m_thread = std::thread([&] { Process(); });
 
   kodi::gui::CWindow::DoModal();
 
@@ -92,7 +93,9 @@ bool cVNSIChannelScan::Open(const std::string& hostname,
   delete m_progressDone;
   delete m_progressSignal;
 
-  StopThread();
+  m_threadRunning = false;
+  if (m_thread.joinable())
+    m_thread.join();
   kodi::gui::CWindow::Close();
 
   return true;
@@ -542,11 +545,11 @@ bool cVNSIChannelScan::OnResponsePacket(cResponsePacket* resp)
   return true;
 }
 
-void* cVNSIChannelScan::Process(void)
+void cVNSIChannelScan::Process()
 {
   std::unique_ptr<cResponsePacket> vresp;
 
-  while (!IsStopped())
+  while (m_threadRunning)
   {
     // try to reconnect
     if (m_connectionLost)
@@ -564,7 +567,7 @@ void* cVNSIChannelScan::Process(void)
       cVNSISession::eCONNECTIONSTATE state = TryReconnect();
       if (state != cVNSISession::CONN_ESABLISHED)
       {
-        Sleep(1000);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         continue;
       }
     }
@@ -572,7 +575,7 @@ void* cVNSIChannelScan::Process(void)
     // if there's anything in the buffer, read it
     if ((vresp = cVNSISession::ReadMessage(5, 10000)) == nullptr)
     {
-      Sleep(5);
+      std::this_thread::sleep_for(std::chrono::milliseconds(5));
       continue;
     }
 
@@ -582,5 +585,4 @@ void* cVNSIChannelScan::Process(void)
                 vresp->getChannelID());
     }
   }
-  return nullptr;
 }

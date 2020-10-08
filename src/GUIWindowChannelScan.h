@@ -11,6 +11,7 @@
 
 #include "ClientInstance.h"
 
+#include <atomic>
 #include <kodi/gui/ListItem.h>
 #include <kodi/gui/Window.h>
 #include <kodi/gui/controls/Progress.h>
@@ -18,6 +19,7 @@
 #include <kodi/gui/controls/Spin.h>
 #include <map>
 #include <string>
+#include <thread>
 
 typedef enum scantype
 {
@@ -32,7 +34,6 @@ typedef enum scantype
 class CPVRAddon;
 
 class ATTRIBUTE_HIDDEN cVNSIChannelScan : public cVNSISession,
-                                          public P8PLATFORM::CThread,
                                           public kodi::gui::CWindow
 {
 public:
@@ -50,7 +51,7 @@ public:
   bool OnAction(ADDON_ACTION actionId) override;
 
 protected:
-  void* Process(void) override;
+  void Process();
 
 private:
   bool ReadCountries();
@@ -86,4 +87,7 @@ private:
   kodi::gui::controls::CRadioButton* m_radioButtonHD = nullptr;
   kodi::gui::controls::CProgress* m_progressDone = nullptr;
   kodi::gui::controls::CProgress* m_progressSignal = nullptr;
+
+  std::atomic<bool> m_threadRunning = {false};
+  std::thread m_thread;  
 };

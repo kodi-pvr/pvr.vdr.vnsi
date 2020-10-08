@@ -25,17 +25,18 @@
 #include "Channels.h"
 #include "ClientInstance.h"
 
+#include <atomic>
 #include <kodi/gui/ListItem.h>
 #include <kodi/gui/Window.h>
 #include <kodi/gui/controls/RadioButton.h>
 #include <kodi/gui/controls/Rendering.h>
 #include <kodi/gui/controls/Spin.h>
 #include <p8-platform/threads/threads.h>
+#include <thread>
 
 class cOSDRender;
 
 class ATTRIBUTE_HIDDEN cVNSIAdmin : public cVNSISession,
-                                    public P8PLATFORM::CThread,
                                     public kodi::gui::CWindow
 {
 public:
@@ -63,7 +64,7 @@ public:
   static bool DirtyCB(kodi::gui::ClientHandle cbhdl);
 
 protected:
-  void* Process(void) override;
+  void Process();
 
 private:
   bool OnResponsePacket(cResponsePacket* resp);
@@ -93,4 +94,7 @@ private:
   cOSDRender* m_osdRender = nullptr;
   std::string m_wolMac;
   std::mutex m_osdMutex;
+
+  std::atomic<bool> m_running = {false};
+  std::thread m_thread;  
 };

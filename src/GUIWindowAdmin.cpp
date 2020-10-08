@@ -592,7 +592,8 @@ bool cVNSIAdmin::Open(const std::string& hostname,
 
   m_abort = false;
   m_connectionLost = false;
-  CreateThread();
+  m_running = true;
+  m_thread = std::thread([&] { Process(); });
 
   if (!ConnectOSD())
     return false;
@@ -607,8 +608,10 @@ bool cVNSIAdmin::Open(const std::string& hostname,
   delete m_spinTimeshiftBufferRam;
   delete m_spinTimeshiftBufferFile;
   delete m_ratioIsRadio;
-
-  StopThread();
+  
+  m_running = false;
+  if (m_thread.joinable())
+    m_thread.join();
   kodi::gui::CWindow::Close();
 
   if (m_osdRender)
@@ -1250,11 +1253,11 @@ void cVNSIAdmin::LoadListItemsChannels()
   }
 }
 
-void* cVNSIAdmin::Process(void)
+void cVNSIAdmin::Process()
 {
   std::unique_ptr<cResponsePacket> vresp;
 
-  while (!IsStopped())
+  while (m_running)
   {
     // try to reconnect
     if (m_connectionLost)
@@ -1272,7 +1275,7 @@ void* cVNSIAdmin::Process(void)
       cVNSISession::eCONNECTIONSTATE state = TryReconnect();
       if (state != cVNSISession::CONN_ESABLISHED)
       {
-        Sleep(1000);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         continue;
       }
     }
@@ -1280,7 +1283,7 @@ void* cVNSIAdmin::Process(void)
     // if there's anything in the buffer, read it
     if ((vresp = cVNSISession::ReadMessage(5, 10000)) == nullptr)
     {
-      Sleep(5);
+      std::this_thread::sleep_for(std::chrono::milliseconds(5));
       continue;
     }
 
@@ -1290,5 +1293,4 @@ void* cVNSIAdmin::Process(void)
                 vresp->getChannelID());
     }
   }
-  return nullptr;
 }

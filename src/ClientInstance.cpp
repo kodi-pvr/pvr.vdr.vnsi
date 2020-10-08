@@ -101,7 +101,9 @@ CVNSIClientInstance::CVNSIClientInstance(const CPVRAddon& base,
 CVNSIClientInstance::~CVNSIClientInstance()
 {
   m_abort = true;
-  StopThread(0);
+  m_running = false;
+  if (m_thread.joinable())
+    m_thread.join();
   Close();
 }
 
@@ -141,7 +143,8 @@ bool CVNSIClientInstance::Start(const std::string& hostname,
 
   m_abort = false;
   m_connectionLost = true;
-  CreateThread();
+  m_running = true;
+  m_thread = std::thread([&] { Process(); });
 
   kodi::addon::PVRMenuhook hook;
   hook.SetHookId(1);
@@ -1757,11 +1760,11 @@ std::unique_ptr<cResponsePacket> CVNSIClientInstance::ReadResult(cRequestPacket*
   return m_queue.Dequeue(vrp->getSerial(), message);
 }
 
-void* CVNSIClientInstance::Process()
+void CVNSIClientInstance::Process()
 {
   std::unique_ptr<cResponsePacket> vresp;
 
-  while (!IsStopped())
+  while (m_running)
   {
     // try to reconnect
     if (m_connectionLost)
@@ -1785,7 +1788,7 @@ void* CVNSIClientInstance::Process()
               "vnsi server not reacheable", PVR_CONNECTION_STATE_SERVER_UNREACHABLE, "");
         }
 
-        Sleep(1000);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         continue;
       }
     }
@@ -1793,7 +1796,7 @@ void* CVNSIClientInstance::Process()
     // if there's anything in the buffer, read it
     if ((vresp = cVNSISession::ReadMessage(5, 10000)) == nullptr)
     {
-      Sleep(5);
+      std::this_thread::sleep_for(std::chrono::milliseconds(5));
       continue;
     }
 
@@ -1866,5 +1869,4 @@ void* CVNSIClientInstance::Process()
                 vresp->getChannelID());
     }
   }
-  return nullptr;
 }

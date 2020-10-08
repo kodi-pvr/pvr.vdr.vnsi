@@ -11,12 +11,14 @@
 
 #include "Session.h"
 
+#include <atomic>
 #include <kodi/addon-instance/PVR.h>
 #include <condition_variable>
 #include <map>
 #include <mutex>
 #include <p8-platform/threads/threads.h>
 #include <string>
+#include <thread>
 
 class CPVRAddon;
 class cResponsePacket;
@@ -25,8 +27,7 @@ class cVNSIDemux;
 class cVNSIRecording;
 
 class ATTRIBUTE_HIDDEN CVNSIClientInstance : public kodi::addon::CInstancePVRClient,
-                                             public cVNSISession,
-                                             public P8PLATFORM::CThread
+                                             public cVNSISession
 {
 public:
   CVNSIClientInstance(const CPVRAddon& base, KODI_HANDLE instance, const std::string& kodiVersion);
@@ -119,7 +120,7 @@ public:
   //--==----==----==----==----==----==----==----==----==----==----==----==----==
 
 protected:
-  void* Process(void) override;
+  void Process();
   virtual bool OnResponsePacket(cResponsePacket* pkt);
 
   void OnDisconnect() override;
@@ -172,4 +173,7 @@ private:
   cVNSIRecording* m_recording = nullptr;
 
   const CPVRAddon& m_base;
+
+  std::atomic<bool> m_running = {false};
+  std::thread m_thread;
 };
