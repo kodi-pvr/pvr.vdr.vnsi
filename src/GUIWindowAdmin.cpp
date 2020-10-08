@@ -902,7 +902,7 @@ bool cVNSIAdmin::Create(int x, int y, int w, int h, void* device)
 
 void cVNSIAdmin::Render()
 {
-  const P8PLATFORM::CLockObject lock(m_osdMutex);
+  std::lock_guard<std::mutex> lock(m_osdMutex);
   if (m_osdRender)
   {
     m_osdRender->Render();
@@ -913,7 +913,7 @@ void cVNSIAdmin::Render()
 
 void cVNSIAdmin::Stop()
 {
-  const P8PLATFORM::CLockObject lock(m_osdMutex);
+  std::lock_guard<std::mutex> lock(m_osdMutex);
   if (m_osdRender)
   {
     delete m_osdRender;
@@ -966,7 +966,7 @@ bool cVNSIAdmin::OnResponsePacket(cResponsePacket* resp)
     {
       data = resp->getUserData();
       len = resp->getUserDataLength();
-      const P8PLATFORM::CLockObject lock(m_osdMutex);
+      std::lock_guard<std::mutex> lock(m_osdMutex);
       if (m_osdRender)
         m_osdRender->AddTexture(wnd, color, x0, y0, x1, y1, data[0]);
     }
@@ -974,7 +974,7 @@ bool cVNSIAdmin::OnResponsePacket(cResponsePacket* resp)
     {
       data = resp->getUserData();
       len = resp->getUserDataLength();
-      const P8PLATFORM::CLockObject lock(m_osdMutex);
+      std::lock_guard<std::mutex> lock(m_osdMutex);
       if (m_osdRender)
         m_osdRender->SetPalette(wnd, x0, (uint32_t*)data);
     }
@@ -982,7 +982,7 @@ bool cVNSIAdmin::OnResponsePacket(cResponsePacket* resp)
     {
       data = resp->getUserData();
       len = resp->getUserDataLength();
-      const P8PLATFORM::CLockObject lock(m_osdMutex);
+      std::lock_guard<std::mutex> lock(m_osdMutex);
       if (m_osdRender)
       {
         m_osdRender->SetBlock(wnd, x0, y0, x1, y1, color, data, len);
@@ -991,7 +991,7 @@ bool cVNSIAdmin::OnResponsePacket(cResponsePacket* resp)
     }
     else if (resp->getOpCodeID() == VNSI_OSD_CLEAR)
     {
-      const P8PLATFORM::CLockObject lock(m_osdMutex);
+      std::lock_guard<std::mutex> lock(m_osdMutex);
       if (m_osdRender)
         m_osdRender->Clear(wnd);
       m_bIsOsdDirty = true;
@@ -999,7 +999,7 @@ bool cVNSIAdmin::OnResponsePacket(cResponsePacket* resp)
     else if (resp->getOpCodeID() == VNSI_OSD_CLOSE)
     {
       {
-        const P8PLATFORM::CLockObject lock(m_osdMutex);
+        std::lock_guard<std::mutex> lock(m_osdMutex);
         if (m_osdRender)
           m_osdRender->DisposeTexture(wnd);
         m_bIsOsdDirty = true;

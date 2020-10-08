@@ -92,5 +92,5 @@ private:
   int m_osdWidth, m_osdHeight;
   cOSDRender* m_osdRender = nullptr;
   std::string m_wolMac;
-  P8PLATFORM::CMutex m_osdMutex;
+  std::mutex m_osdMutex;
 };

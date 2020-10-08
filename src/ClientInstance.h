@@ -13,6 +13,8 @@
 
 #include <kodi/addon-instance/PVR.h>
 #include <map>
+#include <mutex>
+#include <p8-platform/threads/threads.h>
 #include <string>
 
 class CPVRAddon;
@@ -146,7 +148,7 @@ private:
   {
     typedef std::map<int, SMessage> SMessages;
     SMessages m_queue;
-    P8PLATFORM::CMutex m_mutex;
+    std::mutex m_mutex;
 
   public:
     SMessage& Enqueue(uint32_t serial);
@@ -162,7 +164,7 @@ private:
   bool m_isTimeshift = false;
   bool m_isRealtime = false;
   int64_t m_ptsBufferEnd = 0;
-  P8PLATFORM::CMutex m_timeshiftMutex;
+  std::mutex m_timeshiftMutex;
 
   cVNSIDemux* m_demuxer = nullptr;
   cVNSIRecording* m_recording = nullptr;

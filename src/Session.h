@@ -12,7 +12,8 @@
 #include <atomic>
 #include <kodi/addon-instance/PVR.h>
 #include <memory>
-#include <p8-platform/threads/threads.h>
+#include <mutex>
+#include <p8-platform/sockets/tcp.h>
 #include <stdint.h>
 #include <string>
 
@@ -63,7 +64,7 @@ protected:
   std::string m_hostname;
   int m_port;
   std::string m_name;
-  P8PLATFORM::CMutex m_mutex;
+  std::mutex m_mutex;
   int m_protocol = 0;
   std::string m_server;
   std::string m_version;

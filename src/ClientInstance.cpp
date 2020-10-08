@@ -21,7 +21,6 @@
 #include <algorithm>
 #include <kodi/General.h>
 #include <kodi/Network.h>
-#include <p8-platform/util/StringUtils.h>
 #include <string.h>
 #include <time.h>
 
@@ -66,14 +65,14 @@ time_t SetTime(time_t t, int secondsFromMidnight)
 
 CVNSIClientInstance::SMessage& CVNSIClientInstance::Queue::Enqueue(uint32_t serial)
 {
-  const P8PLATFORM::CLockObject lock(m_mutex);
+  std::lock_guard<std::mutex> lock(m_mutex);
   return m_queue[serial];
 }
 
 std::unique_ptr<cResponsePacket> CVNSIClientInstance::Queue::Dequeue(uint32_t serial,
                                                                      SMessage& message)
 {
-  const P8PLATFORM::CLockObject lock(m_mutex);
+  std::lock_guard<std::mutex> lock(m_mutex);
   auto vresp = std::move(message.pkt);
   m_queue.erase(serial);
   return vresp;
@@ -81,7 +80,7 @@ std::unique_ptr<cResponsePacket> CVNSIClientInstance::Queue::Dequeue(uint32_t se
 
 void CVNSIClientInstance::Queue::Set(std::unique_ptr<cResponsePacket>&& vresp)
 {
-  P8PLATFORM::CLockObject lock(m_mutex);
+  std::lock_guard<std::mutex> lock(m_mutex);
   SMessages::iterator it = m_queue.find(vresp->getRequestID());
   if (it != m_queue.end())
   {
@@ -686,7 +685,7 @@ PVR_ERROR CVNSIClientInstance::GetAvailableRecordings(kodi::addon::PVRRecordings
     tag.SetPlotOutline(tag.GetEpisodeName());
     tag.SetPlot(vresp->extract_String());
     tag.SetDirectory(vresp->extract_String());
-    tag.SetRecordingId(StringUtils::Format("%i", vresp->extract_U32()));
+    tag.SetRecordingId(std::to_string(vresp->extract_U32()));
 
     results.Add(tag);
   }
@@ -1559,7 +1558,7 @@ DemuxPacket* CVNSIClientInstance::DemuxRead()
 
   if (pkt)
   {
-    const P8PLATFORM::CLockObject lock(m_timeshiftMutex);
+    std::lock_guard<std::mutex> lock(m_timeshiftMutex);
     m_isTimeshift = m_demuxer->IsTimeshift();
     if ((m_ptsBufferEnd - pkt->dts) / DVD_TIME_BASE > 10)
       m_isTimeshift = false;
@@ -1610,7 +1609,7 @@ bool CVNSIClientInstance::IsRealTimeStream()
 {
   if (m_demuxer)
   {
-    const P8PLATFORM::CLockObject lock(m_timeshiftMutex);
+    std::lock_guard<std::mutex> lock(m_timeshiftMutex);
     if (!m_isTimeshift)
       return true;
     if (m_isRealtime)

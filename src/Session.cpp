@@ -19,8 +19,6 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <kodi/DemuxPacket.h>
-#include <p8-platform/sockets/tcp.h>
-#include <p8-platform/util/timeutils.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -41,7 +39,7 @@ cVNSISession::~cVNSISession()
 
 void cVNSISession::Close()
 {
-  P8PLATFORM::CLockObject lock(m_mutex);
+  std::lock_guard<std::mutex> lock(m_mutex);
   if (IsOpen())
   {
     m_socket->Close();
@@ -275,7 +273,7 @@ std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /
 
 bool cVNSISession::TransmitMessage(cRequestPacket* vrp)
 {
-  P8PLATFORM::CLockObject lock(m_mutex);
+  std::lock_guard<std::mutex> lock(m_mutex);
 
   if (!IsOpen())
     return false;
@@ -357,7 +355,7 @@ cVNSISession::eCONNECTIONSTATE cVNSISession::TryReconnect()
 
 bool cVNSISession::IsOpen()
 {
-  P8PLATFORM::CLockObject lock(m_mutex);
+  std::lock_guard<std::mutex> lock(m_mutex);
   return m_socket && m_socket->IsOpen();
 }
 
