@@ -85,7 +85,7 @@ void CVNSIClientInstance::Queue::Set(std::unique_ptr<cResponsePacket>&& vresp)
   if (it != m_queue.end())
   {
     it->second.pkt = std::move(vresp);
-    it->second.event.Broadcast();
+    it->second.m_condition.notify_one();
   }
 }
 
@@ -1746,8 +1746,9 @@ std::unique_ptr<cResponsePacket> CVNSIClientInstance::ReadResult(cRequestPacket*
 {
   SMessage& message = m_queue.Enqueue(vrp->getSerial());
 
+  std::unique_lock<std::mutex> lock(m_queue.m_mutex);
   if (cVNSISession::TransmitMessage(vrp) &&
-      !message.event.Wait(CVNSISettings::Get().GetConnectTimeout() * 1000))
+      message.m_condition.wait_for(lock, std::chrono::milliseconds(CVNSISettings::Get().GetConnectTimeout() * 1000)) == std::cv_status::timeout)
   {
     kodi::Log(ADDON_LOG_ERROR, "%s - request timed out after %d seconds", __func__,
               CVNSISettings::Get().GetConnectTimeout());

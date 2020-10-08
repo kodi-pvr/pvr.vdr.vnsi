@@ -12,6 +12,7 @@
 #include "Session.h"
 
 #include <kodi/addon-instance/PVR.h>
+#include <condition_variable>
 #include <map>
 #include <mutex>
 #include <p8-platform/threads/threads.h>
@@ -140,7 +141,8 @@ private:
 
   struct SMessage
   {
-    P8PLATFORM::CEvent event;
+    std::condition_variable m_condition;
+    std::mutex m_messageMutex;
     std::unique_ptr<cResponsePacket> pkt;
   };
 
@@ -148,9 +150,9 @@ private:
   {
     typedef std::map<int, SMessage> SMessages;
     SMessages m_queue;
-    std::mutex m_mutex;
 
   public:
+    std::mutex m_mutex;
     SMessage& Enqueue(uint32_t serial);
     std::unique_ptr<cResponsePacket> Dequeue(uint32_t serial, SMessage& message);
     void Set(std::unique_ptr<cResponsePacket>&& vresp);

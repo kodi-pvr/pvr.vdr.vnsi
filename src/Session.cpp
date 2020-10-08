@@ -16,11 +16,13 @@
 #include "Tools.h"
 #include "vnsicommand.h"
 
+#include <chrono>
 #include <errno.h>
 #include <fcntl.h>
 #include <kodi/DemuxPacket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <thread>
 
 /* Needed on Mac OS/X */
 
@@ -53,15 +55,15 @@ bool cVNSISession::Open(const std::string& hostname, int port, const char* name)
 {
   Close();
 
-  uint64_t iNow = P8PLATFORM::GetTimeMs();
-  uint64_t iTarget = iNow + CVNSISettings::Get().GetConnectTimeout() * 1000;
+  auto iNow = std::chrono::system_clock::now();
+  auto iTarget = iNow + std::chrono::milliseconds(CVNSISettings::Get().GetConnectTimeout() * 1000);
   if (!m_socket)
     m_socket = new P8PLATFORM::CTcpConnection(hostname.c_str(), port);
   while (!m_socket->IsOpen() && iNow < iTarget && !m_abort)
   {
-    if (!m_socket->Open(iTarget - iNow))
-      P8PLATFORM::CEvent::Sleep(100);
-    iNow = P8PLATFORM::GetTimeMs();
+    if (!m_socket->Open(std::chrono::duration_cast<std::chrono::milliseconds>(iTarget - iNow).count()))
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    iNow = std::chrono::system_clock::now();
   }
 
   if (!m_socket->IsOpen() && !m_abort)
@@ -395,5 +397,5 @@ bool cVNSISession::ReadData(uint8_t* buffer, int totalBytes, int timeout)
 
 void cVNSISession::SleepMs(int ms)
 {
-  P8PLATFORM::CEvent::Sleep(ms);
+  std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
