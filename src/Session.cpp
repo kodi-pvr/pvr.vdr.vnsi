@@ -42,9 +42,9 @@ cVNSISession::~cVNSISession()
 void cVNSISession::Close()
 {
   std::lock_guard<std::mutex> lock(m_mutex);
-  if (IsOpen())
+  if (m_socket && m_socket->is_valid())
   {
-    m_socket->Close();
+    m_socket->close();
   }
 
   delete m_socket;
@@ -58,18 +58,26 @@ bool cVNSISession::Open(const std::string& hostname, int port, const char* name)
   auto iNow = std::chrono::system_clock::now();
   auto iTarget = iNow + std::chrono::milliseconds(CVNSISettings::Get().GetConnectTimeout() * 1000);
   if (!m_socket)
-    m_socket = new P8PLATFORM::CTcpConnection(hostname.c_str(), port);
-  while (!m_socket->IsOpen() && iNow < iTarget && !m_abort)
   {
-    if (!m_socket->Open(std::chrono::duration_cast<std::chrono::milliseconds>(iTarget - iNow).count()))
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    iNow = std::chrono::system_clock::now();
+    m_socket = new vdrvnsi::Socket();
+    if (!m_socket->create())
+    {
+      kodi::Log(ADDON_LOG_DEBUG, "%s - failed to connect to the backend", __func__);
+      return false;
+    }
+  }
+  while (!m_socket->is_valid() && iNow < iTarget && !m_abort)
+  {
+    if (!m_socket->connect(hostname, port))
+    {
+      kodi::Log(ADDON_LOG_DEBUG, "%s - failed to connect to the backend", __func__);
+      return false;
+    }
   }
 
-  if (!m_socket->IsOpen() && !m_abort)
+  if (!m_socket->is_valid() && !m_abort)
   {
-    kodi::Log(ADDON_LOG_DEBUG, "%s - failed to connect to the backend (%s)", __func__,
-              m_socket->GetError().c_str());
+    kodi::Log(ADDON_LOG_DEBUG, "%s - failed to connect to the backend", __func__);
     return false;
   }
 
@@ -280,11 +288,11 @@ bool cVNSISession::TransmitMessage(cRequestPacket* vrp)
   if (!IsOpen())
     return false;
 
-  ssize_t iWriteResult = m_socket->Write(vrp->getPtr(), vrp->getLen());
-  if (iWriteResult != (ssize_t)vrp->getLen())
+  int64_t iWriteResult = m_socket->send(reinterpret_cast<char*>(vrp->getPtr()), vrp->getLen());
+  if (iWriteResult != (int64_t)vrp->getLen())
   {
-    kodi::Log(ADDON_LOG_ERROR, "%s - Failed to write packet (%s), bytes written: %d of total: %d",
-              __func__, m_socket->GetError().c_str(), iWriteResult, vrp->getLen());
+    kodi::Log(ADDON_LOG_ERROR, "%s - Failed to write packet, bytes written: %d of total: %d",
+              __func__, iWriteResult, vrp->getLen());
     return false;
   }
   return true;
@@ -358,7 +366,7 @@ cVNSISession::eCONNECTIONSTATE cVNSISession::TryReconnect()
 bool cVNSISession::IsOpen()
 {
   std::lock_guard<std::mutex> lock(m_mutex);
-  return m_socket && m_socket->IsOpen();
+  return m_socket && m_socket->is_valid();
 }
 
 void cVNSISession::SignalConnectionLost()
@@ -376,19 +384,15 @@ void cVNSISession::SignalConnectionLost()
 
 bool cVNSISession::ReadData(uint8_t* buffer, int totalBytes, int timeout)
 {
-  int bytesRead = m_socket->Read(buffer, totalBytes, timeout);
+  int bytesRead = m_socket->receive(reinterpret_cast<char*>(buffer), totalBytes, 0, timeout);
   if (bytesRead == totalBytes)
     return true;
-  else if (m_socket->GetErrorNumber() == ETIMEDOUT && bytesRead > 0)
+  else if (bytesRead > 0)
   {
     // we did read something. try to finish the read
-    bytesRead += m_socket->Read(buffer + bytesRead, totalBytes - bytesRead, timeout);
+    bytesRead += m_socket->receive(reinterpret_cast<char*>(buffer + bytesRead), totalBytes - bytesRead, 0, timeout);
     if (bytesRead == totalBytes)
       return true;
-  }
-  else if (m_socket->GetErrorNumber() == ETIMEDOUT)
-  {
-    return false;
   }
 
   SignalConnectionLost();

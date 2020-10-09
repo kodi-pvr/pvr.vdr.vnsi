@@ -25,7 +25,7 @@ include_directories(${INCLUDES}
 list(APPEND DEPLIBS ${p8-platform_LIBRARIES})
 if(WIN32)
   list(APPEND DEPLIBS ws2_32)
-  add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE)
+  add_definitions(-D_WINSOCKAPI_ -D_WINSOCK_DEPRECATED_NO_WARNINGS -D_CRT_NONSTDC_NO_DEPRECATE)
 endif()
 
 list(APPEND VDR_SOURCES src/Addon.cpp
@@ -39,6 +39,7 @@ list(APPEND VDR_SOURCES src/Addon.cpp
                         src/ResponsePacket.cpp
                         src/Session.cpp
                         src/Settings.cpp
+                        src/Socket.cpp
                         src/Tools.cpp)
 
 list(APPEND VDR_HEADERS src/Addon.h
@@ -52,6 +53,7 @@ list(APPEND VDR_HEADERS src/Addon.h
                         src/ResponsePacket.h
                         src/Session.h
                         src/Settings.h
+                        src/Socket.h
                         src/Tools.h
                         src/vnsicommand.h)
 

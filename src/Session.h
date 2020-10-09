@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include "Socket.h"
+
 #include <atomic>
 #include <kodi/addon-instance/PVR.h>
 #include <memory>
@@ -74,7 +76,7 @@ protected:
 private:
   bool ReadData(uint8_t* buffer, int totalBytes, int timeout);
 
-  P8PLATFORM::CTcpConnection* m_socket = nullptr;
+  vdrvnsi::Socket* m_socket = nullptr;
 
   kodi::addon::CInstancePVRClient& m_instance;
 };

@@ -10,6 +10,7 @@
 #include "ResponsePacket.h"
 
 #include "ClientInstance.h"
+#include "Socket.h"
 #include "Tools.h"
 #include "vnsicommand.h"
 
