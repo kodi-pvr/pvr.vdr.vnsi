@@ -14,7 +14,6 @@
 #include "Tools.h"
 #include "vnsicommand.h"
 
-#include <p8-platform/sockets/tcp.h>
 #include <stdexcept>
 #include <stdlib.h>
 #include <string.h>

@@ -4,7 +4,6 @@ project(pvr.vdr.vnsi)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR})
 
 find_package(Kodi REQUIRED)
-find_package(p8-platform REQUIRED)
 
 if(NOT WIN32 AND (APP_RENDER_SYSTEM STREQUAL "gl" OR NOT APP_RENDER_SYSTEM))
   find_package(OpenGl REQUIRED)
@@ -19,10 +18,8 @@ else()
 endif()
 
 include_directories(${INCLUDES}
-                    ${p8-platform_INCLUDE_DIRS}
                     ${KODI_INCLUDE_DIR}/..) # Hack way with "/..", need bigger Kodi cmake rework to match right include ways
 
-list(APPEND DEPLIBS ${p8-platform_LIBRARIES})
 if(WIN32)
   list(APPEND DEPLIBS ws2_32)
   add_definitions(-D_WINSOCKAPI_ -D_WINSOCK_DEPRECATED_NO_WARNINGS -D_CRT_NONSTDC_NO_DEPRECATE)

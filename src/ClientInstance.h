@@ -16,7 +16,6 @@
 #include <condition_variable>
 #include <map>
 #include <mutex>
-#include <p8-platform/threads/threads.h>
 #include <string>
 #include <thread>
 

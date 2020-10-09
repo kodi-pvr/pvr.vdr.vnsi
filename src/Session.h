@@ -15,7 +15,6 @@
 #include <kodi/addon-instance/PVR.h>
 #include <memory>
 #include <mutex>
-#include <p8-platform/sockets/tcp.h>
 #include <stdint.h>
 #include <string>
 

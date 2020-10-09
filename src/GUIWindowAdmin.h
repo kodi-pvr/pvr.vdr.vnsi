@@ -31,7 +31,6 @@
 #include <kodi/gui/controls/RadioButton.h>
 #include <kodi/gui/controls/Rendering.h>
 #include <kodi/gui/controls/Spin.h>
-#include <p8-platform/threads/threads.h>
 #include <thread>
 
 class cOSDRender;

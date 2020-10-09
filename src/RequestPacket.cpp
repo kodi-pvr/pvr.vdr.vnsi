@@ -14,7 +14,6 @@
 #include "vnsicommand.h"
 
 #include <assert.h>
-#include <p8-platform/sockets/tcp.h>
 #include <stdlib.h>
 #include <string.h>
 
