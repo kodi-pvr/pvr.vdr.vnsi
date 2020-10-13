@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "Socket.h"
+#include "TCPSocket.h"
 
 #include <atomic>
 #include <kodi/addon-instance/PVR.h>
@@ -65,7 +65,7 @@ protected:
   std::string m_hostname;
   int m_port;
   std::string m_name;
-  std::mutex m_mutex;
+  std::recursive_mutex m_mutex;
   int m_protocol = 0;
   std::string m_server;
   std::string m_version;
@@ -75,7 +75,7 @@ protected:
 private:
   bool ReadData(uint8_t* buffer, int totalBytes, int timeout);
 
-  vdrvnsi::Socket* m_socket = nullptr;
+  vdrvnsi::TCPSocket* m_socket = nullptr;
 
   kodi::addon::CInstancePVRClient& m_instance;
 };

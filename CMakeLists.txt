@@ -5,6 +5,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR})
 
 find_package(Kodi REQUIRED)
 
+set(CMAKE_CXX_STANDARD 17)
+
 if(NOT WIN32 AND (APP_RENDER_SYSTEM STREQUAL "gl" OR NOT APP_RENDER_SYSTEM))
   find_package(OpenGl REQUIRED)
   set(DEPLIBS ${OPENGL_LIBRARIES})
@@ -18,12 +20,8 @@ else()
 endif()
 
 include_directories(${INCLUDES}
+                    ${PROJECT_SOURCE_DIR}/lib
                     ${KODI_INCLUDE_DIR}/..) # Hack way with "/..", need bigger Kodi cmake rework to match right include ways
-
-if(WIN32)
-  list(APPEND DEPLIBS ws2_32)
-  add_definitions(-D_WINSOCKAPI_ -D_WINSOCK_DEPRECATED_NO_WARNINGS -D_CRT_NONSTDC_NO_DEPRECATE)
-endif()
 
 list(APPEND VDR_SOURCES src/Addon.cpp
                         src/Channels.cpp
@@ -36,7 +34,7 @@ list(APPEND VDR_SOURCES src/Addon.cpp
                         src/ResponsePacket.cpp
                         src/Session.cpp
                         src/Settings.cpp
-                        src/Socket.cpp
+                        src/TCPSocket.cpp
                         src/Tools.cpp)
 
 list(APPEND VDR_HEADERS src/Addon.h
@@ -50,7 +48,7 @@ list(APPEND VDR_HEADERS src/Addon.h
                         src/ResponsePacket.h
                         src/Session.h
                         src/Settings.h
-                        src/Socket.h
+                        src/TCPSocket.h
                         src/Tools.h
                         src/vnsicommand.h)
 

@@ -9,7 +9,7 @@
 
 #include "RequestPacket.h"
 
-#include "Socket.h"
+#include "TCPSocket.h"
 #include "Tools.h"
 #include "vnsicommand.h"
 

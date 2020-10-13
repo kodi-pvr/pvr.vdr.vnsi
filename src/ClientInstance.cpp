@@ -65,14 +65,14 @@ time_t SetTime(time_t t, int secondsFromMidnight)
 
 CVNSIClientInstance::SMessage& CVNSIClientInstance::Queue::Enqueue(uint32_t serial)
 {
-  std::lock_guard<std::mutex> lock(m_mutex);
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   return m_queue[serial];
 }
 
 std::unique_ptr<cResponsePacket> CVNSIClientInstance::Queue::Dequeue(uint32_t serial,
                                                                      SMessage& message)
 {
-  std::lock_guard<std::mutex> lock(m_mutex);
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   auto vresp = std::move(message.pkt);
   m_queue.erase(serial);
   return vresp;
@@ -80,7 +80,7 @@ std::unique_ptr<cResponsePacket> CVNSIClientInstance::Queue::Dequeue(uint32_t se
 
 void CVNSIClientInstance::Queue::Set(std::unique_ptr<cResponsePacket>&& vresp)
 {
-  std::lock_guard<std::mutex> lock(m_mutex);
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   SMessages::iterator it = m_queue.find(vresp->getRequestID());
   if (it != m_queue.end())
   {
@@ -1561,7 +1561,7 @@ DemuxPacket* CVNSIClientInstance::DemuxRead()
 
   if (pkt)
   {
-    std::lock_guard<std::mutex> lock(m_timeshiftMutex);
+    std::lock_guard<std::recursive_mutex> lock(m_timeshiftMutex);
     m_isTimeshift = m_demuxer->IsTimeshift();
     if ((m_ptsBufferEnd - pkt->dts) / DVD_TIME_BASE > 10)
       m_isTimeshift = false;
@@ -1612,7 +1612,7 @@ bool CVNSIClientInstance::IsRealTimeStream()
 {
   if (m_demuxer)
   {
-    std::lock_guard<std::mutex> lock(m_timeshiftMutex);
+    std::lock_guard<std::recursive_mutex> lock(m_timeshiftMutex);
     if (!m_isTimeshift)
       return true;
     if (m_isRealtime)
@@ -1749,7 +1749,7 @@ std::unique_ptr<cResponsePacket> CVNSIClientInstance::ReadResult(cRequestPacket*
 {
   SMessage& message = m_queue.Enqueue(vrp->getSerial());
 
-  std::unique_lock<std::mutex> lock(m_queue.m_mutex);
+  std::unique_lock<std::recursive_mutex> lock(m_queue.m_mutex);
   if (cVNSISession::TransmitMessage(vrp) &&
       message.m_condition.wait_for(lock, std::chrono::milliseconds(CVNSISettings::Get().GetConnectTimeout() * 1000)) == std::cv_status::timeout)
   {

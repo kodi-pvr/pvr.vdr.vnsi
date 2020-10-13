@@ -557,7 +557,12 @@ void cOSDRenderGL::OnCompiledAndLinked()
 //-----------------------------------------------------------------------------
 
 cVNSIAdmin::cVNSIAdmin(kodi::addon::CInstancePVRClient& instance)
-  : cVNSISession(instance), kodi::gui::CWindow("Admin.xml", "skin.estuary", true, false)
+  : cVNSISession(instance), kodi::gui::CWindow("Admin.xml", "skin.estuary", true, false),
+    m_renderControl(this, CONTROL_RENDER_ADDON),
+    m_spinTimeshiftMode(this, CONTROL_SPIN_TIMESHIFT_MODE),
+    m_spinTimeshiftBufferRam(this, CONTROL_SPIN_TIMESHIFT_BUFFER_RAM),
+    m_spinTimeshiftBufferFile(this, CONTROL_SPIN_TIMESHIFT_BUFFER_FILE),
+    m_ratioIsRadio(this, CONTROL_RADIO_ISRADIO)
 {
 }
 
@@ -592,8 +597,6 @@ bool cVNSIAdmin::Open(const std::string& hostname,
 
   m_abort = false;
   m_connectionLost = false;
-  m_running = true;
-  m_thread = std::thread([&] { Process(); });
 
   if (!ConnectOSD())
     return false;
@@ -603,15 +606,6 @@ bool cVNSIAdmin::Open(const std::string& hostname,
   ClearListItems();
   ClearProperties();
 
-  delete m_renderControl;
-  delete m_spinTimeshiftMode;
-  delete m_spinTimeshiftBufferRam;
-  delete m_spinTimeshiftBufferFile;
-  delete m_ratioIsRadio;
-  
-  m_running = false;
-  if (m_thread.joinable())
-    m_thread.join();
   kodi::gui::CWindow::Close();
 
   if (m_osdRender)
@@ -646,15 +640,15 @@ bool cVNSIAdmin::OnInit()
   cRequestPacket vrp;
   vrp.init(VNSI_OSD_HITKEY);
   vrp.add_U32(0);
+
   cVNSISession::TransmitMessage(&vrp);
 
   // setup parameters
-  m_spinTimeshiftMode = new kodi::gui::controls::CSpin(this, CONTROL_SPIN_TIMESHIFT_MODE);
-  m_spinTimeshiftMode->SetType(kodi::gui::controls::ADDON_SPIN_CONTROL_TYPE_TEXT);
-  m_spinTimeshiftMode->SetIntRange(0, 2);
-  m_spinTimeshiftMode->AddLabel("OFF", 0);
-  m_spinTimeshiftMode->AddLabel("RAM", 1);
-  m_spinTimeshiftMode->AddLabel("FILE", 2);
+  m_spinTimeshiftMode.SetType(kodi::gui::controls::ADDON_SPIN_CONTROL_TYPE_TEXT);
+  m_spinTimeshiftMode.SetIntRange(0, 2);
+  m_spinTimeshiftMode.AddLabel("OFF", 0);
+  m_spinTimeshiftMode.AddLabel("RAM", 1);
+  m_spinTimeshiftMode.AddLabel("FILE", 2);
 
   {
     cRequestPacket vrp;
@@ -667,13 +661,11 @@ bool cVNSIAdmin::OnInit()
       return false;
     }
     int mode = resp->extract_U32();
-    m_spinTimeshiftMode->SetIntValue(mode);
+    m_spinTimeshiftMode.SetIntValue(mode);
   }
 
-  m_spinTimeshiftBufferRam =
-      new kodi::gui::controls::CSpin(this, CONTROL_SPIN_TIMESHIFT_BUFFER_RAM);
-  m_spinTimeshiftBufferRam->SetType(kodi::gui::controls::ADDON_SPIN_CONTROL_TYPE_INT);
-  m_spinTimeshiftBufferRam->SetIntRange(1, 80);
+  m_spinTimeshiftBufferRam.SetType(kodi::gui::controls::ADDON_SPIN_CONTROL_TYPE_INT);
+  m_spinTimeshiftBufferRam.SetIntRange(1, 80);
 
   {
     cRequestPacket vrp;
@@ -686,13 +678,11 @@ bool cVNSIAdmin::OnInit()
       return false;
     }
     int mode = resp->extract_U32();
-    m_spinTimeshiftBufferRam->SetIntValue(mode);
+    m_spinTimeshiftBufferRam.SetIntValue(mode);
   }
 
-  m_spinTimeshiftBufferFile =
-      new kodi::gui::controls::CSpin(this, CONTROL_SPIN_TIMESHIFT_BUFFER_FILE);
-  m_spinTimeshiftBufferFile->SetType(kodi::gui::controls::ADDON_SPIN_CONTROL_TYPE_INT);
-  m_spinTimeshiftBufferFile->SetIntRange(1, 20);
+  m_spinTimeshiftBufferFile.SetType(kodi::gui::controls::ADDON_SPIN_CONTROL_TYPE_INT);
+  m_spinTimeshiftBufferFile.SetIntRange(1, 20);
 
   {
     cRequestPacket vrp;
@@ -705,12 +695,10 @@ bool cVNSIAdmin::OnInit()
       return false;
     }
     int mode = resp->extract_U32();
-    m_spinTimeshiftBufferFile->SetIntValue(mode);
+    m_spinTimeshiftBufferFile.SetIntValue(mode);
   }
 
-  m_ratioIsRadio = new kodi::gui::controls::CRadioButton(this, CONTROL_RADIO_ISRADIO);
-  m_renderControl = new kodi::gui::controls::CRendering(this, CONTROL_RENDER_ADDON);
-  m_renderControl->SetIndependentCallbacks(this, CreateCB, RenderCB, StopCB, DirtyCB);
+  m_renderControl.SetIndependentCallbacks(this, CreateCB, RenderCB, StopCB, DirtyCB);
 
   return true;
 }
@@ -738,7 +726,7 @@ bool cVNSIAdmin::OnClick(int controlId)
 {
   if (controlId == CONTROL_SPIN_TIMESHIFT_MODE)
   {
-    int value = m_spinTimeshiftMode->GetIntValue();
+    int value = m_spinTimeshiftMode.GetIntValue();
     cRequestPacket vrp;
     vrp.init(VNSI_STORESETUP);
     vrp.add_String(CONFNAME_TIMESHIFT);
@@ -751,7 +739,7 @@ bool cVNSIAdmin::OnClick(int controlId)
   }
   else if (controlId == CONTROL_SPIN_TIMESHIFT_BUFFER_RAM)
   {
-    int value = m_spinTimeshiftBufferRam->GetIntValue();
+    int value = m_spinTimeshiftBufferRam.GetIntValue();
     cRequestPacket vrp;
     vrp.init(VNSI_STORESETUP);
     vrp.add_String(CONFNAME_TIMESHIFTBUFFERSIZE);
@@ -764,7 +752,7 @@ bool cVNSIAdmin::OnClick(int controlId)
   }
   else if (controlId == CONTROL_SPIN_TIMESHIFT_BUFFER_FILE)
   {
-    int value = m_spinTimeshiftBufferFile->GetIntValue();
+    int value = m_spinTimeshiftBufferFile.GetIntValue();
     cRequestPacket vrp;
     vrp.init(VNSI_STORESETUP);
     vrp.add_String(CONFNAME_TIMESHIFTBUFFERFILESIZE);
@@ -777,16 +765,16 @@ bool cVNSIAdmin::OnClick(int controlId)
   }
   else if (controlId == CONTROL_PROVIDERS_BUTTON)
   {
-    if (!m_channels.m_loaded || m_ratioIsRadio->IsSelected() != m_channels.m_radio)
+    if (!m_channels.m_loaded || m_ratioIsRadio.IsSelected() != m_channels.m_radio)
     {
-      ReadChannelList(m_ratioIsRadio->IsSelected());
-      ReadChannelWhitelist(m_ratioIsRadio->IsSelected());
-      ReadChannelBlacklist(m_ratioIsRadio->IsSelected());
+      ReadChannelList(m_ratioIsRadio.IsSelected());
+      ReadChannelWhitelist(m_ratioIsRadio.IsSelected());
+      ReadChannelBlacklist(m_ratioIsRadio.IsSelected());
       m_channels.CreateProviders();
       m_channels.LoadProviderWhitelist();
       m_channels.LoadChannelBlacklist();
       m_channels.m_loaded = true;
-      m_channels.m_radio = m_ratioIsRadio->IsSelected();
+      m_channels.m_radio = m_ratioIsRadio.IsSelected();
       SetProperty("IsDirty", "0");
     }
     LoadListItemsProviders();
@@ -794,16 +782,16 @@ bool cVNSIAdmin::OnClick(int controlId)
   }
   else if (controlId == CONTROL_CHANNELS_BUTTON)
   {
-    if (!m_channels.m_loaded || m_ratioIsRadio->IsSelected() != m_channels.m_radio)
+    if (!m_channels.m_loaded || m_ratioIsRadio.IsSelected() != m_channels.m_radio)
     {
-      ReadChannelList(m_ratioIsRadio->IsSelected());
-      ReadChannelWhitelist(m_ratioIsRadio->IsSelected());
-      ReadChannelBlacklist(m_ratioIsRadio->IsSelected());
+      ReadChannelList(m_ratioIsRadio.IsSelected());
+      ReadChannelWhitelist(m_ratioIsRadio.IsSelected());
+      ReadChannelBlacklist(m_ratioIsRadio.IsSelected());
       m_channels.CreateProviders();
       m_channels.LoadProviderWhitelist();
       m_channels.LoadChannelBlacklist();
       m_channels.m_loaded = true;
-      m_channels.m_radio = m_ratioIsRadio->IsSelected();
+      m_channels.m_radio = m_ratioIsRadio.IsSelected();
       SetProperty("IsDirty", "0");
     }
     LoadListItemsChannels();
@@ -813,8 +801,8 @@ bool cVNSIAdmin::OnClick(int controlId)
   {
     if (m_channels.m_loaded)
     {
-      SaveChannelWhitelist(m_ratioIsRadio->IsSelected());
-      SaveChannelBlacklist(m_ratioIsRadio->IsSelected());
+      SaveChannelWhitelist(m_ratioIsRadio.IsSelected());
+      SaveChannelBlacklist(m_ratioIsRadio.IsSelected());
       SetProperty("IsDirty", "0");
     }
   }
@@ -879,6 +867,7 @@ bool cVNSIAdmin::OnAction(ADDON_ACTION actionId)
       cRequestPacket vrp;
       vrp.init(VNSI_OSD_HITKEY);
       vrp.add_U32(actionId);
+
       cVNSISession::TransmitMessage(&vrp);
       return true;
     }
@@ -905,7 +894,6 @@ bool cVNSIAdmin::Create(int x, int y, int w, int h, void* device)
 
 void cVNSIAdmin::Render()
 {
-  std::lock_guard<std::mutex> lock(m_osdMutex);
   if (m_osdRender)
   {
     m_osdRender->Render();
@@ -916,7 +904,6 @@ void cVNSIAdmin::Render()
 
 void cVNSIAdmin::Stop()
 {
-  std::lock_guard<std::mutex> lock(m_osdMutex);
   if (m_osdRender)
   {
     delete m_osdRender;
@@ -926,6 +913,36 @@ void cVNSIAdmin::Stop()
 
 bool cVNSIAdmin::Dirty()
 {
+  // try to reconnect
+  if (m_connectionLost)
+  {
+    // First wake up the VDR server in case a MAC-Address is specified
+    if (!m_wolMac.empty())
+    {
+      if (!kodi::network::WakeOnLan(m_wolMac))
+      {
+        kodi::Log(ADDON_LOG_ERROR, "Error waking up VNSI Server at MAC-Address %s",
+                  m_wolMac.c_str());
+      }
+    }
+
+    cVNSISession::eCONNECTIONSTATE state = TryReconnect();
+    if (state != cVNSISession::CONN_ESABLISHED)
+      return false;
+  }
+
+  std::unique_ptr<cResponsePacket> vresp;
+
+  // if there's anything in the buffer, read it
+  if ((vresp = cVNSISession::ReadMessage(5, 10000)) == nullptr)
+    return false;
+
+  if (!OnResponsePacket(vresp.get()))
+  {
+    kodi::Log(ADDON_LOG_ERROR, "%s - Rxd a response packet on channel %lu !!", __func__,
+              vresp->getChannelID());
+  }
+
   return m_bIsOsdDirty;
 }
 
@@ -969,7 +986,7 @@ bool cVNSIAdmin::OnResponsePacket(cResponsePacket* resp)
     {
       data = resp->getUserData();
       len = resp->getUserDataLength();
-      std::lock_guard<std::mutex> lock(m_osdMutex);
+
       if (m_osdRender)
         m_osdRender->AddTexture(wnd, color, x0, y0, x1, y1, data[0]);
     }
@@ -977,7 +994,7 @@ bool cVNSIAdmin::OnResponsePacket(cResponsePacket* resp)
     {
       data = resp->getUserData();
       len = resp->getUserDataLength();
-      std::lock_guard<std::mutex> lock(m_osdMutex);
+
       if (m_osdRender)
         m_osdRender->SetPalette(wnd, x0, (uint32_t*)data);
     }
@@ -985,7 +1002,7 @@ bool cVNSIAdmin::OnResponsePacket(cResponsePacket* resp)
     {
       data = resp->getUserData();
       len = resp->getUserDataLength();
-      std::lock_guard<std::mutex> lock(m_osdMutex);
+
       if (m_osdRender)
       {
         m_osdRender->SetBlock(wnd, x0, y0, x1, y1, color, data, len);
@@ -994,19 +1011,15 @@ bool cVNSIAdmin::OnResponsePacket(cResponsePacket* resp)
     }
     else if (resp->getOpCodeID() == VNSI_OSD_CLEAR)
     {
-      std::lock_guard<std::mutex> lock(m_osdMutex);
       if (m_osdRender)
         m_osdRender->Clear(wnd);
       m_bIsOsdDirty = true;
     }
     else if (resp->getOpCodeID() == VNSI_OSD_CLOSE)
     {
-      {
-        std::lock_guard<std::mutex> lock(m_osdMutex);
-        if (m_osdRender)
-          m_osdRender->DisposeTexture(wnd);
-        m_bIsOsdDirty = true;
-      }
+      if (m_osdRender)
+        m_osdRender->DisposeTexture(wnd);
+      m_bIsOsdDirty = true;
     }
     else if (resp->getOpCodeID() == VNSI_OSD_MOVEWINDOW)
     {
@@ -1034,7 +1047,6 @@ bool cVNSIAdmin::ConnectOSD()
   uint32_t osdHeight = vresp->extract_U32();
   if (m_osdRender)
     m_osdRender->SetOSDSize(osdWidth, osdHeight);
-
   return true;
 }
 
@@ -1250,47 +1262,5 @@ void cVNSIAdmin::LoadListItemsChannels()
       item->SetProperty("IsBlacklist", "false");
 
     count++;
-  }
-}
-
-void cVNSIAdmin::Process()
-{
-  std::unique_ptr<cResponsePacket> vresp;
-
-  while (m_running)
-  {
-    // try to reconnect
-    if (m_connectionLost)
-    {
-      // First wake up the VDR server in case a MAC-Address is specified
-      if (!m_wolMac.empty())
-      {
-        if (!kodi::network::WakeOnLan(m_wolMac))
-        {
-          kodi::Log(ADDON_LOG_ERROR, "Error waking up VNSI Server at MAC-Address %s",
-                    m_wolMac.c_str());
-        }
-      }
-
-      cVNSISession::eCONNECTIONSTATE state = TryReconnect();
-      if (state != cVNSISession::CONN_ESABLISHED)
-      {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        continue;
-      }
-    }
-
-    // if there's anything in the buffer, read it
-    if ((vresp = cVNSISession::ReadMessage(5, 10000)) == nullptr)
-    {
-      std::this_thread::sleep_for(std::chrono::milliseconds(5));
-      continue;
-    }
-
-    if (!OnResponsePacket(vresp.get()))
-    {
-      kodi::Log(ADDON_LOG_ERROR, "%s - Rxd a response packet on channel %lu !!", __func__,
-                vresp->getChannelID());
-    }
   }
 }

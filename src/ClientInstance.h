@@ -141,8 +141,8 @@ private:
 
   struct SMessage
   {
-    std::condition_variable m_condition;
-    std::mutex m_messageMutex;
+    std::condition_variable_any m_condition;
+    std::recursive_mutex m_messageMutex;
     std::unique_ptr<cResponsePacket> pkt;
   };
 
@@ -152,7 +152,7 @@ private:
     SMessages m_queue;
 
   public:
-    std::mutex m_mutex;
+    std::recursive_mutex m_mutex;
     SMessage& Enqueue(uint32_t serial);
     std::unique_ptr<cResponsePacket> Dequeue(uint32_t serial, SMessage& message);
     void Set(std::unique_ptr<cResponsePacket>&& vresp);
@@ -166,7 +166,7 @@ private:
   bool m_isTimeshift = false;
   bool m_isRealtime = false;
   int64_t m_ptsBufferEnd = 0;
-  std::mutex m_timeshiftMutex;
+  std::recursive_mutex m_timeshiftMutex;
 
   cVNSIDemux* m_demuxer = nullptr;
   cVNSIRecording* m_recording = nullptr;
