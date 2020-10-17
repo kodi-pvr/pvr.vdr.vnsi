@@ -9,10 +9,12 @@
 
 #pragma once
 
+#include "TCPSocket.h"
+
 #include <atomic>
 #include <kodi/addon-instance/PVR.h>
 #include <memory>
-#include <p8-platform/threads/threads.h>
+#include <mutex>
 #include <stdint.h>
 #include <string>
 
@@ -63,7 +65,7 @@ protected:
   std::string m_hostname;
   int m_port;
   std::string m_name;
-  P8PLATFORM::CMutex m_mutex;
+  std::recursive_mutex m_mutex;
   int m_protocol = 0;
   std::string m_server;
   std::string m_version;
@@ -73,7 +75,7 @@ protected:
 private:
   bool ReadData(uint8_t* buffer, int totalBytes, int timeout);
 
-  P8PLATFORM::CTcpConnection* m_socket = nullptr;
+  vdrvnsi::TCPSocket* m_socket = nullptr;
 
   kodi::addon::CInstancePVRClient& m_instance;
 };

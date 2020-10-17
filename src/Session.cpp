@@ -16,13 +16,13 @@
 #include "Tools.h"
 #include "vnsicommand.h"
 
+#include <chrono>
 #include <errno.h>
 #include <fcntl.h>
 #include <kodi/DemuxPacket.h>
-#include <p8-platform/sockets/tcp.h>
-#include <p8-platform/util/timeutils.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <thread>
 
 /* Needed on Mac OS/X */
 
@@ -41,8 +41,8 @@ cVNSISession::~cVNSISession()
 
 void cVNSISession::Close()
 {
-  P8PLATFORM::CLockObject lock(m_mutex);
-  if (IsOpen())
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
+  if (m_socket)
   {
     m_socket->Close();
   }
@@ -53,23 +53,26 @@ void cVNSISession::Close()
 
 bool cVNSISession::Open(const std::string& hostname, int port, const char* name)
 {
+  using namespace std::chrono;
+
   Close();
 
-  uint64_t iNow = P8PLATFORM::GetTimeMs();
-  uint64_t iTarget = iNow + CVNSISettings::Get().GetConnectTimeout() * 1000;
+  auto iNow = system_clock::now();
+  auto iTarget = iNow + milliseconds(CVNSISettings::Get().GetConnectTimeout() * 1000);
+
   if (!m_socket)
-    m_socket = new P8PLATFORM::CTcpConnection(hostname.c_str(), port);
+    m_socket = new vdrvnsi::TCPSocket(hostname, port);
   while (!m_socket->IsOpen() && iNow < iTarget && !m_abort)
   {
-    if (!m_socket->Open(iTarget - iNow))
-      P8PLATFORM::CEvent::Sleep(100);
-    iNow = P8PLATFORM::GetTimeMs();
+    uint64_t ms = duration_cast<milliseconds>(iTarget - iNow).count();
+    if (!m_socket->Open(duration_cast<milliseconds>(iTarget - iNow).count()))
+      std::this_thread::sleep_for(milliseconds(100));
+    iNow = system_clock::now();
   }
 
   if (!m_socket->IsOpen() && !m_abort)
   {
-    kodi::Log(ADDON_LOG_DEBUG, "%s - failed to connect to the backend (%s)", __func__,
-              m_socket->GetError().c_str());
+    kodi::Log(ADDON_LOG_DEBUG, "%s - failed to connect to the backend", __func__);
     return false;
   }
 
@@ -275,16 +278,16 @@ std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /
 
 bool cVNSISession::TransmitMessage(cRequestPacket* vrp)
 {
-  P8PLATFORM::CLockObject lock(m_mutex);
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
   if (!IsOpen())
     return false;
 
-  ssize_t iWriteResult = m_socket->Write(vrp->getPtr(), vrp->getLen());
-  if (iWriteResult != (ssize_t)vrp->getLen())
+  int64_t iWriteResult = m_socket->Write(vrp->getPtr(), vrp->getLen());
+  if (iWriteResult != static_cast<int64_t>(vrp->getLen()))
   {
-    kodi::Log(ADDON_LOG_ERROR, "%s - Failed to write packet (%s), bytes written: %d of total: %d",
-              __func__, m_socket->GetError().c_str(), iWriteResult, vrp->getLen());
+    kodi::Log(ADDON_LOG_ERROR, "%s - Failed to write packet, bytes written: %d of total: %d",
+              __func__, iWriteResult, vrp->getLen());
     return false;
   }
   return true;
@@ -357,7 +360,7 @@ cVNSISession::eCONNECTIONSTATE cVNSISession::TryReconnect()
 
 bool cVNSISession::IsOpen()
 {
-  P8PLATFORM::CLockObject lock(m_mutex);
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   return m_socket && m_socket->IsOpen();
 }
 
@@ -378,15 +381,17 @@ bool cVNSISession::ReadData(uint8_t* buffer, int totalBytes, int timeout)
 {
   int bytesRead = m_socket->Read(buffer, totalBytes, timeout);
   if (bytesRead == totalBytes)
+  {
     return true;
-  else if (m_socket->GetErrorNumber() == ETIMEDOUT && bytesRead > 0)
+  }
+  else if (bytesRead > 0)
   {
     // we did read something. try to finish the read
     bytesRead += m_socket->Read(buffer + bytesRead, totalBytes - bytesRead, timeout);
     if (bytesRead == totalBytes)
       return true;
   }
-  else if (m_socket->GetErrorNumber() == ETIMEDOUT)
+  else if (m_socket->LastError() == vdrvnsi::SocketError::TimeOut)
   {
     return false;
   }
@@ -397,5 +402,5 @@ bool cVNSISession::ReadData(uint8_t* buffer, int totalBytes, int timeout)
 
 void cVNSISession::SleepMs(int ms)
 {
-  P8PLATFORM::CEvent::Sleep(ms);
+  std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }

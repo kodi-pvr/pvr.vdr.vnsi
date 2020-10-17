@@ -21,7 +21,6 @@
 #include <algorithm>
 #include <kodi/General.h>
 #include <kodi/Network.h>
-#include <p8-platform/util/StringUtils.h>
 #include <string.h>
 #include <time.h>
 
@@ -66,14 +65,14 @@ time_t SetTime(time_t t, int secondsFromMidnight)
 
 CVNSIClientInstance::SMessage& CVNSIClientInstance::Queue::Enqueue(uint32_t serial)
 {
-  const P8PLATFORM::CLockObject lock(m_mutex);
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   return m_queue[serial];
 }
 
 std::unique_ptr<cResponsePacket> CVNSIClientInstance::Queue::Dequeue(uint32_t serial,
                                                                      SMessage& message)
 {
-  const P8PLATFORM::CLockObject lock(m_mutex);
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   auto vresp = std::move(message.pkt);
   m_queue.erase(serial);
   return vresp;
@@ -81,12 +80,12 @@ std::unique_ptr<cResponsePacket> CVNSIClientInstance::Queue::Dequeue(uint32_t se
 
 void CVNSIClientInstance::Queue::Set(std::unique_ptr<cResponsePacket>&& vresp)
 {
-  P8PLATFORM::CLockObject lock(m_mutex);
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   SMessages::iterator it = m_queue.find(vresp->getRequestID());
   if (it != m_queue.end())
   {
     it->second.pkt = std::move(vresp);
-    it->second.event.Broadcast();
+    it->second.m_condition.notify_one();
   }
 }
 
@@ -102,7 +101,9 @@ CVNSIClientInstance::CVNSIClientInstance(const CPVRAddon& base,
 CVNSIClientInstance::~CVNSIClientInstance()
 {
   m_abort = true;
-  StopThread(0);
+  m_running = false;
+  if (m_thread.joinable())
+    m_thread.join();
   Close();
 }
 
@@ -142,7 +143,8 @@ bool CVNSIClientInstance::Start(const std::string& hostname,
 
   m_abort = false;
   m_connectionLost = true;
-  CreateThread();
+  m_running = true;
+  m_thread = std::thread([&] { Process(); });
 
   kodi::addon::PVRMenuhook hook;
   hook.SetHookId(1);
@@ -686,7 +688,7 @@ PVR_ERROR CVNSIClientInstance::GetAvailableRecordings(kodi::addon::PVRRecordings
     tag.SetPlotOutline(tag.GetEpisodeName());
     tag.SetPlot(vresp->extract_String());
     tag.SetDirectory(vresp->extract_String());
-    tag.SetRecordingId(StringUtils::Format("%i", vresp->extract_U32()));
+    tag.SetRecordingId(std::to_string(vresp->extract_U32()));
 
     results.Add(tag);
   }
@@ -1559,7 +1561,7 @@ DemuxPacket* CVNSIClientInstance::DemuxRead()
 
   if (pkt)
   {
-    const P8PLATFORM::CLockObject lock(m_timeshiftMutex);
+    std::lock_guard<std::recursive_mutex> lock(m_timeshiftMutex);
     m_isTimeshift = m_demuxer->IsTimeshift();
     if ((m_ptsBufferEnd - pkt->dts) / DVD_TIME_BASE > 10)
       m_isTimeshift = false;
@@ -1610,7 +1612,7 @@ bool CVNSIClientInstance::IsRealTimeStream()
 {
   if (m_demuxer)
   {
-    const P8PLATFORM::CLockObject lock(m_timeshiftMutex);
+    std::lock_guard<std::recursive_mutex> lock(m_timeshiftMutex);
     if (!m_isTimeshift)
       return true;
     if (m_isRealtime)
@@ -1747,8 +1749,9 @@ std::unique_ptr<cResponsePacket> CVNSIClientInstance::ReadResult(cRequestPacket*
 {
   SMessage& message = m_queue.Enqueue(vrp->getSerial());
 
+  std::unique_lock<std::recursive_mutex> lock(m_queue.m_mutex);
   if (cVNSISession::TransmitMessage(vrp) &&
-      !message.event.Wait(CVNSISettings::Get().GetConnectTimeout() * 1000))
+      message.m_condition.wait_for(lock, std::chrono::milliseconds(CVNSISettings::Get().GetConnectTimeout() * 1000)) == std::cv_status::timeout)
   {
     kodi::Log(ADDON_LOG_ERROR, "%s - request timed out after %d seconds", __func__,
               CVNSISettings::Get().GetConnectTimeout());
@@ -1757,11 +1760,11 @@ std::unique_ptr<cResponsePacket> CVNSIClientInstance::ReadResult(cRequestPacket*
   return m_queue.Dequeue(vrp->getSerial(), message);
 }
 
-void* CVNSIClientInstance::Process()
+void CVNSIClientInstance::Process()
 {
   std::unique_ptr<cResponsePacket> vresp;
 
-  while (!IsStopped())
+  while (m_running)
   {
     // try to reconnect
     if (m_connectionLost)
@@ -1785,7 +1788,7 @@ void* CVNSIClientInstance::Process()
               "vnsi server not reacheable", PVR_CONNECTION_STATE_SERVER_UNREACHABLE, "");
         }
 
-        Sleep(1000);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         continue;
       }
     }
@@ -1793,7 +1796,7 @@ void* CVNSIClientInstance::Process()
     // if there's anything in the buffer, read it
     if ((vresp = cVNSISession::ReadMessage(5, 10000)) == nullptr)
     {
-      Sleep(5);
+      std::this_thread::sleep_for(std::chrono::milliseconds(5));
       continue;
     }
 
@@ -1866,5 +1869,4 @@ void* CVNSIClientInstance::Process()
                 vresp->getChannelID());
     }
   }
-  return nullptr;
 }

@@ -30,12 +30,10 @@
 #include <kodi/gui/controls/RadioButton.h>
 #include <kodi/gui/controls/Rendering.h>
 #include <kodi/gui/controls/Spin.h>
-#include <p8-platform/threads/threads.h>
 
 class cOSDRender;
 
 class ATTRIBUTE_HIDDEN cVNSIAdmin : public cVNSISession,
-                                    public P8PLATFORM::CThread,
                                     public kodi::gui::CWindow
 {
 public:
@@ -62,9 +60,6 @@ public:
   static void StopCB(kodi::gui::ClientHandle cbhdl);
   static bool DirtyCB(kodi::gui::ClientHandle cbhdl);
 
-protected:
-  void* Process(void) override;
-
 private:
   bool OnResponsePacket(cResponsePacket* resp);
   bool ConnectOSD();
@@ -78,11 +73,11 @@ private:
   void LoadListItemsProviders();
   void LoadListItemsChannels();
 
-  kodi::gui::controls::CRendering* m_renderControl = nullptr;
-  kodi::gui::controls::CSpin* m_spinTimeshiftMode = nullptr;
-  kodi::gui::controls::CSpin* m_spinTimeshiftBufferRam = nullptr;
-  kodi::gui::controls::CSpin* m_spinTimeshiftBufferFile = nullptr;
-  kodi::gui::controls::CRadioButton* m_ratioIsRadio = nullptr;
+  kodi::gui::controls::CRendering m_renderControl;
+  kodi::gui::controls::CSpin m_spinTimeshiftMode;
+  kodi::gui::controls::CSpin m_spinTimeshiftBufferRam;
+  kodi::gui::controls::CSpin m_spinTimeshiftBufferFile;
+  kodi::gui::controls::CRadioButton m_ratioIsRadio;
   std::vector<std::shared_ptr<kodi::gui::CListItem>> m_listItems;
 
   CVNSIChannels m_channels;
@@ -92,5 +87,4 @@ private:
   int m_osdWidth, m_osdHeight;
   cOSDRender* m_osdRender = nullptr;
   std::string m_wolMac;
-  P8PLATFORM::CMutex m_osdMutex;
 };

@@ -11,9 +11,13 @@
 
 #include "Session.h"
 
+#include <atomic>
 #include <kodi/addon-instance/PVR.h>
+#include <condition_variable>
 #include <map>
+#include <mutex>
 #include <string>
+#include <thread>
 
 class CPVRAddon;
 class cResponsePacket;
@@ -22,8 +26,7 @@ class cVNSIDemux;
 class cVNSIRecording;
 
 class ATTRIBUTE_HIDDEN CVNSIClientInstance : public kodi::addon::CInstancePVRClient,
-                                             public cVNSISession,
-                                             public P8PLATFORM::CThread
+                                             public cVNSISession
 {
 public:
   CVNSIClientInstance(const CPVRAddon& base, KODI_HANDLE instance, const std::string& kodiVersion);
@@ -116,7 +119,7 @@ public:
   //--==----==----==----==----==----==----==----==----==----==----==----==----==
 
 protected:
-  void* Process(void) override;
+  void Process();
   virtual bool OnResponsePacket(cResponsePacket* pkt);
 
   void OnDisconnect() override;
@@ -138,7 +141,8 @@ private:
 
   struct SMessage
   {
-    P8PLATFORM::CEvent event;
+    std::condition_variable_any m_condition;
+    std::recursive_mutex m_messageMutex;
     std::unique_ptr<cResponsePacket> pkt;
   };
 
@@ -146,9 +150,9 @@ private:
   {
     typedef std::map<int, SMessage> SMessages;
     SMessages m_queue;
-    P8PLATFORM::CMutex m_mutex;
 
   public:
+    std::recursive_mutex m_mutex;
     SMessage& Enqueue(uint32_t serial);
     std::unique_ptr<cResponsePacket> Dequeue(uint32_t serial, SMessage& message);
     void Set(std::unique_ptr<cResponsePacket>&& vresp);
@@ -162,10 +166,13 @@ private:
   bool m_isTimeshift = false;
   bool m_isRealtime = false;
   int64_t m_ptsBufferEnd = 0;
-  P8PLATFORM::CMutex m_timeshiftMutex;
+  std::recursive_mutex m_timeshiftMutex;
 
   cVNSIDemux* m_demuxer = nullptr;
   cVNSIRecording* m_recording = nullptr;
 
   const CPVRAddon& m_base;
+
+  std::atomic<bool> m_running = {false};
+  std::thread m_thread;
 };
