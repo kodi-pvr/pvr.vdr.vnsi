@@ -65,6 +65,20 @@ bool TCPSocket::Open(uint64_t iTimeoutMs /*= 0*/)
   }
 }
 
+void TCPSocket::Shutdown()
+{
+  if (!m_socket)
+    return;
+
+  try
+  {
+    m_socket->shutdown();
+  }
+  catch (std::runtime_error const&)
+  {
+  }
+}
+
 void TCPSocket::Close()
 {
   if (!m_socket)

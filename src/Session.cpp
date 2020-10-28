@@ -44,6 +44,7 @@ void cVNSISession::Close()
   std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (m_socket)
   {
+    m_socket->Shutdown();
     m_socket->Close();
   }
 
