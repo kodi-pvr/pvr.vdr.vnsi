@@ -27,7 +27,7 @@ cResponsePacket::~cResponsePacket()
   if (m_userData)
   {
     if (m_channelID == VNSI_CHANNEL_STREAM && m_opcodeID == VNSI_STREAM_MUXPKT)
-      m_instance.FreeDemuxPacket(reinterpret_cast<DemuxPacket*>(m_userData));
+      m_instance.FreeDemuxPacket(reinterpret_cast<DEMUX_PACKET*>(m_userData));
     else
       free(m_userData);
   }

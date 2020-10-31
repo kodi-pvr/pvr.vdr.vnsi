@@ -19,7 +19,7 @@
 #include <chrono>
 #include <errno.h>
 #include <fcntl.h>
-#include <kodi/DemuxPacket.h>
+#include <kodi/addon-instance/inputstream/DemuxPacket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <thread>
@@ -44,6 +44,7 @@ void cVNSISession::Close()
   std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (m_socket)
   {
+    m_socket->Shutdown();
     m_socket->Close();
   }
 
@@ -175,7 +176,7 @@ std::unique_ptr<cResponsePacket> cVNSISession::ReadMessage(int iInitialTimeout /
 
     if (vresp->getOpCodeID() == VNSI_STREAM_MUXPKT)
     {
-      DemuxPacket* p = m_instance.AllocateDemuxPacket(userDataLength);
+      DEMUX_PACKET* p = m_instance.AllocateDemuxPacket(userDataLength);
       userData = (uint8_t*)p;
       if (userDataLength > 0)
       {

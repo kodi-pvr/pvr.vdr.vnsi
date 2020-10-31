@@ -99,7 +99,7 @@ public:
   bool OpenLiveStream(const kodi::addon::PVRChannel& channel) override;
   void CloseLiveStream() override;
   PVR_ERROR GetStreamProperties(std::vector<kodi::addon::PVRStreamProperties>& properties) override;
-  DemuxPacket* DemuxRead() override;
+  DEMUX_PACKET* DemuxRead() override;
   void DemuxAbort() override;
   bool SeekTime(double time, bool backwards, double& startpts) override;
   bool CanPauseStream() override;

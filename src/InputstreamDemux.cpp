@@ -81,7 +81,7 @@ void cVNSIDemux::Abort()
   m_streams.clear();
 }
 
-DemuxPacket* cVNSIDemux::Read()
+DEMUX_PACKET* cVNSIDemux::Read()
 {
   if (m_connectionLost)
   {
@@ -103,8 +103,8 @@ DemuxPacket* cVNSIDemux::Read()
   if (resp->getOpCodeID() == VNSI_STREAM_CHANGE)
   {
     StreamChange(resp.get());
-    DemuxPacket* pkt = m_instance.AllocateDemuxPacket(0);
-    pkt->iStreamId = DMX_SPECIALID_STREAMCHANGE;
+    DEMUX_PACKET* pkt = m_instance.AllocateDemuxPacket(0);
+    pkt->iStreamId = DEMUX_SPECIALID_STREAMCHANGE;
     return pkt;
   }
   else if (resp->getOpCodeID() == VNSI_STREAM_STATUS)
@@ -120,8 +120,8 @@ DemuxPacket* cVNSIDemux::Read()
     // send stream updates only if there are changes
     if (StreamContentInfo(resp.get()))
     {
-      DemuxPacket* pkt = m_instance.AllocateDemuxPacket(0);
-      pkt->iStreamId = DMX_SPECIALID_STREAMCHANGE;
+      DEMUX_PACKET* pkt = m_instance.AllocateDemuxPacket(0);
+      pkt->iStreamId = DEMUX_SPECIALID_STREAMCHANGE;
       return pkt;
     }
   }
@@ -133,11 +133,11 @@ DemuxPacket* cVNSIDemux::Read()
     // stream found ?
     if (pid >= 0 && resp->getMuxSerial() == m_MuxPacketSerial)
     {
-      DemuxPacket* p = (DemuxPacket*)resp->stealUserData();
+      DEMUX_PACKET* p = (DEMUX_PACKET*)resp->stealUserData();
       p->iSize = resp->getUserDataLength();
-      p->duration = static_cast<double>(resp->getDuration() * DVD_TIME_BASE / 1000000);
-      p->dts = static_cast<double>(resp->getDTS() * DVD_TIME_BASE / 1000000);
-      p->pts = static_cast<double>(resp->getPTS() * DVD_TIME_BASE / 1000000);
+      p->duration = static_cast<double>(resp->getDuration() * STREAM_TIME_BASE / 1000000);
+      p->dts = static_cast<double>(resp->getDTS() * STREAM_TIME_BASE / 1000000);
+      p->pts = static_cast<double>(resp->getPTS() * STREAM_TIME_BASE / 1000000);
       p->iStreamId = pid;
 
       int idx = -1;
@@ -172,8 +172,8 @@ DemuxPacket* cVNSIDemux::Read()
   else if (resp->getOpCodeID() == VNSI_STREAM_BUFFERSTATS)
   {
     m_bTimeshift = resp->extract_U8();
-    m_minPTS = (resp->extract_U32() - m_ReferenceTime) * DVD_TIME_BASE + m_ReferenceDTS;
-    m_maxPTS = (resp->extract_U32() - m_ReferenceTime) * DVD_TIME_BASE + m_ReferenceDTS;
+    m_minPTS = (resp->extract_U32() - m_ReferenceTime) * STREAM_TIME_BASE + m_ReferenceDTS;
+    m_maxPTS = (resp->extract_U32() - m_ReferenceTime) * STREAM_TIME_BASE + m_ReferenceDTS;
   }
   else if (resp->getOpCodeID() == VNSI_STREAM_REFTIME)
   {

@@ -1,8 +1,11 @@
+8.0.0
+- Update PVR API 7.0.2
+- Fix TCP socket on stop
+
 7.0.1
 - Use std::thread
 - Update Queue event to condition_variable/mutex, use chrono and thread::sleep_for
 - Remove StringUtils and unrequired p8-platform headers and use std::mutex
-- Remove p8-platform dependency
 - Remove p8-platform dependency
 - Use different socket implementation
 - Travis changes for cpp17

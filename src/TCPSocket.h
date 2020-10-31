@@ -32,8 +32,12 @@ public:
   virtual ~TCPSocket();
 
   bool Open(uint64_t iTimeoutMs = 0);
+
   bool IsOpen() const { return m_socket != nullptr; }
+
   SocketError LastError() const { return m_lastSocketError; }
+
+  void Shutdown();
 
   void Close();
 

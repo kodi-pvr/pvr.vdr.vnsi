@@ -39,7 +39,7 @@ public:
   bool OpenChannel(const kodi::addon::PVRChannel& channelinfo);
   void Abort();
   bool GetStreamProperties(std::vector<kodi::addon::PVRStreamProperties>& props);
-  DemuxPacket* Read();
+  DEMUX_PACKET* Read();
   bool SwitchChannel(const kodi::addon::PVRChannel& channelinfo);
   int CurrentChannel() { return m_channelinfo.GetChannelNumber(); }
   bool GetSignalStatus(kodi::addon::PVRSignalStatus& qualityinfo);
