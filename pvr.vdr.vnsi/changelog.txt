@@ -1,3 +1,6 @@
+v8.2.0
+- Update PVR API 7.1.0
+
 8.1.0
 - Update inputstream API 3.0.1
   - Fix wrong flags bit shift
@@ -74,6 +77,6 @@
 - Update to PVR addon API v6.0.0
 
 3.6.3
-- With this version, kodi-pvr is upstream repo for this addon again. 
+- With this version, kodi-pvr is upstream repo for this addon again.
 - Merged sources from FernetMenta/pvr.vdr.vnsi master.
 - Translation updates.
