@@ -11,6 +11,7 @@
 #include "kissnet/kissnet.hpp"
 
 #include <memory>
+#include <mutex>
 
 namespace vdrvnsi
 {
@@ -47,8 +48,12 @@ public:
 
 private:
   SocketError m_lastSocketError = SocketError::None;
+  std::shared_ptr<kissnet::tcp_socket> GetSocket(bool bCreate = false);
+  void ResetSocket();
+
   const kissnet::endpoint m_endpoint;
-  std::unique_ptr<kissnet::tcp_socket> m_socket = nullptr;
+  std::shared_ptr<kissnet::tcp_socket> m_socket;
+  std::recursive_mutex m_mutex;
 };
 
 } // namespace vdrvnsi

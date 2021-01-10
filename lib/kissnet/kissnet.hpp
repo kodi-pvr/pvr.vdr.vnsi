@@ -51,8 +51,8 @@
  *  - port_t : a 16 bit unsigned number. Represent a network port number
  *  - endpoint : a structure that represent a location where you need to connect
  *  to. Contains a hostname (as std::string) and a port number (as port_t)
- *  - socket<protocol, ip> : a templated class that represent a socket. Protocol
- *  is either TCP or UDP, and ip is either v4 or v6
+ *  - socket<protocol> : a templated class that represents an ipv4 or ipv6 socket.
+ *  Protocol is either TCP or UDP
  *
  * Kissnet does error handling in 2 ways:
  *
@@ -400,12 +400,6 @@ namespace kissnet
 		udp
 	};
 
-	///Represent ipv4 vs ipv6
-	enum class ip {
-		v4,
-		v6
-	};
-
 	///File descriptor set types
 	static constexpr int fds_read = 0x1;
 	static constexpr int fds_write = 0x2;
@@ -669,7 +663,7 @@ namespace kissnet
 #endif
 
 	///Class that represent a socket
-	template <protocol sock_proto, ip ipver = ip::v4>
+	template <protocol sock_proto>
 	class socket
 	{
 		///Represent a number of bytes with a status information. Some of the methods of this class returns this.
@@ -679,7 +673,7 @@ namespace kissnet
 		KISSNET_OS_SPECIFIC;
 
 		///operatic-system type for a socket object
-		SOCKET sock;
+		SOCKET sock = INVALID_SOCKET;
 
 #ifdef KISSNET_USE_OPENSSL
 		SSL* pSSL = nullptr;
@@ -687,14 +681,16 @@ namespace kissnet
 #endif
 
 		///Location where this socket is bound
-		endpoint bind_loc;
+		endpoint bind_loc = {};
 
 		///Address information structures
-		addrinfo getaddrinfo_hints{};
+		addrinfo getaddrinfo_hints = {};
 		addrinfo* getaddrinfo_results = nullptr;
+		addrinfo* socket_addrinfo = nullptr;
 
-		void initialize_addrinfo(int& type, short& family)
+		void initialize_addrinfo()
 		{
+			int type{};
 			int iprotocol{};
 			if constexpr (sock_proto == protocol::tcp || sock_proto == protocol::tcp_ssl)
 			{
@@ -708,36 +704,88 @@ namespace kissnet
 				iprotocol = IPPROTO_UDP;
 			}
 
-			if constexpr (ipver == ip::v4)
-			{
-				family = AF_INET;
-			}
-
-			else if constexpr (ipver == ip::v6)
-			{
-				family = AF_INET6;
-			}
-
-			(void)memset(&getaddrinfo_hints, 0, sizeof getaddrinfo_hints);
-			getaddrinfo_hints.ai_family = family;
+			getaddrinfo_hints = {};
+			getaddrinfo_hints.ai_family = AF_UNSPEC;
 			getaddrinfo_hints.ai_socktype = type;
 			getaddrinfo_hints.ai_protocol = iprotocol;
 			getaddrinfo_hints.ai_flags = AI_ADDRCONFIG;
 		}
 
+		///Create and connect to socket
+		socket_status connect(addrinfo* addr, int64_t timeout, bool createsocket)
+		{
+			if constexpr (sock_proto == protocol::tcp || sock_proto == protocol::tcp_ssl) //only TCP is a connected protocol
+			{
+				if (createsocket)
+				{
+					close();
+					socket_addrinfo = nullptr;
+					sock = syscall_socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol);
+				}
+
+				if (sock == INVALID_SOCKET)
+					return socket_status::errored;
+
+				socket_addrinfo = addr;
+
+				if (timeout > 0)
+					set_non_blocking(true);
+
+				int error = syscall_connect(sock, addr->ai_addr, socklen_t(addr->ai_addrlen));
+				if (error == SOCKET_ERROR)
+				{
+					error = get_error_code();
+					if (error == EAGAIN || error == EINPROGRESS)
+					{
+						struct timeval tv;
+						tv.tv_sec = static_cast<long>(timeout / 1000);
+						tv.tv_usec = 1000 * static_cast<long>(timeout % 1000);
+
+						fd_set fd_write, fd_except;;
+						FD_ZERO(&fd_write);
+						FD_SET(sock, &fd_write);
+						FD_ZERO(&fd_except);
+						FD_SET(sock, &fd_except);
+
+						int ret = syscall_select(static_cast<int>(sock) + 1, NULL, &fd_write, &fd_except, &tv);
+						if (ret == -1)
+							error = get_error_code();
+						else if (ret == 0)
+							error = ETIMEDOUT;
+						else
+						{
+							socklen_t errlen = sizeof(error);
+							if (getsockopt(sock, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(&error), &errlen) != 0)
+								kissnet_fatal_error("getting socket error returned an error");
+						}
+					}
+				}
+
+				if (timeout > 0)
+					set_non_blocking(false);
+
+				if (error == 0)
+				{
+					return socket_status::valid;
+				}
+				else
+				{
+					close();
+					socket_addrinfo = nullptr;
+					return socket_status::errored;
+				}
+			}
+
+			kissnet_fatal_error("connect called for non-tcp socket");
+		}
+
 		///sockaddr struct
-		sockaddr_storage socket_output = {};
 		sockaddr_storage socket_input = {};
-		socklen_t socket_input_socklen{};
+		socklen_t socket_input_socklen = 0;
 
 	public:
 		///Construct an invalid socket
-		socket() :
-			sock{ INVALID_SOCKET },
-			getaddrinfo_hints(),
-			socket_input_socklen(0)
-		{
-		}
+		socket() = default;
 
 		///socket<> isn't copyable
 		socket(const socket&) = delete;
@@ -746,16 +794,15 @@ namespace kissnet
 		socket& operator=(const socket&) = delete;
 
 		///Move constructor. socket<> isn't copyable
-		socket(socket&& other) noexcept :
-			getaddrinfo_hints()
+		socket(socket&& other) noexcept
 		{
 			KISSNET_OS_SPECIFIC_PAYLOAD_NAME = std::move(other.KISSNET_OS_SPECIFIC_PAYLOAD_NAME);
 			bind_loc = std::move(other.bind_loc);
 			sock = std::move(other.sock);
-			socket_output = std::move(other.socket_output);
 			socket_input = std::move(other.socket_input);
 			socket_input_socklen = std::move(other.socket_input_socklen);
 			getaddrinfo_results = std::move(other.getaddrinfo_results);
+			socket_addrinfo = std::move(other.socket_addrinfo);
 
 #ifdef KISSNET_USE_OPENSSL
 			pSSL = other.pSSL;
@@ -766,25 +813,24 @@ namespace kissnet
 
 			other.sock = INVALID_SOCKET;
 			other.getaddrinfo_results = nullptr;
+			other.socket_addrinfo = nullptr;
 		}
 
 		///Move assign operation
 		socket& operator=(socket&& other) noexcept
 		{
-
 			if (this != &other)
 			{
-
 				if (!(sock < 0) || sock != INVALID_SOCKET)
 					closesocket(sock);
 
 				KISSNET_OS_SPECIFIC_PAYLOAD_NAME = std::move(other.KISSNET_OS_SPECIFIC_PAYLOAD_NAME);
 				bind_loc = std::move(other.bind_loc);
 				sock = std::move(other.sock);
-				socket_output = std::move(other.socket_output);
 				socket_input = std::move(other.socket_input);
 				socket_input_socklen = std::move(other.socket_input_socklen);
 				getaddrinfo_results = std::move(other.getaddrinfo_results);
+				socket_addrinfo = std::move(other.socket_addrinfo);
 
 #ifdef KISSNET_USE_OPENSSL
 				pSSL = other.pSSL;
@@ -795,6 +841,7 @@ namespace kissnet
 
 				other.sock = INVALID_SOCKET;
 				other.getaddrinfo_results = nullptr;
+				other.socket_addrinfo = nullptr;
 			}
 			return *this;
 		}
@@ -824,39 +871,36 @@ namespace kissnet
 			KISSNET_OS_INIT;
 
 			//Do we use streams or datagrams
-			int type;
-			short family;
-			initialize_addrinfo(type, family);
-
-			sock = syscall_socket(family, type, 0);
-			if (sock == INVALID_SOCKET)
-			{
-				kissnet_fatal_error("socket() syscall failed!");
-			}
+			initialize_addrinfo();
 
 			if (getaddrinfo(bind_loc.address.c_str(), std::to_string(bind_loc.port).c_str(), &getaddrinfo_hints, &getaddrinfo_results) != 0)
 			{
-				//TODO There can be more than one address to attempt to use in the getaddrinfo_results (It's a list). Try to go further down that list in error condition
 				kissnet_fatal_error("getaddrinfo failed!");
 			}
 
-			//Fill socket_input with 0s
-			memset(static_cast<void*>(&socket_input), 0, sizeof socket_input);
+			for (auto* addr = getaddrinfo_results; addr; addr = addr->ai_next)
+			{
+				sock = syscall_socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol);
+				if (sock != INVALID_SOCKET)
+				{
+					socket_addrinfo = addr;
+					break;
+				}
+			}
+
+			if (sock == INVALID_SOCKET)
+			{
+				kissnet_fatal_error("unable to create socket!");
+			}
 		}
 
 		///Construct a socket from an operating system socket, an additional endpoint to remember from where we are
 		socket(SOCKET native_sock, endpoint bind_to) :
-			sock{ native_sock }, bind_loc(std::move(bind_to)), getaddrinfo_hints{}
+			sock{ native_sock }, bind_loc(std::move(bind_to))
 		{
 			KISSNET_OS_INIT;
 
-			short family;
-			int type;
-
-			initialize_addrinfo(type, family);
-
-			//Fill socket_input with 0s
-			memset(static_cast<void*>(&socket_input), 0, sizeof socket_input);
+			initialize_addrinfo();
 		}
 
 		///Set the socket in non blocking mode
@@ -909,47 +953,57 @@ namespace kissnet
 		///Bind socket locally using the address and port of the endpoint
 		void bind()
 		{
-
-			memcpy(&socket_output, getaddrinfo_results->ai_addr, sizeof(SOCKADDR));
-
-			if (syscall_bind(sock, static_cast<SOCKADDR*>(getaddrinfo_results->ai_addr), socklen_t(getaddrinfo_results->ai_addrlen)) == SOCKET_ERROR)
+			if (syscall_bind(sock, static_cast<SOCKADDR*>(socket_addrinfo->ai_addr), socklen_t(socket_addrinfo->ai_addrlen)) == SOCKET_ERROR)
 			{
 				kissnet_fatal_error("bind() failed\n");
 			}
 		}
 
 		///(For TCP) connect to the endpoint as client
-		socket_status connect()
+		socket_status connect(int64_t timeout = 0)
 		{
 			if constexpr (sock_proto == protocol::tcp) //only TCP is a connected protocol
 			{
-
-				memcpy(&socket_output, getaddrinfo_results->ai_addr, sizeof(SOCKADDR));
-
-				int error = syscall_connect(sock, reinterpret_cast<SOCKADDR*>(&socket_output), sizeof(SOCKADDR));
-				if (error == SOCKET_ERROR)
+				// try to connect to existing native socket, if any.
+				auto curr_addr = socket_addrinfo;
+				if (connect(curr_addr, timeout, false) != socket_status::valid)
 				{
-					const auto error = get_error_code();
-					if (error == EWOULDBLOCK || error == EAGAIN || error == EINPROGRESS)
-						return socket_status::non_blocking_would_have_blocked;
+					// try to create/connect native socket for one of the other addrinfo, if any
+					for (auto* addr = getaddrinfo_results; addr; addr = addr->ai_next)
+					{
+						if (addr == curr_addr)
+							continue; // already checked
 
-					return socket_status::errored;
+						if (connect(addr, timeout, true) == socket_status::valid)
+							break; // success
+					}
 				}
+
+				if (sock == INVALID_SOCKET)
+					kissnet_fatal_error("unable to create connectable socket!");
+
 				return socket_status::valid;
 			}
 #ifdef KISSNET_USE_OPENSSL
 			else if constexpr (sock_proto == protocol::tcp_ssl) //only TCP is a connected protocol
 			{
-				memcpy(&socket_output, getaddrinfo_results->ai_addr, sizeof(SOCKADDR));
-
-				int error = syscall_connect(sock, reinterpret_cast<SOCKADDR*>(&socket_output), sizeof(SOCKADDR));
-				if (error == SOCKET_ERROR)
+				// try to connect to existing native socket, if any.
+				auto curr_addr = socket_addrinfo;
+				if (connect(curr_addr, timeout, false) != socket_status::valid)
 				{
-					if (error == EWOULDBLOCK || error == EAGAIN || error == EINPROGRESS)
-						return socket_status::non_blocking_would_have_blocked;
+					// try to create/connect native socket for one of the other addrinfo, if any
+					for (auto* addr = getaddrinfo_results; addr; addr = addr->ai_next)
+					{
+						if (addr == curr_addr)
+							continue; // already checked
 
-					return socket_status::errored;
+						if (connect(addr, timeout, true) == socket_status::valid)
+							break; // success
+					}
 				}
+
+				if (sock == INVALID_SOCKET)
+					kissnet_fatal_error("unable to create connectable socket!");
 
 				auto* pMethod = TLSv1_2_client_method();
 
@@ -989,13 +1043,12 @@ namespace kissnet
 				return { INVALID_SOCKET, {} };
 			}
 
-			SOCKADDR socket_address;
+			sockaddr_storage socket_address;
 			SOCKET s;
 			socklen_t size = sizeof socket_address;
 
-			if ((s = syscall_accept(sock, &socket_address, &size)) == INVALID_SOCKET)
+			if ((s = syscall_accept(sock, reinterpret_cast<SOCKADDR*>(&socket_address), &size)) == INVALID_SOCKET)
 			{
-
 				const auto error = get_error_code();
 				switch (error)
 				{
@@ -1007,7 +1060,7 @@ namespace kissnet
 				kissnet_fatal_error("accept() returned an invalid socket\n");
 			}
 
-			return { s, endpoint(&socket_address) };
+			return { s, endpoint(reinterpret_cast<SOCKADDR*>(&socket_address)) };
 		}
 
 		void close()
@@ -1110,8 +1163,7 @@ namespace kissnet
 #endif
 			else if constexpr (sock_proto == protocol::udp)
 			{
-				memcpy(&socket_output, getaddrinfo_results->ai_addr, getaddrinfo_results->ai_addrlen);
-				received_bytes = sendto(sock, reinterpret_cast<const char*>(read_buff), static_cast<buffsize_t>(length), 0, static_cast<SOCKADDR*>(getaddrinfo_results->ai_addr), socklen_t(getaddrinfo_results->ai_addrlen));
+				received_bytes = sendto(sock, reinterpret_cast<const char*>(read_buff), static_cast<buffsize_t>(length), 0, static_cast<SOCKADDR*>(socket_addrinfo->ai_addr), socklen_t(socket_addrinfo->ai_addrlen));
 			}
 
 			if (received_bytes < 0)
@@ -1131,7 +1183,6 @@ namespace kissnet
 		template <size_t buff_size>
 		bytes_with_status recv(buffer<buff_size>& write_buff, size_t start_offset = 0)
 		{
-
 			auto received_bytes = 0;
 			if constexpr (sock_proto == protocol::tcp)
 			{
@@ -1270,10 +1321,6 @@ namespace kissnet
 	using tcp_ssl_socket = socket<protocol::tcp_ssl>;
 	///Alias for socket<protocol::udp>
 	using udp_socket = socket<protocol::udp>;
-	///IPV6 version of a TCP socket
-	using tcp_socket_v6 = socket<protocol::tcp, ip::v6>;
-	///IPV6 version of an UDP socket
-	using udp_socket_v6 = socket<protocol::udp, ip::v6>;
 }
 
 //cleanup preprocessor macros
