@@ -74,7 +74,7 @@
           </constraints>
           <control type="edit" format="string" />
         </setting>
-        <setting id="chunksize" type="string" label="30050">
+        <setting id="chunksize" type="integer" label="30050">
           <level>0</level>
           <default>65536</default>
           <control type="edit" format="integer" />
