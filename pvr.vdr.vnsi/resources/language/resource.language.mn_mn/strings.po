@@ -10,10 +10,10 @@ msgstr ""
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Kodi Translation Team\n"
 "Language-Team: Mongolian (Mongolia) (http://www.transifex.com/projects/p/kodi-main/language/mn_MN/)\n"
+"Language: mn_MN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: mn_MN\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgctxt "#30000"
@@ -84,6 +84,22 @@ msgctxt "#30017"
 msgid "Country"
 msgstr "Улс"
 
+msgctxt "#30018"
+msgid "Cable Inversion"
+msgstr ""
+
+msgctxt "#30019"
+msgid "Cable Symbolrate"
+msgstr ""
+
+msgctxt "#30020"
+msgid "Cable modulation"
+msgstr ""
+
+msgctxt "#30021"
+msgid "Terr Inversion"
+msgstr ""
+
 msgctxt "#30022"
 msgid "Satellite"
 msgstr "Хиймэл дагуул"
@@ -132,6 +148,10 @@ msgctxt "#30033"
 msgid "Analog Radio"
 msgstr "Аналог радио"
 
+msgctxt "#30034"
+msgid "Transponder:"
+msgstr ""
+
 msgctxt "#30035"
 msgid "New channels"
 msgstr "Шинэ сувгууд"
@@ -143,6 +163,10 @@ msgstr "Суваг хайх - Дууссан"
 msgctxt "#30037"
 msgid "No device available - exiting"
 msgstr "Боломжтой төхөөрөмж алга - гарч байна"
+
+msgctxt "#30038"
+msgid "No DVB-S2 device available - trying fallback to DVB-S"
+msgstr ""
 
 msgctxt "#30039"
 msgid "Running"
@@ -168,17 +192,58 @@ msgctxt "#30044"
 msgid "Lost connection to VDR Server"
 msgstr "VDR сервер уруух холболт алдагдсан"
 
+msgctxt "#30045"
+msgid "Connection to VDR Server restored"
+msgstr ""
+
 msgctxt "#30046"
 msgid "Create channel groups automatically on the server"
 msgstr "Энэ серверт сувгийн группыг автоматаар үүсгэ"
+
+msgctxt "#30047"
+msgid "Request Timeshift"
+msgstr ""
 
 msgctxt "#30048"
 msgid "Path to channel icons"
 msgstr "Сувгийн таних тэмдэгийн зам"
 
+msgctxt "#30049"
+msgid "VDR Server MAC for Wake-on-LAN"
+msgstr ""
+
+msgctxt "#30050"
+msgid "Read chunksize for recordings"
+msgstr ""
+
+# empty strings from id 30051 to 30099
+msgctxt "#30100"
+msgid "VDR OSD"
+msgstr ""
+
 msgctxt "#30101"
 msgid "Setup"
 msgstr "Тохиргоо"
+
+msgctxt "#30102"
+msgid "Controlling OSD - press info to exit"
+msgstr ""
+
+msgctxt "#30103"
+msgid "Select to control OSD"
+msgstr ""
+
+msgctxt "#30104"
+msgid "Timeshift Mode"
+msgstr ""
+
+msgctxt "#30105"
+msgid "Timeshift Buffer (RAM) x100 MB"
+msgstr ""
+
+msgctxt "#30106"
+msgid "Timeshift Buffer (File) x1 GB"
+msgstr ""
 
 msgctxt "#30107"
 msgid "VDR Admin"
@@ -211,3 +276,28 @@ msgstr "Шүүлт хадгалах"
 msgctxt "#30114"
 msgid "Provider Unknown"
 msgstr "Үл мэдэгдэх нийлүүлэгч"
+
+# empty strings from id 30115 to 30199
+msgctxt "#30200"
+msgid "Single"
+msgstr ""
+
+msgctxt "#30201"
+msgid "Repeating"
+msgstr ""
+
+msgctxt "#30202"
+msgid "EGP"
+msgstr ""
+
+msgctxt "#30203"
+msgid "VPS"
+msgstr ""
+
+msgctxt "#30204"
+msgid "Search EPG"
+msgstr ""
+
+msgctxt "#30205"
+msgid "Repeating Child"
+msgstr ""
