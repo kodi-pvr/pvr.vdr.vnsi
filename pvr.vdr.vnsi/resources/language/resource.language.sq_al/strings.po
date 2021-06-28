@@ -7,14 +7,15 @@ msgstr ""
 "Project-Id-Version: KODI Main\n"
 "Report-Msgid-Bugs-To: https://github.com/xbmc/xbmc/issues/\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Kodi Translation Team\n"
-"Language-Team: Albanian (Albania) (http://www.transifex.com/projects/p/kodi-main/language/sq_AL/)\n"
+"PO-Revision-Date: 2021-06-28 08:29+0000\n"
+"Last-Translator: Christian Gade <gade@kodi.tv>\n"
+"Language-Team: Albanian <https://kodi.weblate.cloud/projects/kodi-add-ons-pvr-clients/pvr-vdr-vnsi/sq_al/>\n"
+"Language: sq_al\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: sq_AL\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.7\n"
 
 msgctxt "#30000"
 msgid "VDR Hostname or IP"
@@ -114,11 +115,11 @@ msgstr "Mbrapa"
 
 msgctxt "#30025"
 msgid "Channel search - running... %i %%"
-msgstr "Kërkimi kanaleve - duke kërkuar...  %i %%"
+msgstr "Kërkimi kanaleve - duke kërkuar... %i %%"
 
 msgctxt "#30026"
 msgid "Type:"
-msgstr "Tipi: "
+msgstr "Tipi:"
 
 msgctxt "#30027"
 msgid "Device:"
@@ -200,6 +201,104 @@ msgctxt "#30046"
 msgid "Create channel groups automatically on the server"
 msgstr "Krijo grupe kanalesh automatikisht në server"
 
+msgctxt "#30047"
+msgid "Request Timeshift"
+msgstr ""
+
+msgctxt "#30048"
+msgid "Path to channel icons"
+msgstr ""
+
+msgctxt "#30049"
+msgid "VDR Server MAC for Wake-on-LAN"
+msgstr ""
+
+msgctxt "#30050"
+msgid "Read chunksize for recordings"
+msgstr ""
+
+# empty strings from id 30051 to 30099
+msgctxt "#30100"
+msgid "VDR OSD"
+msgstr ""
+
+msgctxt "#30101"
+msgid "Setup"
+msgstr ""
+
+msgctxt "#30102"
+msgid "Controlling OSD - press info to exit"
+msgstr ""
+
+msgctxt "#30103"
+msgid "Select to control OSD"
+msgstr ""
+
+msgctxt "#30104"
+msgid "Timeshift Mode"
+msgstr ""
+
+msgctxt "#30105"
+msgid "Timeshift Buffer (RAM) x100 MB"
+msgstr ""
+
+msgctxt "#30106"
+msgid "Timeshift Buffer (File) x1 GB"
+msgstr ""
+
+msgctxt "#30107"
+msgid "VDR Admin"
+msgstr ""
+
 msgctxt "#30108"
 msgid "Channels"
 msgstr "Kanalet"
+
+msgctxt "#30109"
+msgid "Provider whitelist"
+msgstr ""
+
+msgctxt "#30110"
+msgid "Channel blacklist"
+msgstr ""
+
+msgctxt "#30111"
+msgid "Channel filters"
+msgstr ""
+
+msgctxt "#30112"
+msgid "Radio Channels"
+msgstr ""
+
+msgctxt "#30113"
+msgid "Save filters"
+msgstr ""
+
+msgctxt "#30114"
+msgid "Provider Unknown"
+msgstr ""
+
+# empty strings from id 30115 to 30199
+msgctxt "#30200"
+msgid "Single"
+msgstr ""
+
+msgctxt "#30201"
+msgid "Repeating"
+msgstr ""
+
+msgctxt "#30202"
+msgid "EGP"
+msgstr ""
+
+msgctxt "#30203"
+msgid "VPS"
+msgstr ""
+
+msgctxt "#30204"
+msgid "Search EPG"
+msgstr ""
+
+msgctxt "#30205"
+msgid "Repeating Child"
+msgstr ""
