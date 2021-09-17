@@ -17,6 +17,18 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 "X-Generator: Weblate 4.7\n"
 
+msgctxt "Addon Summary"
+msgid "PVR client to connect VDR to Kodi over the VNSI interface"
+msgstr "Klijynt telewizyje do skuplowaniŏ VDR bez interfejs VNSI"
+
+msgctxt "Addon Description"
+msgid "VDR frontend; supporting streaming of Live TV &amp; Recordings, EPG, Timers over the VNSI plugin"
+msgstr "Klijynt telewizyjny dlŏ VDR podpiyrŏ szpricowanie kanałōw radyjowych i telewizyjnych, nagrowanie i harmōnogram nagrań i funkcyje EPG przi wyużyciu sztekra VNSI dlŏ VDR"
+
+msgctxt "Addon Disclaimer"
+msgid "This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
+msgstr "To je niystabilny softwer! Autōry niy sōm ôdpedzialne za niypodarzōne graniy, niynŏleżne godziny EPG, stracōne godziny i inksze niychciane efekty."
+
 msgctxt "#30000"
 msgid "VDR Hostname or IP"
 msgstr "Miano lebo adresa ôd serwera"
