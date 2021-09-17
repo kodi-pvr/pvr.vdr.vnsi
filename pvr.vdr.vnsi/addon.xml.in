@@ -9,6 +9,13 @@
     point="kodi.pvrclient"
     library_@PLATFORM@="@LIBRARY_FILENAME@"/>
   <extension point="xbmc.addon.metadata">
+    <platform>@PLATFORM@</platform>
+    <license>GPL-2.0-or-later</license>
+    <source>https://github.com/kodi-pvr/pvr.vdr.vnsi</source>
+    <forum>https://forum.kodi.tv/forumdisplay.php?fid=169</forum>
+    <assets>
+      <icon>icon.png</icon>
+    </assets>
     <summary lang="af_ZA">PVR kliënt om VDR te konnekteer aan Kodi oor die VNSI koppelvlak</summary>
     <summary lang="be_BY">PVR client to connect VDR to Kodi over the VNSI interface</summary>
     <summary lang="bg_BG">Клиент за ПВР за свързване на „VDR“ към Kodi чрез интерфейса VNSI</summary>
@@ -92,7 +99,7 @@
     <description lang="lt_LT">VDR naudotojo sąsaja; palaiko TV transliacijas ir laidų įrašymą, EPG ir laikmačiius per VNSI įskiepį</description>
     <description lang="lv_LV">VDR galasistēma; atbalsta tiešraides TV un ierakstu straumēšanu, EPG, taimerus no VNSI spraudņa</description>
     <description lang="mk_MK">VDR интерфејс; подржува стриминг на Live TV и снимки, EPG тајмери преку VNSI додаток</description>
-    <description lang="ms_MY">Bahagian hadapan VDR; menyokong penstirman  TV Langsung &amp; Rakaman, EPG, Pemasa menerusi pemalam VNSI</description>
+    <description lang="ms_MY">Bahagian hadapan VDR; menyokong penstirman TV Langsung &amp; Rakaman, EPG, Pemasa menerusi pemalam VNSI</description>
     <description lang="nb_NO">VDR-grenseflate; støtte for visning av direkte-TV og opptak, EPG og tidtakere over VNSI-tillegget</description>
     <description lang="nl_NL">VDR frontend: ondersteunt streaming van Live TV &amp; Recordings, EPG, Timers over de VNSI plugin</description>
     <description lang="pl_PL">Klient telewizji dla VDR obsługuje transmisję kanałów radiowych i telewizyjnych, nagrywanie i harmonogram nagrań oraz funkcje przewodnika telewizyjnego przy wykorzystaniu wtyczki VNSI dla VDR</description>
@@ -108,7 +115,7 @@
     <description lang="sv_SE">VDR frontend; stödjer strömning av Live-TV &amp; inspelningar, EPG, timers över VNSI-tillägget</description>
     <description lang="szl">Klijynt telewizyjny dlŏ VDR podpiyrŏ szpricowanie kanałōw radyjowych i telewizyjnych, nagrowanie i harmōnogram nagrań i funkcyje EPG przi wyużyciu sztekra VNSI dlŏ VDR</description>
     <description lang="tr_TR">VDR ön ucu; Canlı TV akışı ve kayıt yapabilme, EPG, VNSI eklentisi üzerinden zamanlayıcıları destekler.</description>
-    <description lang="uk_UA">Надстройка над VDR; підтримує потік TV і записів,  EPG, таймерів через додаток VNSI</description>
+    <description lang="uk_UA">Надстройка над VDR; підтримує потік TV і записів, EPG, таймерів через додаток VNSI</description>
     <description lang="vi_VN">Giao tiếp cho VDR; hỗ trợ truyền phát và thu chương trình Live TV, hẹn giờ và hiển thị lịch trình chiếu (EPG) thông qua plugin VNSI</description>
     <description lang="zh_CN">VDR 前端，通过 VNSI 插件支持直播电视和录像流媒体、电子节目单、定时器</description>
     <description lang="zh_TW">VDR前端，在VNSI插件上支援的串流媒體包括有：電視直播和錄影，電子節目表，定時器。</description>
@@ -172,12 +179,5 @@
     <disclaimer lang="vi_VN">Đây là phần mềm không ổn định! Các tác giả không chịu trách nhiệm đối với các lỗi thu chương trình, hẹn giờ không chính xác, giờ lãng phí, hoặc bất kỳ tác dụng không mong muốn khác.</disclaimer>
     <disclaimer lang="zh_CN">这是不稳定版的软件！作者不对录像失败、错误定时造成时间浪费或其它不良影响负责。</disclaimer>
     <disclaimer lang="zh_TW">這是測試版軟體！其原創作者並無法對於以下情況負責，包含：錄影失敗，不正確的定時設定，多餘時數，或任何產生的其它不良影響.</disclaimer>
-    <platform>@PLATFORM@</platform>
-    <license>GPL-2.0-or-later</license>
-    <source>https://github.com/kodi-pvr/pvr.vdr.vnsi</source>
-    <forum>https://forum.kodi.tv/forumdisplay.php?fid=169</forum>
-    <assets>
-      <icon>icon.png</icon>
-    </assets>
   </extension>
 </addon>
