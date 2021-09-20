@@ -197,6 +197,7 @@ PVR_ERROR CVNSIClientInstance::GetCapabilities(kodi::addon::PVRCapabilities& cap
 {
   capabilities.SetSupportsEPG(true);
   capabilities.SetSupportsRecordings(true);
+  capabilities.SetSupportsRecordingsDelete(true);
   capabilities.SetSupportsRecordingEdl(true);
   capabilities.SetSupportsTimers(true);
   capabilities.SetSupportsTV(true);
