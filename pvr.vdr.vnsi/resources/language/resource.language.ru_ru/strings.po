@@ -22,7 +22,7 @@ msgid "PVR client to connect VDR to Kodi over the VNSI interface"
 msgstr "PVR клиент для подключения VDR к Kodi через интерфейс VNSI"
 
 msgctxt "Addon Description"
-msgid "VDR frontend; supporting streaming of Live TV &amp; Recordings, EPG, Timers over the VNSI plugin"
+msgid "VDR frontend; supporting streaming of Live TV & Recordings, EPG, Timers over the VNSI plugin"
 msgstr "VDR фронтэнд; поддерживает потоковое TV, запись, ЕПГ, таймеры через VNSI плагин"
 
 msgctxt "Addon Disclaimer"
