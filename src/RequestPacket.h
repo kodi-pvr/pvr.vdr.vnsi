@@ -12,7 +12,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-class ATTRIBUTE_HIDDEN cRequestPacket
+class ATTR_DLL_LOCAL cRequestPacket
 {
 public:
   cRequestPacket() = default;

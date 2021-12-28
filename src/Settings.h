@@ -19,13 +19,14 @@
 #define DEFAULT_AUTOGROUPS false
 #define DEFAULT_CHUNKSIZE 65536
 
-class ATTRIBUTE_HIDDEN CVNSISettings
+class ATTR_DLL_LOCAL CVNSISettings
 {
 public:
   static CVNSISettings& Get();
 
   bool Load();
-  ADDON_STATUS SetSetting(const std::string& settingName, const kodi::CSettingValue& settingValue);
+  ADDON_STATUS SetSetting(const std::string& settingName,
+                          const kodi::addon::CSettingValue& settingValue);
 
   const std::string& GetHostname() const { return m_szHostname; }
   const std::string& GetWolMac() const { return m_szWolMac; }

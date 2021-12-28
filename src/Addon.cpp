@@ -23,36 +23,33 @@ ADDON_STATUS CPVRAddon::Create()
 }
 
 ADDON_STATUS CPVRAddon::SetSetting(const std::string& settingName,
-                                   const kodi::CSettingValue& settingValue)
+                                   const kodi::addon::CSettingValue& settingValue)
 {
   return CVNSISettings::Get().SetSetting(settingName, settingValue);
 }
 
-ADDON_STATUS CPVRAddon::CreateInstance(int instanceType,
-                                       const std::string& instanceID,
-                                       KODI_HANDLE instance,
-                                       const std::string& version,
-                                       KODI_HANDLE& addonInstance)
+ADDON_STATUS CPVRAddon::CreateInstance(const kodi::addon::IInstanceInfo& instance,
+                                       KODI_ADDON_INSTANCE_HDL& hdl)
 {
   kodi::Log(ADDON_LOG_DEBUG, "%s: Creating VDR VNSI PVR-Client", __func__);
 
-  if (instanceID.empty())
+  if (instance.GetID().empty())
   {
     kodi::Log(ADDON_LOG_ERROR, "%s: Instance creation called without id", __func__);
     return ADDON_STATUS_UNKNOWN;
   }
 
-  if (instanceType == ADDON_INSTANCE_PVR)
+  if (instance.IsType(ADDON_INSTANCE_PVR))
   {
     CVNSIClientInstance* client = nullptr;
     try
     {
-      client = new CVNSIClientInstance(*this, instance, version);
+      client = new CVNSIClientInstance(*this, instance);
       if (client->Start(CVNSISettings::Get().GetHostname(), CVNSISettings::Get().GetPort(), nullptr,
                         CVNSISettings::Get().GetWolMac()))
       {
-        addonInstance = client;
-        m_usedInstances.emplace(instanceID, client);
+        hdl = client;
+        m_usedInstances.emplace(instance.GetID(), client);
         return ADDON_STATUS_OK;
       }
     }
@@ -66,13 +63,12 @@ ADDON_STATUS CPVRAddon::CreateInstance(int instanceType,
   return ADDON_STATUS_UNKNOWN;
 }
 
-void CPVRAddon::DestroyInstance(int instanceType,
-                                const std::string& instanceID,
-                                KODI_HANDLE addonInstance)
+void CPVRAddon::DestroyInstance(const kodi::addon::IInstanceInfo& instance,
+                                const KODI_ADDON_INSTANCE_HDL hdl)
 {
-  if (instanceType == ADDON_INSTANCE_PVR)
+  if (instance.IsType(ADDON_INSTANCE_PVR))
   {
-    const auto& it = m_usedInstances.find(instanceID);
+    const auto& it = m_usedInstances.find(instance.GetID());
     if (it != m_usedInstances.end())
     {
       m_usedInstances.erase(it);

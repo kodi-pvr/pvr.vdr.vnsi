@@ -12,7 +12,7 @@
 
 #include <kodi/addon-instance/pvr/Stream.h>
 
-class ATTRIBUTE_HIDDEN cVNSIRecording : public cVNSISession
+class ATTR_DLL_LOCAL cVNSIRecording : public cVNSISession
 {
 public:
   cVNSIRecording(kodi::addon::CInstancePVRClient& instance);

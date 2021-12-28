@@ -19,8 +19,7 @@
 
 class cOSDRender;
 
-class ATTRIBUTE_HIDDEN cVNSIAdmin : public cVNSISession,
-                                    public kodi::gui::CWindow
+class ATTR_DLL_LOCAL cVNSIAdmin : public cVNSISession, public kodi::gui::CWindow
 {
 public:
   cVNSIAdmin(kodi::addon::CInstancePVRClient& instance);

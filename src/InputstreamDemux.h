@@ -16,7 +16,7 @@
 
 class cResponsePacket;
 
-class ATTRIBUTE_HIDDEN CVNSIDemuxStatus : public cVNSISession
+class ATTR_DLL_LOCAL CVNSIDemuxStatus : public cVNSISession
 {
 public:
   CVNSIDemuxStatus(kodi::addon::CInstancePVRClient& instance);
@@ -28,7 +28,7 @@ public:
   bool IsConnected();
 };
 
-class ATTRIBUTE_HIDDEN cVNSIDemux : public cVNSISession
+class ATTR_DLL_LOCAL cVNSIDemux : public cVNSISession
 {
 public:
   cVNSIDemux(kodi::addon::CInstancePVRClient& instance);

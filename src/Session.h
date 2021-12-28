@@ -25,7 +25,7 @@ namespace P8PLATFORM
 class CTcpConnection;
 }
 
-class ATTRIBUTE_HIDDEN cVNSISession
+class ATTR_DLL_LOCAL cVNSISession
 {
 public:
   cVNSISession(kodi::addon::CInstancePVRClient& instance);
