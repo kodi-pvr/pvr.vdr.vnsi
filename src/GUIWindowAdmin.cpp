@@ -279,7 +279,7 @@ void cOSDRender::SetBlock(
 
 #if defined(HAS_GL) || defined(HAS_GLES)
 
-class ATTRIBUTE_HIDDEN cOSDRenderGL : public cOSDRender, public kodi::gui::gl::CShaderProgram
+class ATTR_DLL_LOCAL cOSDRenderGL : public cOSDRender, public kodi::gui::gl::CShaderProgram
 {
 public:
   cOSDRenderGL();
@@ -330,8 +330,10 @@ cOSDRenderGL::~cOSDRenderGL()
 
 bool cOSDRenderGL::Init()
 {
-  std::string fraqShader = kodi::GetAddonPath("resources/shaders/" GL_TYPE_STRING "/frag.glsl");
-  std::string vertShader = kodi::GetAddonPath("resources/shaders/" GL_TYPE_STRING "/vert.glsl");
+  std::string fraqShader =
+      kodi::addon::GetAddonPath("resources/shaders/" GL_TYPE_STRING "/frag.glsl");
+  std::string vertShader =
+      kodi::addon::GetAddonPath("resources/shaders/" GL_TYPE_STRING "/vert.glsl");
   if (!LoadShaderFiles(vertShader, fraqShader) || !CompileAndLink())
     return false;
 
@@ -693,14 +695,14 @@ bool cVNSIAdmin::OnFocus(int controlId)
 {
   if (controlId == CONTROL_OSD_BUTTON)
   {
-    SetControlLabel(CONTROL_OSD_BUTTON, kodi::GetLocalizedString(30102));
+    SetControlLabel(CONTROL_OSD_BUTTON, kodi::addon::GetLocalizedString(30102));
     MarkDirtyRegion();
     m_bIsOsdControl = true;
     return true;
   }
   else if (m_bIsOsdControl)
   {
-    SetControlLabel(CONTROL_OSD_BUTTON, kodi::GetLocalizedString(30103));
+    SetControlLabel(CONTROL_OSD_BUTTON, kodi::addon::GetLocalizedString(30103));
     MarkDirtyRegion();
     m_bIsOsdControl = false;
     return true;
@@ -837,7 +839,7 @@ bool cVNSIAdmin::OnAction(ADDON_ACTION actionId)
   if (GetFocusId() != CONTROL_OSD_BUTTON && m_bIsOsdControl)
   {
     m_bIsOsdControl = false;
-    SetControlLabel(CONTROL_OSD_BUTTON, kodi::GetLocalizedString(30103));
+    SetControlLabel(CONTROL_OSD_BUTTON, kodi::addon::GetLocalizedString(30103));
     MarkDirtyRegion();
   }
   else if (GetFocusId() == CONTROL_OSD_BUTTON)
@@ -1192,7 +1194,7 @@ void cVNSIAdmin::LoadListItemsProviders()
     if (!m_channels.m_providers[i].m_name.empty())
       tmp = m_channels.m_providers[i].m_name;
     else
-      tmp = kodi::GetLocalizedString(30114);
+      tmp = kodi::addon::GetLocalizedString(30114);
     if (m_channels.m_providers[i].m_caid == 0)
     {
       tmp += " - FTA";
@@ -1235,7 +1237,7 @@ void cVNSIAdmin::LoadListItemsChannels()
     if (!m_channels.m_channels[i].m_provider.empty())
       tmp += m_channels.m_channels[i].m_provider;
     else
-      tmp += kodi::GetLocalizedString(30114);
+      tmp += kodi::addon::GetLocalizedString(30114);
     tmp += ")";
     std::shared_ptr<kodi::gui::CListItem> item = std::make_shared<kodi::gui::CListItem>(tmp);
     item->SetProperty("identifier", std::to_string(i));

@@ -32,8 +32,7 @@ typedef enum scantype
 
 class CPVRAddon;
 
-class ATTRIBUTE_HIDDEN cVNSIChannelScan : public cVNSISession,
-                                          public kodi::gui::CWindow
+class ATTR_DLL_LOCAL cVNSIChannelScan : public cVNSISession, public kodi::gui::CWindow
 {
 public:
   cVNSIChannelScan(kodi::addon::CInstancePVRClient& instance);

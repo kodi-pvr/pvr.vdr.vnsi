@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-class ATTRIBUTE_HIDDEN CProvider
+class ATTR_DLL_LOCAL CProvider
 {
 public:
   CProvider() = default;
@@ -27,7 +27,7 @@ public:
   bool m_whitelist = false;
 };
 
-class ATTRIBUTE_HIDDEN CChannel
+class ATTR_DLL_LOCAL CChannel
 {
 public:
   void SetCaids(const char* caids);
@@ -41,7 +41,7 @@ public:
   bool m_blacklist;
 };
 
-class ATTRIBUTE_HIDDEN CVNSIChannels
+class ATTR_DLL_LOCAL CVNSIChannels
 {
 public:
   CVNSIChannels() = default;

@@ -25,7 +25,7 @@ CVNSISettings& CVNSISettings::Get()
 bool CVNSISettings::Load()
 {
   // Read setting "host" from settings.xml
-  if (!kodi::CheckSettingString("host", m_szHostname))
+  if (!kodi::addon::CheckSettingString("host", m_szHostname))
   {
     // If setting is unknown fallback to defaults
     kodi::Log(ADDON_LOG_ERROR, "Couldn't get 'host' setting, falling back to '%s' as default",
@@ -34,7 +34,7 @@ bool CVNSISettings::Load()
   }
 
   // Read setting "wol_mac" from settings.xml
-  if (!kodi::CheckSettingString("wol_mac", m_szWolMac))
+  if (!kodi::addon::CheckSettingString("wol_mac", m_szWolMac))
   {
     // If setting is unknown fallback to empty default
     kodi::Log(ADDON_LOG_ERROR, "Couldn't get 'wol_mac' setting, falling back to default");
@@ -42,7 +42,7 @@ bool CVNSISettings::Load()
   }
 
   // Read setting "port" from settings.xml
-  if (!kodi::CheckSettingInt("port", m_iPort))
+  if (!kodi::addon::CheckSettingInt("port", m_iPort))
   {
     // If setting is unknown fallback to defaults
     kodi::Log(ADDON_LOG_ERROR, "Couldn't get 'port' setting, falling back to '%i' as default",
@@ -52,7 +52,7 @@ bool CVNSISettings::Load()
 
   // Read setting "priority" from settings.xml
   int prio = DEFAULT_PRIORITY;
-  if (kodi::CheckSettingInt("priority", prio))
+  if (kodi::addon::CheckSettingInt("priority", prio))
   {
     m_iPriority = prioVals[prio];
   }
@@ -65,7 +65,7 @@ bool CVNSISettings::Load()
   }
 
   /* Read setting "timeshift" from settings.xml */
-  if (!kodi::CheckSettingInt("timeshift", m_iTimeshift))
+  if (!kodi::addon::CheckSettingInt("timeshift", m_iTimeshift))
   {
     // If setting is unknown fallback to defaults
     kodi::Log(ADDON_LOG_ERROR, "Couldn't get 'timeshift' setting, falling back to %i as default",
@@ -74,7 +74,7 @@ bool CVNSISettings::Load()
   }
 
   // Read setting "convertchar" from settings.xml
-  if (!kodi::CheckSettingBoolean("convertchar", m_bCharsetConv))
+  if (!kodi::addon::CheckSettingBoolean("convertchar", m_bCharsetConv))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR,
@@ -83,7 +83,7 @@ bool CVNSISettings::Load()
   }
 
   // Read setting "timeout" from settings.xml
-  if (!kodi::CheckSettingInt("timeout", m_iConnectTimeout))
+  if (!kodi::addon::CheckSettingInt("timeout", m_iConnectTimeout))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR,
@@ -93,7 +93,7 @@ bool CVNSISettings::Load()
   }
 
   // Read setting "autochannelgroups" from settings.xml
-  if (!kodi::CheckSettingBoolean("autochannelgroups", m_bAutoChannelGroups))
+  if (!kodi::addon::CheckSettingBoolean("autochannelgroups", m_bAutoChannelGroups))
   {
     // If setting is unknown fallback to defaults
     kodi::Log(ADDON_LOG_ERROR,
@@ -102,7 +102,7 @@ bool CVNSISettings::Load()
   }
 
   // Read setting "iconpath" from settings.xml
-  if (!kodi::CheckSettingString("iconpath", m_szIconPath))
+  if (!kodi::addon::CheckSettingString("iconpath", m_szIconPath))
   {
     // If setting is unknown fallback to defaults
     kodi::Log(ADDON_LOG_ERROR, "Couldn't get 'iconpath' setting");
@@ -110,7 +110,7 @@ bool CVNSISettings::Load()
   }
 
   // Read setting "chunksize" from settings.xml
-  if (!kodi::CheckSettingInt("chunksize", m_iChunkSize))
+  if (!kodi::addon::CheckSettingInt("chunksize", m_iChunkSize))
   {
     /* If setting is unknown fallback to defaults */
     kodi::Log(ADDON_LOG_ERROR, "Couldn't get 'chunksize' setting, falling back to %i as default",
@@ -122,7 +122,7 @@ bool CVNSISettings::Load()
 }
 
 ADDON_STATUS CVNSISettings::SetSetting(const std::string& settingName,
-                                       const kodi::CSettingValue& settingValue)
+                                       const kodi::addon::CSettingValue& settingValue)
 {
   if (settingName == "host")
   {

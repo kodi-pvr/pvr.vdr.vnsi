@@ -89,9 +89,8 @@ void CVNSIClientInstance::Queue::Set(std::unique_ptr<cResponsePacket>&& vresp)
 }
 
 CVNSIClientInstance::CVNSIClientInstance(const CPVRAddon& base,
-                                         KODI_HANDLE instance,
-                                         const std::string& kodiVersion)
-  : kodi::addon::CInstancePVRClient(instance, kodiVersion),
+                                         const kodi::addon::IInstanceInfo& instance)
+  : kodi::addon::CInstancePVRClient(instance),
     cVNSISession(*dynamic_cast<kodi::addon::CInstancePVRClient*>(this)),
     m_base(base)
 {
@@ -108,8 +107,9 @@ CVNSIClientInstance::~CVNSIClientInstance()
 
 void CVNSIClientInstance::OnDisconnect()
 {
-  kodi::addon::CInstancePVRClient::ConnectionStateChange(
-      "vnsi connection lost", PVR_CONNECTION_STATE_DISCONNECTED, kodi::GetLocalizedString(30044));
+  kodi::addon::CInstancePVRClient::ConnectionStateChange("vnsi connection lost",
+                                                         PVR_CONNECTION_STATE_DISCONNECTED,
+                                                         kodi::addon::GetLocalizedString(30044));
 }
 
 void CVNSIClientInstance::OnReconnect()
@@ -118,7 +118,7 @@ void CVNSIClientInstance::OnReconnect()
 
   kodi::addon::CInstancePVRClient::ConnectionStateChange("vnsi connection established",
                                                          PVR_CONNECTION_STATE_CONNECTED,
-                                                         kodi::GetLocalizedString(30045));
+                                                         kodi::addon::GetLocalizedString(30045));
 
   kodi::addon::CInstancePVRClient::TriggerChannelUpdate();
   kodi::addon::CInstancePVRClient::TriggerTimerUpdate();
@@ -944,7 +944,7 @@ PVR_ERROR CVNSIClientInstance::GetTimerTypes(std::vector<kodi::addon::PVRTimerTy
       kodi::addon::PVRTimerType type;
 
       type.SetId(VNSI_TIMER_TYPE_MAN);
-      type.SetDescription(kodi::GetLocalizedString(30200));
+      type.SetDescription(kodi::addon::GetLocalizedString(30200));
       type.SetAttributes(PVR_TIMER_TYPE_IS_MANUAL | PVR_TIMER_TYPE_SUPPORTS_ENABLE_DISABLE |
                          PVR_TIMER_TYPE_SUPPORTS_CHANNELS | PVR_TIMER_TYPE_SUPPORTS_START_TIME |
                          PVR_TIMER_TYPE_SUPPORTS_END_TIME | PVR_TIMER_TYPE_SUPPORTS_PRIORITY |
@@ -959,7 +959,7 @@ PVR_ERROR CVNSIClientInstance::GetTimerTypes(std::vector<kodi::addon::PVRTimerTy
       kodi::addon::PVRTimerType type;
 
       type.SetId(VNSI_TIMER_TYPE_MAN_REPEAT);
-      type.SetDescription(kodi::GetLocalizedString(30201));
+      type.SetDescription(kodi::addon::GetLocalizedString(30201));
       type.SetAttributes(PVR_TIMER_TYPE_IS_MANUAL | PVR_TIMER_TYPE_IS_REPEATING |
                          PVR_TIMER_TYPE_SUPPORTS_ENABLE_DISABLE | PVR_TIMER_TYPE_SUPPORTS_CHANNELS |
                          PVR_TIMER_TYPE_SUPPORTS_START_TIME | PVR_TIMER_TYPE_SUPPORTS_END_TIME |
@@ -975,7 +975,7 @@ PVR_ERROR CVNSIClientInstance::GetTimerTypes(std::vector<kodi::addon::PVRTimerTy
       kodi::addon::PVRTimerType type;
 
       type.SetId(VNSI_TIMER_TYPE_MAN_REPEAT_CHILD);
-      type.SetDescription(kodi::GetLocalizedString(30205));
+      type.SetDescription(kodi::addon::GetLocalizedString(30205));
       type.SetAttributes(PVR_TIMER_TYPE_IS_MANUAL | PVR_TIMER_TYPE_IS_READONLY |
                          PVR_TIMER_TYPE_SUPPORTS_CHANNELS | PVR_TIMER_TYPE_SUPPORTS_START_TIME |
                          PVR_TIMER_TYPE_SUPPORTS_END_TIME | PVR_TIMER_TYPE_SUPPORTS_PRIORITY |
@@ -990,7 +990,7 @@ PVR_ERROR CVNSIClientInstance::GetTimerTypes(std::vector<kodi::addon::PVRTimerTy
       kodi::addon::PVRTimerType type;
 
       type.SetId(VNSI_TIMER_TYPE_EPG);
-      type.SetDescription(kodi::GetLocalizedString(30202));
+      type.SetDescription(kodi::addon::GetLocalizedString(30202));
       type.SetAttributes(
           PVR_TIMER_TYPE_SUPPORTS_ENABLE_DISABLE | PVR_TIMER_TYPE_REQUIRES_EPG_TAG_ON_CREATE |
           PVR_TIMER_TYPE_SUPPORTS_CHANNELS | PVR_TIMER_TYPE_SUPPORTS_START_TIME |
@@ -1019,7 +1019,7 @@ PVR_ERROR CVNSIClientInstance::GetTimerTypes(std::vector<kodi::addon::PVRTimerTy
         kodi::addon::PVRTimerType type;
 
         type.SetId(VNSI_TIMER_TYPE_EPG_SEARCH);
-        type.SetDescription(kodi::GetLocalizedString(30204));
+        type.SetDescription(kodi::addon::GetLocalizedString(30204));
         type.SetAttributes(PVR_TIMER_TYPE_IS_REPEATING | PVR_TIMER_TYPE_SUPPORTS_ENABLE_DISABLE |
                            PVR_TIMER_TYPE_SUPPORTS_CHANNELS |
                            PVR_TIMER_TYPE_SUPPORTS_TITLE_EPG_MATCH |
@@ -1031,7 +1031,7 @@ PVR_ERROR CVNSIClientInstance::GetTimerTypes(std::vector<kodi::addon::PVRTimerTy
       kodi::addon::PVRTimerType type;
 
       type.SetId(VNSI_TIMER_TYPE_VPS);
-      type.SetDescription(kodi::GetLocalizedString(30203));
+      type.SetDescription(kodi::addon::GetLocalizedString(30203));
       type.SetAttributes(PVR_TIMER_TYPE_IS_MANUAL | PVR_TIMER_TYPE_SUPPORTS_ENABLE_DISABLE |
                          PVR_TIMER_TYPE_SUPPORTS_CHANNELS | PVR_TIMER_TYPE_SUPPORTS_START_TIME |
                          PVR_TIMER_TYPE_SUPPORTS_END_TIME | PVR_TIMER_TYPE_SUPPORTS_PRIORITY |

@@ -24,11 +24,11 @@ class cRequestPacket;
 class cVNSIDemux;
 class cVNSIRecording;
 
-class ATTRIBUTE_HIDDEN CVNSIClientInstance : public kodi::addon::CInstancePVRClient,
-                                             public cVNSISession
+class ATTR_DLL_LOCAL CVNSIClientInstance : public kodi::addon::CInstancePVRClient,
+                                           public cVNSISession
 {
 public:
-  CVNSIClientInstance(const CPVRAddon& base, KODI_HANDLE instance, const std::string& kodiVersion);
+  CVNSIClientInstance(const CPVRAddon& base, const kodi::addon::IInstanceInfo& instance);
   ~CVNSIClientInstance() override;
 
   bool Start(const std::string& hostname,

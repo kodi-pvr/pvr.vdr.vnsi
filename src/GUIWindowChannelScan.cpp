@@ -206,7 +206,7 @@ bool cVNSIChannelScan::OnClick(int controlId)
         m_stopped = false;
         m_Canceled = false;
         SetProperty("Scanning", "running");
-        SetControlLabel(BUTTON_START, kodi::GetLocalizedString(222));
+        SetControlLabel(BUTTON_START, kodi::addon::GetLocalizedString(222));
         StartScan();
       }
       else if (!m_stopped)
@@ -237,8 +237,8 @@ bool cVNSIChannelScan::OnAction(ADDON_ACTION actionId)
 
 void cVNSIChannelScan::StartScan()
 {
-  m_header = kodi::GetLocalizedString(30025);
-  m_Signal = kodi::GetLocalizedString(30029);
+  m_header = kodi::addon::GetLocalizedString(30025);
+  m_Signal = kodi::addon::GetLocalizedString(30029);
   SetProgress(0);
   SetSignal(0, false);
 
@@ -255,10 +255,10 @@ void cVNSIChannelScan::StartScan()
       SetControlLabel(LABEL_TYPE, "DVB-S/S2");
       break;
     case PVRINPUT:
-      SetControlLabel(LABEL_TYPE, kodi::GetLocalizedString(30032));
+      SetControlLabel(LABEL_TYPE, kodi::addon::GetLocalizedString(30032));
       break;
     case PVRINPUT_FM:
-      SetControlLabel(LABEL_TYPE, kodi::GetLocalizedString(30033));
+      SetControlLabel(LABEL_TYPE, kodi::addon::GetLocalizedString(30033));
       break;
     case DVB_ATSC:
       SetControlLabel(LABEL_TYPE, "ATSC");
@@ -296,9 +296,9 @@ void cVNSIChannelScan::StartScan()
 
 SCANError:
   kodi::Log(ADDON_LOG_ERROR, "%s - Return error after start (%i)", __func__, retCode);
-  SetControlLabel(LABEL_STATUS, kodi::GetLocalizedString(24071));
-  SetControlLabel(BUTTON_START, kodi::GetLocalizedString(30024));
-  SetControlLabel(HEADER_LABEL, kodi::GetLocalizedString(30043));
+  SetControlLabel(LABEL_STATUS, kodi::addon::GetLocalizedString(24071));
+  SetControlLabel(BUTTON_START, kodi::addon::GetLocalizedString(30024));
+  SetControlLabel(HEADER_LABEL, kodi::addon::GetLocalizedString(30043));
   m_stopped = true;
 }
 
@@ -315,9 +315,9 @@ void cVNSIChannelScan::StopScan()
   if (retCode != VNSI_RET_OK)
   {
     kodi::Log(ADDON_LOG_ERROR, "%s - Return error after stop (%i)", __func__, retCode);
-    SetControlLabel(LABEL_STATUS, kodi::GetLocalizedString(24071));
-    SetControlLabel(BUTTON_START, kodi::GetLocalizedString(30024));
-    SetControlLabel(HEADER_LABEL, kodi::GetLocalizedString(30043));
+    SetControlLabel(LABEL_STATUS, kodi::addon::GetLocalizedString(24071));
+    SetControlLabel(BUTTON_START, kodi::addon::GetLocalizedString(30024));
+    SetControlLabel(HEADER_LABEL, kodi::addon::GetLocalizedString(30043));
     m_stopped = true;
   }
   return;
@@ -329,8 +329,8 @@ void cVNSIChannelScan::ReturnFromProcessView()
   {
     m_running = false;
     ClearProperties();
-    SetControlLabel(BUTTON_START, kodi::GetLocalizedString(30010));
-    SetControlLabel(HEADER_LABEL, kodi::GetLocalizedString(30009));
+    SetControlLabel(BUTTON_START, kodi::addon::GetLocalizedString(30010));
+    SetControlLabel(HEADER_LABEL, kodi::addon::GetLocalizedString(30009));
 
     m_progressDone->SetVisible(false);
     m_progressSignal->SetVisible(false);
@@ -498,13 +498,13 @@ bool cVNSIChannelScan::OnResponsePacket(cResponsePacket* resp)
   {
     if (!m_Canceled)
     {
-      SetControlLabel(HEADER_LABEL, kodi::GetLocalizedString(30036));
-      SetControlLabel(BUTTON_START, kodi::GetLocalizedString(30024));
-      SetControlLabel(LABEL_STATUS, kodi::GetLocalizedString(30041));
+      SetControlLabel(HEADER_LABEL, kodi::addon::GetLocalizedString(30036));
+      SetControlLabel(BUTTON_START, kodi::addon::GetLocalizedString(30024));
+      SetControlLabel(LABEL_STATUS, kodi::addon::GetLocalizedString(30041));
     }
     else
     {
-      SetControlLabel(HEADER_LABEL, kodi::GetLocalizedString(30042));
+      SetControlLabel(HEADER_LABEL, kodi::addon::GetLocalizedString(30042));
     }
   }
   else if (requestID == VNSI_SCANNER_STATUS)
@@ -513,27 +513,27 @@ bool cVNSIChannelScan::OnResponsePacket(cResponsePacket* resp)
     if (status == 0)
     {
       if (m_Canceled)
-        SetControlLabel(LABEL_STATUS, kodi::GetLocalizedString(16200));
+        SetControlLabel(LABEL_STATUS, kodi::addon::GetLocalizedString(16200));
       else
-        SetControlLabel(LABEL_STATUS, kodi::GetLocalizedString(30040));
+        SetControlLabel(LABEL_STATUS, kodi::addon::GetLocalizedString(30040));
 
-      SetControlLabel(BUTTON_START, kodi::GetLocalizedString(30024));
+      SetControlLabel(BUTTON_START, kodi::addon::GetLocalizedString(30024));
       m_stopped = true;
     }
     else if (status == 1)
     {
-      SetControlLabel(LABEL_STATUS, kodi::GetLocalizedString(30039));
+      SetControlLabel(LABEL_STATUS, kodi::addon::GetLocalizedString(30039));
     }
     else if (status == 2)
     {
-      SetControlLabel(LABEL_STATUS, kodi::GetLocalizedString(30037));
-      SetControlLabel(BUTTON_START, kodi::GetLocalizedString(30024));
-      SetControlLabel(HEADER_LABEL, kodi::GetLocalizedString(30043));
+      SetControlLabel(LABEL_STATUS, kodi::addon::GetLocalizedString(30037));
+      SetControlLabel(BUTTON_START, kodi::addon::GetLocalizedString(30024));
+      SetControlLabel(HEADER_LABEL, kodi::addon::GetLocalizedString(30043));
       m_stopped = true;
     }
     else if (status == 3)
     {
-      SetControlLabel(LABEL_STATUS, kodi::GetLocalizedString(30038));
+      SetControlLabel(LABEL_STATUS, kodi::addon::GetLocalizedString(30038));
     }
   }
   else

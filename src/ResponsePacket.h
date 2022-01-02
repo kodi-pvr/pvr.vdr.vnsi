@@ -13,7 +13,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-class ATTRIBUTE_HIDDEN cResponsePacket
+class ATTR_DLL_LOCAL cResponsePacket
 {
 public:
   cResponsePacket(kodi::addon::CInstancePVRClient& instance);
