@@ -386,8 +386,11 @@ void cVNSIDemux::StreamChange(cResponsePacket* resp)
       const char* language = resp->extract_String();
       uint32_t composition_id(resp->extract_U32());
       uint32_t ancillary_id(resp->extract_U32());
-      props.SetLanguage(language);
-      props.SetSubtitleInfo((composition_id & 0xffff) | ((ancillary_id & 0xffff) << 16));
+      if (std::strlen(language) == 3)
+      {
+        props.SetLanguage(language);
+        props.SetSubtitleInfo((composition_id & 0xffff) | ((ancillary_id & 0xffff) << 16));
+      }
     }
     else if (codecId.GetCodecType() == PVR_CODEC_TYPE_RDS)
     {
