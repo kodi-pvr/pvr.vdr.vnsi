@@ -117,6 +117,9 @@ bool cVNSISession::Login()
     m_server = serverName;
     m_version = serverVersion;
     m_protocol = static_cast<int>(protocol);
+    kodi::Log(ADDON_LOG_INFO,
+              "Stored version of VDR backend: '%s', Version: '%s' with protocol version '%d'",
+              serverName, serverVersion, protocol);
 
     if (m_protocol < VNSI_MIN_PROTOCOLVERSION)
       throw "Protocol versions do not match";
