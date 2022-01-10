@@ -143,6 +143,10 @@ bool CVNSIClientInstance::Start(const std::string& hostname,
   m_abort = false;
   m_connectionLost = true;
   m_running = true;
+
+  // Connect to the backend if possible.
+  TryReconnect();
+
   m_thread = std::thread([&] { Process(); });
 
   kodi::addon::PVRMenuhook hook;
