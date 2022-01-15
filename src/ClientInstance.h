@@ -174,4 +174,5 @@ private:
 
   std::atomic<bool> m_running = {false};
   std::thread m_thread;
+  std::thread m_startInformThread;
 };
