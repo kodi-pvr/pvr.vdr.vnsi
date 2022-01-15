@@ -102,6 +102,8 @@ CVNSIClientInstance::~CVNSIClientInstance()
   m_running = false;
   if (m_thread.joinable())
     m_thread.join();
+  if (m_startInformThread.joinable())
+    m_startInformThread.join();
   Close();
 }
 
@@ -116,13 +118,15 @@ void CVNSIClientInstance::OnReconnect()
 {
   EnableStatusInterface(true, false);
 
-  kodi::addon::CInstancePVRClient::ConnectionStateChange("vnsi connection established",
-                                                         PVR_CONNECTION_STATE_CONNECTED,
-                                                         kodi::addon::GetLocalizedString(30045));
+  m_startInformThread = std::thread([&]() {
+    kodi::addon::CInstancePVRClient::ConnectionStateChange("vnsi connection established",
+                                                          PVR_CONNECTION_STATE_CONNECTED,
+                                                          kodi::addon::GetLocalizedString(30045));
 
-  kodi::addon::CInstancePVRClient::TriggerChannelUpdate();
-  kodi::addon::CInstancePVRClient::TriggerTimerUpdate();
-  kodi::addon::CInstancePVRClient::TriggerRecordingUpdate();
+    kodi::addon::CInstancePVRClient::TriggerChannelUpdate();
+    kodi::addon::CInstancePVRClient::TriggerTimerUpdate();
+    kodi::addon::CInstancePVRClient::TriggerRecordingUpdate();
+  });
 }
 
 bool CVNSIClientInstance::Start(const std::string& hostname,
@@ -1751,7 +1755,9 @@ std::unique_ptr<cResponsePacket> CVNSIClientInstance::ReadResult(cRequestPacket*
 
   std::unique_lock<std::recursive_mutex> lock(m_queue.m_mutex);
   if (cVNSISession::TransmitMessage(vrp) &&
-      message.m_condition.wait_for(lock, std::chrono::milliseconds(CVNSISettings::Get().GetConnectTimeout() * 1000)) == std::cv_status::timeout)
+      message.m_condition.wait_for(
+          lock, std::chrono::seconds(CVNSISettings::Get().GetConnectTimeout())) ==
+          std::cv_status::timeout)
   {
     kodi::Log(ADDON_LOG_ERROR, "%s - request timed out after %d seconds", __func__,
               CVNSISettings::Get().GetConnectTimeout());
