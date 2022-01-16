@@ -1,3 +1,6 @@
+v19.0.3
+- Fix connection errors on Kodi start and during backend reconnections
+
 v19.0.2
 - Fix crash on some channels
 
