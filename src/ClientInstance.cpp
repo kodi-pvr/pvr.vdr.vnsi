@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <kodi/General.h>
 #include <kodi/Network.h>
+#include <kodi/Filesystem.h>
 #include <string.h>
 #include <time.h>
 
@@ -387,14 +388,22 @@ PVR_ERROR CVNSIClientInstance::GetChannels(bool radio, kodi::addon::PVRChannelsR
       if (m_protocol >= 6)
       {
         std::string path = CVNSISettings::Get().GetIconPath();
-        std::string ref = vresp->extract_String();
+        std::string ref = vresp->extract_String(); // Picon ref
         if (!path.empty())
         {
           if (path[path.length() - 1] != '/')
             path += '/';
-          path += ref;
-          path += ".png";
-          tag.SetIconPath(path);
+
+          ref += ".png";
+          std::string image_path = path + ref;
+          if (!kodi::vfs::FileExists(image_path)) // Use channel name
+          {
+            std::string channelNameImage = tag.GetChannelName();
+            std::transform(channelNameImage.begin(), channelNameImage.end(), channelNameImage.begin(), ::tolower);
+            channelNameImage += ".png";
+            image_path = path + channelNameImage;
+          }
+          tag.SetIconPath(image_path);
         }
       }
       tag.SetIsRadio(radio);
