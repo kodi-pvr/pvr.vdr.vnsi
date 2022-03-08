@@ -92,6 +92,11 @@ public:
   PVR_ERROR RenameRecording(const kodi::addon::PVRRecording& recording) override;
   PVR_ERROR GetRecordingEdl(const kodi::addon::PVRRecording& recording,
                             std::vector<kodi::addon::PVREDLEntry>& edl) override;
+  PVR_ERROR GetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording,
+                                           int& position) override;
+  PVR_ERROR SetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording,
+                                           int lastplayedposition) override;
+  PVR_ERROR SetRecordingPlayCount(const kodi::addon::PVRRecording& recording, int count) override;
 
   //--==----==----==----==----==----==----==----==----==----==----==----==----==
 
@@ -175,4 +180,8 @@ private:
   std::atomic<bool> m_running = {false};
   std::thread m_thread;
   std::thread m_startInformThread;
+
+  // update these at end of counting loop can be called during action
+  std::map<int, int> m_lastPlayed;
+  std::map<int, int> m_playCount;
 };

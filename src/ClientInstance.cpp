@@ -221,6 +221,12 @@ PVR_ERROR CVNSIClientInstance::GetCapabilities(kodi::addon::PVRCapabilities& cap
   capabilities.SetSupportsRecordingsLifetimeChange(false);
   capabilities.SetSupportsDescrambleInfo(false);
 
+  if (GetProtocol() >= 14)
+  {
+    capabilities.SetSupportsRecordingPlayCount(CVNSISettings::Get().GetBackendResume());
+    capabilities.SetSupportsLastPlayedPosition(CVNSISettings::Get().GetBackendResume());
+  }
+
   return PVR_ERROR_NO_ERROR;
 }
 
@@ -583,8 +589,29 @@ PVR_ERROR CVNSIClientInstance::GetEPGForChannel(int channelUid,
       tag.SetTitle(vresp->extract_String());
       tag.SetPlotOutline(vresp->extract_String());
       tag.SetPlot(vresp->extract_String());
-      tag.SetOriginalTitle("");
-      tag.SetCast("");
+      
+      if (GetProtocol() >= 14)
+      {
+        tag.SetIconPath(vresp->extract_String());
+        int season = vresp->extract_U32();
+        int episode = vresp->extract_U32();
+        if (season > 0)
+          tag.SetSeriesNumber(season);
+        if (episode > 0)
+          tag.SetEpisodeNumber(episode);
+        tag.SetFirstAired(vresp->extract_String());
+        tag.SetStarRating(vresp->extract_U32());
+        tag.SetOriginalTitle(vresp->extract_String());
+        tag.SetCast(vresp->extract_String());
+      }
+      else
+      {
+        tag.SetSeriesNumber(EPG_TAG_INVALID_SERIES_EPISODE);
+        tag.SetEpisodeNumber(EPG_TAG_INVALID_SERIES_EPISODE);
+        tag.SetOriginalTitle("");
+        tag.SetCast("");
+      }
+      
       tag.SetDirector("");
       tag.SetWriter("");
       tag.SetYear(0);
@@ -592,8 +619,6 @@ PVR_ERROR CVNSIClientInstance::GetEPGForChannel(int channelUid,
       if (!tag.GetPlotOutline().empty())
         tag.SetEpisodeName(tag.GetPlotOutline());
       tag.SetFlags(EPG_TAG_FLAG_UNDEFINED);
-      tag.SetSeriesNumber(EPG_TAG_INVALID_SERIES_EPISODE);
-      tag.SetEpisodeNumber(EPG_TAG_INVALID_SERIES_EPISODE);
       tag.SetEpisodePartNumber(EPG_TAG_INVALID_SERIES_EPISODE);
 
       results.Add(tag);
@@ -666,6 +691,9 @@ PVR_ERROR CVNSIClientInstance::GetAvailableRecordings(kodi::addon::PVRRecordings
     return PVR_ERROR_UNKNOWN;
   }
 
+  m_lastPlayed.clear();
+  m_playCount.clear();
+
   std::string strRecordingId;
   while (vresp->getRemainingLength() >= 5 * 4 + 5)
   {
@@ -705,6 +733,38 @@ PVR_ERROR CVNSIClientInstance::GetAvailableRecordings(kodi::addon::PVRRecordings
     tag.SetPlot(vresp->extract_String());
     tag.SetDirectory(vresp->extract_String());
     tag.SetRecordingId(std::to_string(vresp->extract_U32()));
+    
+    if (GetProtocol() >= 14)
+    {
+      tag.SetThumbnailPath(vresp->extract_String());
+      tag.SetFanartPath(vresp->extract_String());
+      int season = vresp->extract_U32();
+      int episode = vresp->extract_U32();
+      if (season > 0)
+        tag.SetSeriesNumber(season);
+      if (episode > 0)
+        tag.SetEpisodeNumber(episode);
+
+      tag.SetFirstAired(vresp->extract_String());
+
+      int LastPlayedPosition = vresp->extract_U32();
+
+      if (CVNSISettings::Get().GetBackendResume())
+      {
+        tag.SetPlayCount(0);
+        tag.SetLastPlayedPosition(LastPlayedPosition);
+        if (tag.GetLastPlayedPosition() > 0)
+        {
+          if (tag.GetLastPlayedPosition() >= tag.GetDuration() - 60)
+          {
+            tag.SetPlayCount(1);
+            tag.SetLastPlayedPosition(0);
+          }
+        }
+        m_lastPlayed[std::stoi(tag.GetRecordingId())] = tag.GetLastPlayedPosition();
+        m_playCount[std::stoi(tag.GetRecordingId())] = tag.GetPlayCount();
+      }
+    }
 
     results.Add(tag);
   }
@@ -947,6 +1007,91 @@ PVR_ERROR CVNSIClientInstance::GetRecordingEdl(const kodi::addon::PVRRecording& 
   }
 }
 
+// Code for GetRecordingLastPlayedPosition, SetRecordingLastPlayedPosition and SetRecordingPlayCount
+// mostly taken from https://github.com/kodi-pvr/pvr.nextpvr/blob/Matrix/src/Recordings.cpp
+PVR_ERROR CVNSIClientInstance::GetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording, int& position)
+{
+  position = m_lastPlayed[std::stoi(recording.GetRecordingId())];
+  if (position == recording.GetDuration())
+    position = 0;
+  return PVR_ERROR_NO_ERROR;
+}
+
+//==============================================================================
+/// SetRecordingLastPlayedPosition will be called when
+/// Set watched - postion = 0, play count incremented.  Note it is not called if
+/// the watched positions is already 0
+/// Resume reset - position = 0
+/// Recording start position = 0 at start of file
+/// Recording end actual position or when end is in ignorepercentatend zone the
+/// position is -1 with play count incremented
+/// Set unwatched - Not called by core
+///
+PVR_ERROR CVNSIClientInstance::SetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording, int lastplayedposition)
+{
+  try
+  {
+    cRequestPacket vrp;
+    vrp.init(VNSI_RECORDINGS_SETLASTPLAYEDPOSITION);
+
+    int current = m_playCount[std::stoi(recording.GetRecordingId())];
+    if (recording.GetPlayCount() > current && lastplayedposition == 0)
+    {
+      // Kodi rolled the play count but didn't send EOF
+      lastplayedposition = recording.GetDuration();
+      m_playCount[std::stoi(recording.GetRecordingId())] = recording.GetPlayCount();
+    }
+
+    if ( m_lastPlayed[std::stoi(recording.GetRecordingId())] != lastplayedposition )
+    {
+      if (lastplayedposition == -1)
+      {
+        lastplayedposition = recording.GetDuration();
+      }
+    }
+    vrp.add_U32(std::stoi(recording.GetRecordingId()));
+    vrp.add_U32(lastplayedposition);
+
+    auto vresp = ReadResult(&vrp);
+    if (vresp == nullptr || vresp->noResponse())
+    {
+      kodi::Log(ADDON_LOG_ERROR, "%s - Can't get response packed", __func__);
+      return PVR_ERROR_UNKNOWN;
+    }
+
+    return PVR_ERROR_NO_ERROR;
+  }
+  catch (std::exception e)
+  {
+    kodi::Log(ADDON_LOG_ERROR, "%s - %s", __func__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
+  }
+}
+
+//==============================================================================
+/// SetRecordingPlayCount will be called when
+/// Set watched - play count increases
+/// Set unwatched - count set to 0,
+/// Recording start - no change in count
+/// Recording end when end is in playcountminimumpercent zone then the count
+/// is incremented
+///
+PVR_ERROR CVNSIClientInstance::SetRecordingPlayCount(const kodi::addon::PVRRecording& recording, int count)
+{
+  int current = m_playCount[std::stoi(recording.GetRecordingId())];
+  kodi::Log(ADDON_LOG_DEBUG, "Playcount %s %d %d", recording.GetTitle().c_str(), count, current);
+  if (count < current)
+  {
+    // unwatch count is zero.
+    SetRecordingLastPlayedPosition(recording, 0);
+    m_playCount[std::stoi(recording.GetRecordingId())] = count;
+  }
+  else
+  {
+
+  }
+  return PVR_ERROR_NO_ERROR;
+}
 
 /*******************************************/
 /** PVR Timer Functions                   **/

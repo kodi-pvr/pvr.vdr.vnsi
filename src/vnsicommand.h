@@ -9,7 +9,7 @@
 #pragma once
 
 /** Current VNSI Protocol Version number */
-#define VNSI_PROTOCOLVERSION 13
+#define VNSI_PROTOCOLVERSION 14
 
 /** Start of RDS support protocol Version */
 #define VNSI_RDS_PROTOCOLVERSION 8
@@ -90,6 +90,7 @@
 #define VNSI_RECORDINGS_RENAME 103
 #define VNSI_RECORDINGS_DELETE 104
 #define VNSI_RECORDINGS_GETEDL 105
+#define VNSI_RECORDINGS_SETLASTPLAYEDPOSITION 106
 
 /* OPCODE 120 - 139: VNSI network functions for epg access and manipulating */
 #define VNSI_EPG_GETFORCHANNEL 120
