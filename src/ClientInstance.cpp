@@ -118,6 +118,9 @@ void CVNSIClientInstance::OnReconnect()
 {
   EnableStatusInterface(true, false);
 
+  if (m_startInformThread.joinable())
+    m_startInformThread.join();
+
   m_startInformThread = std::thread([&]() {
     kodi::addon::CInstancePVRClient::ConnectionStateChange("vnsi connection established",
                                                           PVR_CONNECTION_STATE_CONNECTED,
