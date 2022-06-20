@@ -371,7 +371,8 @@ void cVNSIDemux::StreamChange(cResponsePacket* resp)
       props.SetBlockAlign(resp->extract_U32());
       props.SetBitRate(resp->extract_U32());
       props.SetBitsPerSample(resp->extract_U32());
-      props.SetLanguage(language);
+      if (std::strlen(language) == 3)
+        props.SetLanguage(language);
     }
     else if (codecId.GetCodecType() == PVR_CODEC_TYPE_VIDEO)
     {
@@ -396,7 +397,8 @@ void cVNSIDemux::StreamChange(cResponsePacket* resp)
     {
       const char* language = resp->extract_String();
       uint32_t rel_channel_pid(resp->extract_U32());
-      props.SetLanguage(language);
+      if (std::strlen(language) == 3)
+        props.SetLanguage(language);
     }
     else
     {
