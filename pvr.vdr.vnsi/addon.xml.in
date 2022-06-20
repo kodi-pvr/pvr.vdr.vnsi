@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon
   id="pvr.vdr.vnsi"
-  version="19.0.4"
+  version="19.0.5"
   name="VDR VNSI Client"
   provider-name="Team Kodi, FernetMenta">
   <requires>@ADDON_DEPENDS@</requires>
