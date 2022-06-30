@@ -312,7 +312,9 @@ bool cVNSIDemux::SwitchChannel(const kodi::addon::PVRChannel& channelinfo)
     }
   }
 
-  m_channelinfo = channelinfo;
+  if (&m_channelinfo != &channelinfo)
+    m_channelinfo = channelinfo;
+
   m_MuxPacketSerial = 0;
   m_ReferenceTime = 0;
   m_minPTS = 0;
