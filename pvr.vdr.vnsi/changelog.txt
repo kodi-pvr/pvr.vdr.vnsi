@@ -1,3 +1,7 @@
+v19.0.6
+- Translations updates from Weblate
+	- be_by, cs_cz, da_dk, de_de, es_mx, et_ee, fi_fi, hu_hu, is_is, it_it, ko_kr, lt_lt, nb_no, sq_al, uk_ua, zh_tw
+
 v19.0.5
 - Fix further crashes on some channels
 
