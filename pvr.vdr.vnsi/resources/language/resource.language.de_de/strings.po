@@ -5,24 +5,25 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: KODI Main\n"
-"Report-Msgid-Bugs-To: https://github.com/xbmc/xbmc/issues/\n"
+"Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Kodi Translation Team\n"
-"Language-Team: German (Germany) (http://www.transifex.com/projects/p/kodi-main/language/de_DE/)\n"
-"Language: de_DE\n"
+"PO-Revision-Date: 2022-03-19 06:52+0000\n"
+"Last-Translator: Kai Sommerfeld <kai.sommerfeld@gmx.com>\n"
+"Language-Team: German <https://kodi.weblate.cloud/projects/kodi-add-ons-pvr-clients/pvr-vdr-vnsi/de_de/>\n"
+"Language: de_de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.11.2\n"
 
 msgctxt "Addon Summary"
 msgid "PVR client to connect VDR to Kodi over the VNSI interface"
-msgstr "PVR-Client, der einen VDR über das VNSI-Interface mit Kodi verbindet."
+msgstr "PVR-Client, der einen VDR über das VNSI-Interface mit Kodi verbindet"
 
 msgctxt "Addon Description"
 msgid "VDR frontend; supporting streaming of Live TV & Recordings, EPG, Timers over the VNSI plugin"
-msgstr "VDR-Oberfläche: Erlaubt die Wiedergabe von Live-TV und Aufnahmen sowie die Anzeige des EPG, die Kanalsuche und die Programmierung von Timern über das VNSI-Plugin."
+msgstr "VDR-Oberfläche: Unterstützt Wiedergabe von TV und Aufnahmen, EPG und Timer über das VNSI-Plugin"
 
 msgctxt "Addon Disclaimer"
 msgid "This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
@@ -30,11 +31,11 @@ msgstr "Diese Software ist noch in der Entwicklung! Die Autoren sind nicht für 
 
 msgctxt "#30000"
 msgid "VDR Hostname or IP"
-msgstr "VDR Hostname oder IP"
+msgstr "VDR-Hostname oder IP"
 
 msgctxt "#30001"
 msgid "VNSI Port"
-msgstr "VNSI Port"
+msgstr "VNSI-Port"
 
 msgctxt "#30002"
 msgid "Priority"
@@ -50,11 +51,11 @@ msgstr "Verbindungszeitüberschreitung (s)"
 
 msgctxt "#30006"
 msgid "Read recordings from directory"
-msgstr "Aufnahmen aus Ordner lesen"
+msgstr "Aufnahmen lesen aus Verzeichnis"
 
 msgctxt "#30007"
 msgid "VDR recordings directory"
-msgstr "VDR Aufnahmeordner"
+msgstr "VDR-Aufnahmeverzeichnis"
 
 msgctxt "#30008"
 msgid "Channel search"
@@ -74,11 +75,11 @@ msgstr "Empfangsart"
 
 msgctxt "#30012"
 msgid "TV channels"
-msgstr "TV Sender"
+msgstr "TV-Sender"
 
 msgctxt "#30013"
 msgid "Radio channels"
-msgstr "Radio Sender"
+msgstr "Radiosender"
 
 msgctxt "#30014"
 msgid "FTA channels"
@@ -90,7 +91,7 @@ msgstr "Verschlüsselte Sender"
 
 msgctxt "#30016"
 msgid "HD channels"
-msgstr "HD Sender"
+msgstr "HD-Sender"
 
 msgctxt "#30017"
 msgid "Country"
@@ -98,19 +99,19 @@ msgstr "Land"
 
 msgctxt "#30018"
 msgid "Cable Inversion"
-msgstr "Kabel Inversion"
+msgstr "Inversion (Kabel)"
 
 msgctxt "#30019"
 msgid "Cable Symbolrate"
-msgstr "Kabel Symbolrate"
+msgstr "Symbolrate (Kabel)"
 
 msgctxt "#30020"
 msgid "Cable modulation"
-msgstr "Kabel Modulation"
+msgstr "Modulation (Kabel)"
 
 msgctxt "#30021"
 msgid "Terr Inversion"
-msgstr "Terrestrisch Inversion"
+msgstr "Inversion (Terrestrisch)"
 
 msgctxt "#30022"
 msgid "Satellite"
@@ -118,7 +119,7 @@ msgstr "Satellit"
 
 msgctxt "#30023"
 msgid "ATSC Type"
-msgstr "ATSC Typ"
+msgstr "ATSC-Typ"
 
 msgctxt "#30024"
 msgid "Back"
@@ -126,7 +127,7 @@ msgstr "Zurück"
 
 msgctxt "#30025"
 msgid "Channel search - running... %i %%"
-msgstr "Sendersuche - läuft... %i %%"
+msgstr "Sendersuche - läuft ... %i %%"
 
 msgctxt "#30026"
 msgid "Type:"
@@ -154,11 +155,11 @@ msgstr "Alle Sender: %i"
 
 msgctxt "#30032"
 msgid "Analog TV"
-msgstr "Analog TV"
+msgstr "Analog-TV"
 
 msgctxt "#30033"
 msgid "Analog Radio"
-msgstr "Analog Radio"
+msgstr "Analog-Radio"
 
 msgctxt "#30034"
 msgid "Transponder:"
@@ -174,15 +175,15 @@ msgstr "Sendersuche - Abgeschlossen"
 
 msgctxt "#30037"
 msgid "No device available - exiting"
-msgstr "Kein Empfangsgerät verfügbar - Beende Vorgang"
+msgstr "Kein Empfangsgerät verfügbar - Vorgang wird beendet"
 
 msgctxt "#30038"
 msgid "No DVB-S2 device available - trying fallback to DVB-S"
-msgstr "Kein DVB-S2 Empfangsgerät verfügbar - versuche DVB-S"
+msgstr "Kein DVB-S2 Empfangsgerät verfügbar - DVB-S wird versucht"
 
 msgctxt "#30039"
 msgid "Running"
-msgstr "Läuft..."
+msgstr "Läuft"
 
 msgctxt "#30040"
 msgid "Stopped"
@@ -202,11 +203,11 @@ msgstr "Sendersuche - Fehler"
 
 msgctxt "#30044"
 msgid "Lost connection to VDR Server"
-msgstr "Verbindung zum VDR Server unterbrochen"
+msgstr "Verbindung zum VDR-Server unterbrochen"
 
 msgctxt "#30045"
 msgid "Connection to VDR Server restored"
-msgstr "Verbindung zum VDR Server wiederhergestellt"
+msgstr "Verbindung zum VDR-Server wiederhergestellt"
 
 msgctxt "#30046"
 msgid "Create channel groups automatically on the server"
@@ -214,7 +215,7 @@ msgstr "Sendergruppen automatisch auf dem Server anlegen"
 
 msgctxt "#30047"
 msgid "Request Timeshift"
-msgstr "Fordere Timeshift an"
+msgstr "Timeshift anfordern"
 
 msgctxt "#30048"
 msgid "Path to channel icons"
@@ -222,15 +223,15 @@ msgstr "Pfad zu den Kanal-Icons"
 
 msgctxt "#30049"
 msgid "VDR Server MAC for Wake-on-LAN"
-msgstr "VDR-Server-MAC-Adresse für Wake-on-LAN"
+msgstr "VDR-Server-MAC-Adresse für Wake on LAN"
 
 msgctxt "#30050"
 msgid "Read chunksize for recordings"
-msgstr ""
+msgstr "Blockgröße beim Lesen von Aufnahmen"
 
 msgctxt "#30100"
 msgid "VDR OSD"
-msgstr "VDR OSD"
+msgstr "VDR-OSD"
 
 msgctxt "#30101"
 msgid "Setup"
@@ -238,7 +239,7 @@ msgstr "Setup"
 
 msgctxt "#30102"
 msgid "Controlling OSD - press info to exit"
-msgstr "OSD-Steuerung aktiv - Drücke Info zum Verlassen"
+msgstr "OSD-Steuerung aktiv - Zum Verlassen Info drücken"
 
 msgctxt "#30103"
 msgid "Select to control OSD"
@@ -250,11 +251,11 @@ msgstr "Timeshift-Modus"
 
 msgctxt "#30105"
 msgid "Timeshift Buffer (RAM) x100 MB"
-msgstr "Timeshift Puffer (RAM) x100MB"
+msgstr "Timeshift-Puffer (RAM) x100MB"
 
 msgctxt "#30106"
 msgid "Timeshift Buffer (File) x1 GB"
-msgstr "Timeshift Puffer (Datei) x1 GB"
+msgstr "Timeshift-Puffer (Datei) x1 GB"
 
 msgctxt "#30107"
 msgid "VDR Admin"
@@ -270,15 +271,15 @@ msgstr "Positivliste der Anbieter"
 
 msgctxt "#30110"
 msgid "Channel blacklist"
-msgstr "Negativliste der Kanäle"
+msgstr "Negativliste der Sender"
 
 msgctxt "#30111"
 msgid "Channel filters"
-msgstr "Kanalfilter"
+msgstr "Senderfilter"
 
 msgctxt "#30112"
 msgid "Radio Channels"
-msgstr "Radio Sender"
+msgstr "Radiosender"
 
 msgctxt "#30113"
 msgid "Save filters"
