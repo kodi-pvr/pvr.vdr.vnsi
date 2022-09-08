@@ -5,310 +5,313 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: KODI Main\n"
-"Report-Msgid-Bugs-To: translations@kodi.tv\n"
+"Report-Msgid-Bugs-To: https://github.com/xbmc/xbmc/issues/\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2022-09-08 07:53+0000\n"
-"Last-Translator: Sopor <sopor@hotmail.com>\n"
-"Language-Team: Swedish <https://kodi.weblate.cloud/projects/kodi-add-ons-pvr-clients/pvr-vdr-vnsi/sv_se/>\n"
-"Language: sv_se\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: ast_es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.14\n"
 
 msgctxt "Addon Summary"
 msgid "PVR client to connect VDR to Kodi over the VNSI interface"
-msgstr "PVR-klient för att ansluta VDR till Kodi över VNSI-gränsnittet"
+msgstr ""
 
 msgctxt "Addon Description"
 msgid "VDR frontend; supporting streaming of Live TV & Recordings, EPG, Timers over the VNSI plugin"
-msgstr "VDR frontend; stödjer strömning av Live-TV & inspelningar, EPG, timers över VNSI-tillägget"
+msgstr ""
 
 msgctxt "Addon Disclaimer"
 msgid "This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
-msgstr "Detta är instabil mjukvara! Upphovsmännen är inte ansvariga för misslyckade inspelningar, felaktiga timers, bortslösade timmar, eller någon annan oönskad effekt."
+msgstr ""
 
+#settings labels
 msgctxt "#30000"
 msgid "VDR Hostname or IP"
-msgstr "VDR-värdnamn eller IP"
+msgstr ""
 
 msgctxt "#30001"
 msgid "VNSI Port"
-msgstr "VNSI Port"
+msgstr ""
 
 msgctxt "#30002"
 msgid "Priority"
-msgstr "Prioritet"
+msgstr ""
 
 msgctxt "#30003"
 msgid "Character Set Conversion"
-msgstr "Teckenuppsättningskonvertering"
+msgstr ""
 
 msgctxt "#30004"
 msgid "Connect timeout (s)"
-msgstr "Anslutningstimeout (s)"
+msgstr ""
 
+#empty string with id 30005
 msgctxt "#30006"
 msgid "Read recordings from directory"
-msgstr "Läs inspelningar från katalog"
+msgstr ""
 
 msgctxt "#30007"
 msgid "VDR recordings directory"
-msgstr "VDR inspelningskatalog"
+msgstr ""
 
 msgctxt "#30008"
 msgid "Channel search"
-msgstr "Kanalsök"
+msgstr ""
 
 msgctxt "#30009"
 msgid "Channel search - Settings"
-msgstr "Kanalsök - Inställningar"
+msgstr ""
 
 msgctxt "#30010"
 msgid "Start Channel search"
-msgstr "Starta kanalsök"
+msgstr ""
 
 msgctxt "#30011"
 msgid "Source Type"
-msgstr "Källtyp"
+msgstr ""
 
 msgctxt "#30012"
 msgid "TV channels"
-msgstr "TV-kanaler"
+msgstr ""
 
 msgctxt "#30013"
 msgid "Radio channels"
-msgstr "Radiokanaler"
+msgstr ""
 
 msgctxt "#30014"
 msgid "FTA channels"
-msgstr "FTA kanaler"
+msgstr ""
 
 msgctxt "#30015"
 msgid "Scrambled channels"
-msgstr "Kodade kanaler"
+msgstr ""
 
 msgctxt "#30016"
 msgid "HD channels"
-msgstr "HD kanaler"
+msgstr ""
 
 msgctxt "#30017"
 msgid "Country"
-msgstr "Land"
+msgstr ""
 
 msgctxt "#30018"
 msgid "Cable Inversion"
-msgstr "Kabelinvertering"
+msgstr ""
 
 msgctxt "#30019"
 msgid "Cable Symbolrate"
-msgstr "Kabelsymbolshastighet"
+msgstr ""
 
 msgctxt "#30020"
 msgid "Cable modulation"
-msgstr "Kabelmodulering"
+msgstr ""
 
 msgctxt "#30021"
 msgid "Terr Inversion"
-msgstr "Markinvertering"
+msgstr ""
 
 msgctxt "#30022"
 msgid "Satellite"
-msgstr "Satellit"
+msgstr ""
 
 msgctxt "#30023"
 msgid "ATSC Type"
-msgstr "ATSC typ"
+msgstr ""
 
 msgctxt "#30024"
 msgid "Back"
-msgstr "Tillbaka"
+msgstr ""
 
 msgctxt "#30025"
 msgid "Channel search - running... %i %%"
-msgstr "Kanalsökning - körs... %i %%"
+msgstr ""
 
 msgctxt "#30026"
 msgid "Type:"
-msgstr "Typ:"
+msgstr ""
 
 msgctxt "#30027"
 msgid "Device:"
-msgstr "Enhet:"
+msgstr ""
 
 msgctxt "#30028"
 msgid "Scan: %i"
-msgstr "Sök: %i"
+msgstr ""
 
 msgctxt "#30029"
 msgid "Signal: %i %%"
-msgstr "Signal: %i %%"
+msgstr ""
 
 msgctxt "#30030"
 msgid "New channels: %i"
-msgstr "Nya kanaler: %i"
+msgstr ""
 
 msgctxt "#30031"
 msgid "All channels: %i"
-msgstr "Alla kanaler: %i"
+msgstr ""
 
 msgctxt "#30032"
 msgid "Analog TV"
-msgstr "Analog TV"
+msgstr ""
 
 msgctxt "#30033"
 msgid "Analog Radio"
-msgstr "Analog Radio"
+msgstr ""
 
 msgctxt "#30034"
 msgid "Transponder:"
-msgstr "Transponder:"
+msgstr ""
 
 msgctxt "#30035"
 msgid "New channels"
-msgstr "Nya kanaler:"
+msgstr ""
 
 msgctxt "#30036"
 msgid "Channel search - Finished"
-msgstr "Kanalsökning - slutförd"
+msgstr ""
 
 msgctxt "#30037"
 msgid "No device available - exiting"
-msgstr "Ingen enhet tillgänglig - stänger"
+msgstr ""
 
 msgctxt "#30038"
 msgid "No DVB-S2 device available - trying fallback to DVB-S"
-msgstr "Ingen DVB-S2 enhet tillgänglig - försöker återgå till DVB-S"
+msgstr ""
 
 msgctxt "#30039"
 msgid "Running"
-msgstr "Igång"
+msgstr ""
 
 msgctxt "#30040"
 msgid "Stopped"
-msgstr "Stoppad"
+msgstr ""
 
 msgctxt "#30041"
 msgid "Finished"
-msgstr "Slutförd"
+msgstr ""
 
 msgctxt "#30042"
 msgid "Channel search - Canceled"
-msgstr "Kanalsökning - Avbruten"
+msgstr ""
 
 msgctxt "#30043"
 msgid "Channel search - Error"
-msgstr "Kanalsökning - Error"
+msgstr ""
 
 msgctxt "#30044"
 msgid "Lost connection to VDR Server"
-msgstr "Tappade anslutning till VDR server"
+msgstr ""
 
 msgctxt "#30045"
 msgid "Connection to VDR Server restored"
-msgstr "Anslutning till VDR server återställd"
+msgstr ""
 
 msgctxt "#30046"
 msgid "Create channel groups automatically on the server"
-msgstr "Skapa kanalgrupper automatiskt på servern"
+msgstr ""
 
 msgctxt "#30047"
 msgid "Request Timeshift"
-msgstr "Begär Timeshift"
+msgstr ""
 
 msgctxt "#30048"
 msgid "Path to channel icons"
-msgstr "Sökväg till kanalikoner"
+msgstr ""
 
 msgctxt "#30049"
 msgid "VDR Server MAC for Wake-on-LAN"
-msgstr "VDR Server MAC för Wake-on-LAN"
+msgstr ""
 
 msgctxt "#30050"
 msgid "Read chunksize for recordings"
 msgstr ""
 
+#empty strings from id 30051 to 30099
 msgctxt "#30100"
 msgid "VDR OSD"
-msgstr "VDR OSD"
+msgstr ""
 
 msgctxt "#30101"
 msgid "Setup"
-msgstr "Installation"
+msgstr ""
 
 msgctxt "#30102"
 msgid "Controlling OSD - press info to exit"
-msgstr "Kontrollerar OSD - tryck info för att avsluta"
+msgstr ""
 
 msgctxt "#30103"
 msgid "Select to control OSD"
-msgstr "Välj för att kontrollera OSD"
+msgstr ""
 
 msgctxt "#30104"
 msgid "Timeshift Mode"
-msgstr "Timeshift Läge"
+msgstr ""
 
 msgctxt "#30105"
 msgid "Timeshift Buffer (RAM) x100 MB"
-msgstr "Timeshift Buffert (RAM) x100 MB"
+msgstr ""
 
 msgctxt "#30106"
 msgid "Timeshift Buffer (File) x1 GB"
-msgstr "Timeshift Buffert (Fil) x1 GB"
+msgstr ""
 
 msgctxt "#30107"
 msgid "VDR Admin"
-msgstr "VDR Admin"
+msgstr ""
 
 msgctxt "#30108"
 msgid "Channels"
-msgstr "Kanaler"
+msgstr ""
 
 msgctxt "#30109"
 msgid "Provider whitelist"
-msgstr "Vitlista för leverantörer"
+msgstr ""
 
 msgctxt "#30110"
 msgid "Channel blacklist"
-msgstr "Svartlista för kanaler"
+msgstr ""
 
 msgctxt "#30111"
 msgid "Channel filters"
-msgstr "Kanalfilter"
+msgstr ""
 
 msgctxt "#30112"
 msgid "Radio Channels"
-msgstr "Radiokanaler"
+msgstr ""
 
 msgctxt "#30113"
 msgid "Save filters"
-msgstr "Spara filter"
+msgstr ""
 
 msgctxt "#30114"
 msgid "Provider Unknown"
-msgstr "Okänd leverantör"
+msgstr ""
 
+#empty strings from id 30115 to 30199
 msgctxt "#30200"
 msgid "Single"
-msgstr "Enkel"
+msgstr ""
 
 msgctxt "#30201"
 msgid "Repeating"
-msgstr "Repeterande"
+msgstr ""
 
 msgctxt "#30202"
 msgid "EGP"
-msgstr "EGP"
+msgstr ""
 
 msgctxt "#30203"
 msgid "VPS"
-msgstr "VPS"
+msgstr ""
 
 msgctxt "#30204"
 msgid "Search EPG"
-msgstr "Sök EPG"
+msgstr ""
 
 msgctxt "#30205"
 msgid "Repeating Child"
-msgstr "Repeterande Barn"
+msgstr ""
