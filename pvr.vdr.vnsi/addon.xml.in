@@ -84,10 +84,10 @@
     <description lang="es_MX">Interfaz VDR; Soportando streaming de TV en directo y Grabaciones, EPG, Timers sobre el plugin VNSI</description>
     <description lang="fi_FI">VDR-käyttöliittymä, joka tukee televisiolähetysten ja tallenteiden suoratoistoa, ohjelmaopasta ja ajastuksia VNSI-lisäosan välityksellä.</description>
     <description lang="fr_CA">Frontale VDR, prenant en charge la diffusion en continu des télés en direct et les enregistrements, le GÉP, les minuteries avec le plugiciel VNSI.</description>
-    <description lang="fr_FR">Interface logicielle pour enregistreur de disque vidéo (VDR). Il gère la lecture et l&apos;enregistrement en continu des flux de TV en direct, le guide électronique des programmes TV et les programmations via les routines d&apos;enregistrement de flux réseau vidéo.</description>
+    <description lang="fr_FR">Interface logicielle pour enregistreur de disque vidéo (VDR). Il gère la lecture et l&apos;enregistrement en continu des flux de TV en direct, le guide électronique des programmes TV et les programmations via les routines d&apos;enregistrement de flux réseau vidéo</description>
     <description lang="gl_ES">Interface VDR; soporta a transmisión de TV en directo e gravacións, Guía de programación e temporizadores mediante o engadido de VNSI</description>
     <description lang="he_IL">לקוח טלוויזיה חיה של VDR. בעזרת התוסף VNSI לשרת VDR הלקוח תומך בהזרמת שידורים חיים והקלטות, האזנה לרדיו, הצגת לוח שידורים ותזמון הקלטות.</description>
-    <description lang="hr_HR">VDR pozadinski softver; podržava streamanje televizije, snimanje, EPG, zakazania snimanja preko VNSI dodatka</description>
+    <description lang="hr_HR">VDR sučelje; podržava gledanje TV uživo, snimanje, EPG, zakazana snimanja preko VNSI dodatka</description>
     <description lang="hu_HU">VDR előtét. Élő adások és felvételek támogatása EPG-vel és időzítéssel a VNSI kiegészítőn keresztül</description>
     <description lang="id_ID">Frontend VDR; Mendukung pengaliran Siaran TV langsung dan Rekaman, EPG, Timer melalui plugin VNSI</description>
     <description lang="is_IS">VDR-framendi; styður streymingu á beinum útsendingum og upptökum, rafræna EPG-sjónvarpsvísa, tímatöku í gegnum VNSI-viðbótina</description>
@@ -139,7 +139,7 @@
     <disclaimer lang="fr_FR">Logiciel en cours d&apos;élaboration ! Les auteurs ne sont en aucun cas responsables de l&apos;échec des enregistrements, programmations défectueuses, temps perdu ou autres effets indésirables.</disclaimer>
     <disclaimer lang="gl_ES">Software non estable, os autores non se fan responsábeis dos erros na gravacións, temporizadores incorrectos, e outros efectos non desexados.</disclaimer>
     <disclaimer lang="he_IL">זוהי איננה הרחבה יציבה! המפתחים אינם אחראים על כשלון בניגון, זמנים שגויים במדריך השידורים, שעות מבוזבזות או כל תופעה לא רצויה אחרת.</disclaimer>
-    <disclaimer lang="hr_HR">Ovo je nestabilan softver! Autori nisu na koji način odgovorani za neuspjele snimke, netočna vremena, izgubjene sate, ili bilo koje druge neželjene učinke.</disclaimer>
+    <disclaimer lang="hr_HR">Ovo je nestabilan softver! Autori nisu ni na koji način odgovorni za neuspjelo snimanje, netočna zakazana snimanja, izgubljene sate, ili bilo koje druge neželjene učinke.</disclaimer>
     <disclaimer lang="hu_HU">Ez nem stabil szoftver! A készítők nem vállalnak felelősséget, a hibás felvételért, rossz időzítésért, elvesztegetett időért.</disclaimer>
     <disclaimer lang="hy_AM">Սա անկայուն ծրագրային ապահովում է: Հեղինակները պատասխանատու չեն վատ ձայնագրումների, սխալ ժամանակացույցերի, կորած ժամանակի կամ այլ ոչ ցանկալի երևույթների համար:</disclaimer>
     <disclaimer lang="id_ID">Ini merupakan software yang tidak stabil! Penulis tidak bertanggung jawab untuk rekaman gagal, timer salah, waktu terbuang, atau efek tak diinginkan lainnya.</disclaimer>
