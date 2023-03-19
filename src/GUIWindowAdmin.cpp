@@ -14,6 +14,7 @@
 
 #include <kodi/General.h>
 #include <kodi/Network.h>
+#include <kodi/gui/dialogs/OK.h>
 #include <kodi/gui/gl/GL.h>
 #include <kodi/gui/gl/Shader.h>
 #include <queue>
@@ -562,6 +563,13 @@ bool cVNSIAdmin::Open(const std::string& hostname,
   m_hostname = hostname;
   m_port = port;
   m_wolMac = mac;
+
+  if (nullptr == GetControlHandle())
+  {
+    kodi::gui::dialogs::OK::ShowAndGetInput(
+        "pvr.vdr.vnsi", kodi::addon::GetLocalizedString(30300, "The Skin is not supported"));
+    return false;
+  }
 
   if (!cVNSISession::Open(m_hostname, m_port, name))
     return false;
