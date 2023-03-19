@@ -570,7 +570,7 @@ bool cVNSIAdmin::Open(const std::string& hostname,
     return false;
 
   m_bIsOsdControl = false;
-#if defined(HAS_GL) || defined(HAS_GLES2)
+#if defined(HAS_GL) || defined(HAS_GLES)
   m_osdRender = new cOSDRenderGL();
 #else
   m_osdRender = new cOSDRender();
