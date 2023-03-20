@@ -1,3 +1,6 @@
+v20.4.1
+- Fix display of "Client Specific Settings" on GLES
+
 v20.4.0
 - Kodi inputstream API update to version 3.2.0
 - Kodi PVR API update to version 8.0.2
