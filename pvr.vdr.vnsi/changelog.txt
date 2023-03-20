@@ -1,3 +1,9 @@
+v21.0.1
+- Fix display of "Client Specific Settings" on GLES
+
+v21.0.0
+- Increased version to 21.0.0 for Kodi 21 Omega
+ 
 v20.4.0
 - Kodi inputstream API update to version 3.2.0
 - Kodi PVR API update to version 8.0.2
