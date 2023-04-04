@@ -312,3 +312,8 @@ msgstr "Cerca l'EPG"
 msgctxt "#30205"
 msgid "Repeating Child"
 msgstr ""
+
+# empty strings from id 30206 to 30299
+msgctxt "#30300"
+msgid "The Skin is not supported"
+msgstr ""

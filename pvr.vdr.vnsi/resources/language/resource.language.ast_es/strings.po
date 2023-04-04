@@ -28,7 +28,7 @@ msgctxt "Addon Disclaimer"
 msgid "This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
 msgstr ""
 
-#settings labels
+# settings labels
 msgctxt "#30000"
 msgid "VDR Hostname or IP"
 msgstr ""
@@ -49,7 +49,7 @@ msgctxt "#30004"
 msgid "Connect timeout (s)"
 msgstr ""
 
-#empty string with id 30005
+# empty string with id 30005
 msgctxt "#30006"
 msgid "Read recordings from directory"
 msgstr ""
@@ -230,7 +230,7 @@ msgctxt "#30050"
 msgid "Read chunksize for recordings"
 msgstr ""
 
-#empty strings from id 30051 to 30099
+# empty strings from id 30051 to 30099
 msgctxt "#30100"
 msgid "VDR OSD"
 msgstr ""
@@ -291,7 +291,7 @@ msgctxt "#30114"
 msgid "Provider Unknown"
 msgstr ""
 
-#empty strings from id 30115 to 30199
+# empty strings from id 30115 to 30199
 msgctxt "#30200"
 msgid "Single"
 msgstr ""
@@ -314,4 +314,9 @@ msgstr ""
 
 msgctxt "#30205"
 msgid "Repeating Child"
+msgstr ""
+
+# empty strings from id 30206 to 30299
+msgctxt "#30300"
+msgid "The Skin is not supported"
 msgstr ""

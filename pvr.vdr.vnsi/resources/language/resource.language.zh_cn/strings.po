@@ -311,3 +311,8 @@ msgstr "搜索电子节目单"
 msgctxt "#30205"
 msgid "Repeating Child"
 msgstr "重复子项目"
+
+# empty strings from id 30206 to 30299
+msgctxt "#30300"
+msgid "The Skin is not supported"
+msgstr ""
