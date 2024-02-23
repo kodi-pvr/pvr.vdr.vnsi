@@ -232,7 +232,15 @@ msgctxt "#30050"
 msgid "Read chunksize for recordings"
 msgstr ""
 
-#empty strings from id 30051 to 30099
+msgctxt "#30051"
+msgid "Store recording resume location in VDR"
+msgstr ""
+
+msgctxt "#30052"
+msgid "When disabled resume location and watched status will be managed only in Kodi"
+msgstr ""
+
+#empty strings from id 30053 to 30099
 
 msgctxt "#30100"
 msgid "VDR OSD"
