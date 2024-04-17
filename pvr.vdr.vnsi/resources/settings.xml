@@ -79,6 +79,10 @@
           <default>65536</default>
           <control type="edit" format="integer" />
         </setting>
+        <setting help="30052" id="backendresume" type="boolean" label="30051">
+          <default>false</default>
+          <control type="toggle" />
+        </setting>
       </group>
     </category>
   </section>

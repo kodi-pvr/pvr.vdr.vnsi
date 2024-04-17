@@ -18,6 +18,7 @@
 #define DEFAULT_TIMEOUT 3
 #define DEFAULT_AUTOGROUPS false
 #define DEFAULT_CHUNKSIZE 65536
+#define DEFAULT_BACKENDRESUME false
 
 class ATTR_DLL_LOCAL CVNSISettings
 {
@@ -38,6 +39,7 @@ public:
   int GetTimeshift() const { return m_iTimeshift; }
   const std::string& GetIconPath() const { return m_szIconPath; }
   int GetChunkSize() const { return m_iChunkSize; }
+  bool GetBackendResume() const { return m_bBackendResume; }
 
 private:
   CVNSISettings() = default;
@@ -56,4 +58,5 @@ private:
   int m_iTimeshift = 1;
   std::string m_szIconPath; /*!< path to channel icons */
   int m_iChunkSize = DEFAULT_CHUNKSIZE;
+  bool m_bBackendResume = DEFAULT_BACKENDRESUME;
 };

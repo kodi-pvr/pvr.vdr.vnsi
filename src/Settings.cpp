@@ -118,6 +118,15 @@ bool CVNSISettings::Load()
     m_iChunkSize = DEFAULT_CHUNKSIZE;
   }
 
+  // Read setting "backendresume" from settings.xml
+  if (!kodi::addon::CheckSettingBoolean("backendresume", m_bBackendResume))
+  {
+    // If setting is unknown fallback to defaults
+    kodi::Log(ADDON_LOG_ERROR,
+              "Couldn't get 'backendresume' setting, falling back to 'false' as default");
+    m_bBackendResume = DEFAULT_BACKENDRESUME;
+  }
+
   return true;
 }
 
@@ -194,6 +203,16 @@ ADDON_STATUS CVNSISettings::SetSetting(const std::string& settingName,
     kodi::Log(ADDON_LOG_INFO, "Changed Setting 'chunksize' from %u to %u", m_iChunkSize,
               settingValue.GetInt());
     m_iChunkSize = settingValue.GetInt();
+  }
+  else if (settingName == "backendresume")
+  {
+    kodi::Log(ADDON_LOG_INFO, "Changed Setting 'backendresume' from %u to %u",
+              m_bBackendResume, settingValue.GetBoolean());
+    if (m_bBackendResume != settingValue.GetBoolean())
+    {
+      m_bBackendResume = settingValue.GetBoolean();
+      return ADDON_STATUS_NEED_RESTART;
+    }
   }
 
   return ADDON_STATUS_OK;
