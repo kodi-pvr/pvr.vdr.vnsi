@@ -5,17 +5,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: KODI Main\n"
-"Report-Msgid-Bugs-To: translations@kodi.tv\n"
+"Report-Msgid-Bugs-To: https://github.com/xbmc/xbmc/issues/\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2025-07-28 01:41+0000\n"
-"Last-Translator: Christian Gade <gade@kodi.tv>\n"
-"Language-Team: Belarusian <https://kodi.weblate.cloud/projects/kodi-add-ons-pvr-clients/pvr-vdr-vnsi/be_by/>\n"
-"Language: be_by\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: prs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.12.2\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 
 msgctxt "Addon Summary"
 msgid "PVR client to connect VDR to Kodi over the VNSI interface"
@@ -29,17 +28,18 @@ msgctxt "Addon Disclaimer"
 msgid "This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
 msgstr ""
 
+#settings labels
 msgctxt "#30000"
 msgid "VDR Hostname or IP"
 msgstr ""
 
 msgctxt "#30001"
 msgid "VNSI Port"
-msgstr "VNSI Port"
+msgstr ""
 
 msgctxt "#30002"
 msgid "Priority"
-msgstr "Прыярытэт"
+msgstr ""
 
 msgctxt "#30003"
 msgid "Character Set Conversion"
@@ -47,8 +47,9 @@ msgstr ""
 
 msgctxt "#30004"
 msgid "Connect timeout (s)"
-msgstr "Тайм-аўты падлучэнняў (с)"
+msgstr ""
 
+#empty string with id 30005
 msgctxt "#30006"
 msgid "Read recordings from directory"
 msgstr ""
@@ -71,15 +72,15 @@ msgstr ""
 
 msgctxt "#30011"
 msgid "Source Type"
-msgstr "Source Type"
+msgstr ""
 
 msgctxt "#30012"
 msgid "TV channels"
-msgstr "Каналы ТБ"
+msgstr ""
 
 msgctxt "#30013"
 msgid "Radio channels"
-msgstr "Каналы радыё"
+msgstr ""
 
 msgctxt "#30014"
 msgid "FTA channels"
@@ -95,7 +96,7 @@ msgstr ""
 
 msgctxt "#30017"
 msgid "Country"
-msgstr "Краіна"
+msgstr ""
 
 msgctxt "#30018"
 msgid "Cable Inversion"
@@ -123,7 +124,7 @@ msgstr ""
 
 msgctxt "#30024"
 msgid "Back"
-msgstr "Назад"
+msgstr ""
 
 msgctxt "#30025"
 msgid "Channel search - running... %i %%"
@@ -131,7 +132,7 @@ msgstr ""
 
 msgctxt "#30026"
 msgid "Type:"
-msgstr "Type:"
+msgstr ""
 
 msgctxt "#30027"
 msgid "Device:"
@@ -151,7 +152,7 @@ msgstr ""
 
 msgctxt "#30031"
 msgid "All channels: %i"
-msgstr "Усе каналы: %i"
+msgstr ""
 
 msgctxt "#30032"
 msgid "Analog TV"
@@ -163,7 +164,7 @@ msgstr ""
 
 msgctxt "#30034"
 msgid "Transponder:"
-msgstr "Transponder:"
+msgstr ""
 
 msgctxt "#30035"
 msgid "New channels"
@@ -183,11 +184,11 @@ msgstr ""
 
 msgctxt "#30039"
 msgid "Running"
-msgstr "Запушчаныя"
+msgstr ""
 
 msgctxt "#30040"
 msgid "Stopped"
-msgstr "Спынены"
+msgstr ""
 
 msgctxt "#30041"
 msgid "Finished"
@@ -203,11 +204,11 @@ msgstr ""
 
 msgctxt "#30044"
 msgid "Lost connection to VDR Server"
-msgstr "Злучэньне да VDR сэрвэра згублена"
+msgstr ""
 
 msgctxt "#30045"
 msgid "Connection to VDR Server restored"
-msgstr "Злучэньне да VDR сэрвэра адноўлена"
+msgstr ""
 
 msgctxt "#30046"
 msgid "Create channel groups automatically on the server"
@@ -229,14 +230,14 @@ msgctxt "#30050"
 msgid "Read chunksize for recordings"
 msgstr ""
 
-# empty strings from id 30051 to 30099
+#empty strings from id 30051 to 30099
 msgctxt "#30100"
 msgid "VDR OSD"
 msgstr ""
 
 msgctxt "#30101"
 msgid "Setup"
-msgstr "Setup"
+msgstr ""
 
 msgctxt "#30102"
 msgid "Controlling OSD - press info to exit"
@@ -264,7 +265,7 @@ msgstr ""
 
 msgctxt "#30108"
 msgid "Channels"
-msgstr "Каналы"
+msgstr ""
 
 msgctxt "#30109"
 msgid "Provider whitelist"
@@ -290,7 +291,7 @@ msgctxt "#30114"
 msgid "Provider Unknown"
 msgstr ""
 
-# empty strings from id 30115 to 30199
+#empty strings from id 30115 to 30199
 msgctxt "#30200"
 msgid "Single"
 msgstr ""
@@ -315,7 +316,7 @@ msgctxt "#30205"
 msgid "Repeating Child"
 msgstr ""
 
-# empty strings from id 30206 to 30299
+#empty strings from id 30206 to 30299
 msgctxt "#30300"
 msgid "The Skin is not supported"
 msgstr ""
