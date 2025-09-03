@@ -18,6 +18,7 @@
     </assets>
     <summary lang="af_ZA">PVR kliënt om VDR te konnekteer aan Kodi oor die VNSI koppelvlak</summary>
     <summary lang="bg_BG">Клиент за ПВР за свързване на „VDR“ към Kodi чрез интерфейса VNSI</summary>
+    <summary lang="bs_BA">PVR klijent za povezivanje VDR-a sa Kodi-jem preko VNSI interfejsa</summary>
     <summary lang="ca_ES">Client PVR per connectar VDR a Kodi sobre la interfície VNSI</summary>
     <summary lang="cs_CZ">Klient PVR pro připojení VDR ke Kodi přes rozhraní VNSI</summary>
     <summary lang="cy_GB">Rhaglen Recordydd i gysylltu VDR â Kodi dros rhyngwyneb VNSI</summary>
@@ -69,6 +70,7 @@
     <summary lang="zh_TW">經由VNSI界接VDR到Kodi的PVR用戶端</summary>
     <description lang="af_ZA">VDR voorprogram; ondersteun stroom van Lewendige TV &amp; Opnames, EPG, Tydhouers oor die VNSI byvoegsel</description>
     <description lang="bg_BG">Клиент за „VDR“. Поддържа телевизия на живо и записване, електронен програмен справочник и броячи чрез използване на приставката „VNSI“.</description>
+    <description lang="bs_BA">VDR predokraj; podrška za prijenos uživo TV programa i snimaka, EPG, mjerače vremena preko VNSI dodatka</description>
     <description lang="ca_ES">Frontal de VDR; és compatible amb les transmissions en línia de TV en directe i enregistraments, guia electrònica de programació (EPG), temporitzadors sobre el connector VNSI</description>
     <description lang="cs_CZ">Rozhraní VDR; podporuje streamování živého vysílání a nahrávání, televizní program, časovače přes doplněk VNSI</description>
     <description lang="cy_GB">Blaen VDR; cynnal ffrydio Teledu Byw, Recordio, Amserlenni, Amseryddion dros ategyn VNSI</description>
@@ -119,6 +121,7 @@
     <description lang="zh_TW">VDR 前端; 支援的串流媒體電視直播和amp; 錄影，電子節目表，定時器</description>
     <disclaimer lang="af_ZA">Hierdie is onstabiele sagteware! Die outeurs is op geen manier verantwoordelik vir gefaalde opnames, inkorrekte tydhouers, gemorsde ure, of enige ander ongewensde effekte.</disclaimer>
     <disclaimer lang="bg_BG">Тази програма е нестабилна! Авторите не носят отговорност за неуспешно записване, некоректни броячи, пропиляно време и други нежелани ефекти.</disclaimer>
+    <disclaimer lang="bs_BA">Ovo je nestabilan softver! Autori ni na koji način nisu odgovorni za neuspjela snimanja, netačne mjerače vremena, izgubljene sate ili bilo koje druge neželjene efekte.</disclaimer>
     <disclaimer lang="ca_ES">Això és programari inestable! Els autors no són de cap manera responsables dels enregistraments que han fallat, temporitzadors incorrectes, hores perdudes, o qualsevol altre efecte indesitjat.</disclaimer>
     <disclaimer lang="cs_CZ">Tento software není stabilní! Autoři nejsou žádným způsobem zodpovědní za neúspěšná nahrávání, chybné časovače, ztracený čas nebo jakékoliv jiné nežádoucí výsledky.</disclaimer>
     <disclaimer lang="cy_GB">Mae hwn yn feddalwedd ansad! Nid yw&apos;r awduron yn gyfrifol mewn unrhyw ffordd am fethu recordio, amseru gwallus, oriau wedi eu gwastraffu nac effeithiau anymunol eraill.</disclaimer>
