@@ -1,3 +1,6 @@
+v22.3.3
+- Updated ANGLE from chromium/3712 to kodi/7258
+
 v22.3.2
 - Removed redundant ANGLE commit header patch
 - Updated translations
