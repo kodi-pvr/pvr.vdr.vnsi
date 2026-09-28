@@ -1,5 +1,16 @@
+v22.3.2
+- Removed redundant ANGLE commit header patch
+- Updated translations
+
+v22.3.1
+- Updated global minimum versions
+- Updated translations
+
 v22.3.0
 - Kodi inputstream API update to version 3.4.0
+
+v22.2.3
+- Release
 
 v22.2.2
 - Fix compile failure on GLVND linux systems
